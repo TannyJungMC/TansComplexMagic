@@ -7,6 +7,8 @@ import tannyjung.tanscomplexmagic_core.game.screen.GUIManager;
 import tannyjung.tanscomplexmagic_core.game.screen.ScreenDrawing;
 import tannyjung.tanscomplexmagic_core.outside.NetworkManager;
 import tannyjung.tanscomplexmagic_core.outside.OutsideUtils;
+import tannyjung.tanscomplexmagic_core.outside.TimeUtils;
+import tannyjung.tanscomplexmagic_handcode.systems.Spell1;
 import tannyjung.tanscomplexmagic_handcode.systems.Utils;
 
 public class GUIs {
@@ -16,12 +18,12 @@ public class GUIs {
         // Main
         {
 
-            GUIManager.Storage.add("book", "ally_list", () -> {
+            GUIManager.create("book", "xxx", () -> {
 
                 generateBackground();
 
                 ScreenDrawing.Position.set(ScreenDrawing.Anchor.Type.CENTER, 8 * -22 + 0, 8 * -12 + 0);
-                ScreenDrawing.ComponentOverlay.drawTextBasic(1.25, "Ally List");
+                ScreenDrawing.ComponentOverlay.drawTextBasic(1, "XXX");
                 ScreenDrawing.Position.addZ(8);
                 ScreenDrawing.ComponentOverlay.drawTextParagraph(160, "   Hello");
                 ScreenDrawing.Position.addZ(8);
@@ -31,7 +33,7 @@ public class GUIs {
 
             });
 
-            GUIManager.Storage.add("book", "ally_list_manager", () -> {
+            GUIManager.create("book", "ally_list_manager", () -> {
 
                 generateBackground();
 
@@ -45,191 +47,136 @@ public class GUIs {
         // Spell 1
         {
 
-            // Wiki
-            {
+            int base_duration_per_mana = 60;
 
-                GUIManager.Storage.add("book", "spell1_wiki_card1", () -> {
+            GUIManager.create("book", "spell1_wiki_card1", () -> generateWikiCard(1, "Courage and Fear", "drawing_eyes", new String[]{"   The 1st sign of zodiac. Aries is the ram full of courage. The legend is quite complicated, some is the golden ram sent by gods to save two children. After all, the ram becomes a symbol of courage and sacrifice.","   There is low information to tell what is the true power of this sign. Astral magicians said it can give some of courage to people to do something they are scared to do. Some of them discovered it can reduce their fear of height, or even make them not afraid to do illegal acts.", "After my tests, I can bring one of its power into the card. The power to see in the dark, as I am scared of darkness."}, new String[]{"   The card has ability to give people part of his courage to gains fear of darkness. On the other hand, flipping the card will breaks their wall of mind. Give them the test of Aries to facing the fear of darkness.", "   At the end, I would say that this card should be used in a good way, not to hurt, oppress, or bully others. Hurting people with magic is also Illegal to the laws of magic."}));
+            GUIManager.create("book", "spell1_wiki_card2", () -> generateWikiCard(2, "Hardiness and Worthlessness", "", new String[]{"   The 2nd sign of zodiac. Taurus is the big strong bull. The legend is that Zeus turned himself into the strong white bull to win the heart of the princess Europa, then carrying her across the sea.", "   Even the history is about love and relationship, but the power of Taurus sign is one of strongest power in the zodiacs. The sign gives power of body protection that can protect the user from almost all physical damages, as though this is the bless of Zeus for the princess Europa.", "   Note that the sign does not giving people body strength, only body protection. Some magicians called it \"Iron Skin\"."}, new String[]{"   The card has ability to share part of Taurus protection to people and other living entities. Can absorbs almost all of incoming damages. While flipping the card not giving them vulnerability, but instead they will receive the feeling of drunken, as if heartbroken.", "   However, this sign seems to use a lot of mana than others, just like how powerful it is."}));
+            GUIManager.create("book", "spell1_wiki_card3", () -> generateWikiCard(3, "Hopeful and Hopeless", "", new String[]{"   The 3rd sign of zodiac. Gemini is the twins. Some history tell that they is Pollux and Castor. One has the bloodline of god, so he is an immortal. But other one is a mortal, since he is human. After Castor died, Pollux begged his father to give Castor immortality.", "   Gemini sign can make people feel of motivation, increasing their strength by no reason. Some astral magicians said that this sign is one of dangerous signs if use it incorrectly. Even it has the power to give people motivation, but can also give the feeling of discouraged and hopeless to some people."}, new String[]{"   The card has ability to give people feeling of bond, motivation, and energy. If flipping, it will make them feel tired and sometime hopeless."}));
+            GUIManager.create("book", "spell1_wiki_card4", () -> generateWikiCard(4, "Luck and Unluck", "drawing_animal_attraction", new String[]{"   The 4th sign of zodiac. Cancer is the crab. Some history tells that he crushed under the foot of Heracles. Moved by his loyalty, Hera brings him placed in the sky and becomes the Cancer constellation.", "   Many astral magicians said that the crab is one of weakest signs in the zodiac, with the power of animal attraction in very small scale. However after my some experiments, I discovered that it might be one of the most powerful sign. While making the card and trying to apply the power of it to my body, it seems attracting butterflies in my room like from others said. But not just that. It also seem to affect my luck as well. Sometimes I am very lucky, sometimes nearly die in accidents."}, new String[]{"   The card has ability to control luck of people. Head up card gives good luck, while head down card gives bad luck.", "   I would recommend to not use it, unless it is necessary. Be careful, the result of luck is unstable. Luck may change to unluck, or just no affect to targets."}));
+            GUIManager.create("book", "spell1_wiki_card5", () -> generateWikiCard(5, "", "", new String[]{"",""}, new String[]{""}));
+            GUIManager.create("book", "spell1_wiki_card6", () -> generateWikiCard(6, "", "", new String[]{"",""}, new String[]{""}));
+            GUIManager.create("book", "spell1_wiki_card7", () -> generateWikiCard(7, "Fairness and Unfairness", "drawing_scales_of_justice", new String[]{"   The 7th sign of zodiac. The scales of justice. The only sign in the zodiac that represented as an object.", "   Libra doesn't have much information. No one know the true power of it. Some astral magicians discovered that it can detect liars perfectly, some discovered it can change some reality. So they mark this sign as still in dangerous to use, because of not enough information.", "   I bring one of its popular powers into the card. Astral magicians named it \"Fair Fight\", they use it in arenas. It cleanses buffs and debuffs from all fighters in the area."}, new String[]{"   However, the Fair Fight seems to change part of my magic in the book. I can not set specific targets for it, what it does is cleansing all people in the area. It also blocks other zodiac cards, you can not use it with others. This seems to be the power to change reality.", "   Another power I bring into flipped card. Some astral magicians used it, the name is \"Effect Sharing\". The card will share part of buffs and debuffs from the user to targets, makes them have same buffs and debuffs."}));
+            GUIManager.create("book", "spell1_wiki_card8", () -> generateWikiCard(8, "", "", new String[]{"",""}, new String[]{""}));
+            GUIManager.create("book", "spell1_wiki_card9", () -> generateWikiCard(9, "", "", new String[]{"",""}, new String[]{""}));
+            GUIManager.create("book", "spell1_wiki_card10", () -> generateWikiCard(10, "", "", new String[]{"",""}, new String[]{""}));
+            GUIManager.create("book", "spell1_wiki_card11", () -> generateWikiCard(11, "", "", new String[]{"",""}, new String[]{""}));
+            GUIManager.create("book", "spell1_wiki_card12", () -> generateWikiCard(12, "", "", new String[]{"",""}, new String[]{""}));
+            GUIManager.create("book", "spell1_wiki_card13", () -> generateWikiCard(13, "", "", new String[]{"",""}, new String[]{""}));
 
-                    generateBackground();
+            GUIManager.create("book", "spell1_wiki_empowered_card", () -> {
 
-                    ScreenDrawing.Position.set(ScreenDrawing.Anchor.Type.CENTER, 8 * -22 + 0, 8 * -12 + 0);
-                    ScreenDrawing.ComponentOverlay.drawImageBasic(20, 36, "tanscomplexmagic:textures/screens/background.png");
-                    ScreenDrawing.Position.add(2, 2);
-                    ScreenDrawing.ComponentOverlay.drawImageBasic(32, 32, "tanscomplexmagic:textures/block/zodiac_card1.png");
-                    ScreenDrawing.Position.set(ScreenDrawing.Anchor.Type.CENTER, 8 * -18 + 0, 8 * -10 - 3);
-                    ScreenDrawing.ComponentOverlay.drawTextCenteredBasic(true, 1, "Aries");
-                    ScreenDrawing.Position.set(ScreenDrawing.Anchor.Type.CENTER, 8 * -18 + 0, 8 * -9 - 1);
-                    ScreenDrawing.ComponentOverlay.drawTextCenteredBasic(true, ScreenDrawing.normal_font_scale, "§8Courage and Fear");
+                generateBackground();
 
-                    ScreenDrawing.Position.set(ScreenDrawing.Anchor.Type.CENTER, 8 * -22 + 0, 8 * -6 + 0);
-                    ScreenDrawing.ComponentOverlay.drawTextParagraph(160, "   The 1st sign of zodiac. Aries is the ram full of courage. The legend is quite complicated, some is the golden ram sent by gods to save 2 children. After all, the ram becomes a symbol of courage and sacrifice.");
-                    ScreenDrawing.Position.addZ(8);
-                    ScreenDrawing.ComponentOverlay.drawTextParagraph(160, "   There's low information to tell what is the true power of this sign. Astral magicians said it can give some of courage to people to do something they are scared to do. Some of them discovered it can reduce their fear of height, or even committing illegal acts. After my tests, I can bring one of its power into the card. The power to see in the dark, as I'm scared of darkness.");
+                ScreenDrawing.Position.set(ScreenDrawing.Anchor.Type.CENTER, 8 * -22 + 0, 8 * -12 + 0);
+                ScreenDrawing.ComponentOverlay.drawTextBasic(1, "Empowered Card");
+                ScreenDrawing.Position.addZ(8);
+                ScreenDrawing.ComponentOverlay.drawTextParagraph(160, "   Every time, the Earth rotates around itself. This changes some of the effects of zodiac signs. Every hour, one of zodiac cards will be empowered. Makes it generate free duration of positive or negative effect.");
+                ScreenDrawing.Position.addZ(8);
+                ScreenDrawing.ComponentOverlay.drawTextParagraph(160, "   From my tests. Empowered card have about 5 levels. Higher level is the more of duration gain from the generation. Empower levels mostly randomly between 1 to 3, but sometimes rarely, it can get higher to 4 and 5.");
 
-                    ScreenDrawing.Position.set(ScreenDrawing.Anchor.Type.CENTER, 8 * 2 + 0, 8 * -12 + 0);
-                    ScreenDrawing.ComponentOverlay.drawTextParagraph(160, "   The card has ability to give people part of his courage to gains fear of darkness. On the other hand, flipping the card will breaks people wall of mind and give them the test.");
+                ScreenDrawing.Position.set(ScreenDrawing.Anchor.Type.CENTER, 8 * 2 + 0, 8 * -12 + 0);
+                ScreenDrawing.ComponentOverlay.drawTextBasic(1, "The Advantage of Nightfall");
+                ScreenDrawing.Position.addZ(8);
+                ScreenDrawing.ComponentOverlay.drawTextParagraph(160, "   The stars can see clearer in the night. The zodiac is the constellations, they also affected by night time as well. When the sun goes down, the zodiac cards will use lesser mana. Unlike day time, they use more mana as some of their powers was blocked by the sunlight.");
 
-                });
+            });
 
-                GUIManager.Storage.add("book", "spell1_wiki_card2", () -> {
+            GUIManager.create("book", "spell1_target_mark", () -> {
 
-                    generateBackground();
+                generateBackground();
 
-                    ScreenDrawing.ComponentOverlay.drawImageBasic(20, 36, "tanscomplexmagic:textures/screens/background.png");
-                    ScreenDrawing.ComponentOverlay.drawImageBasic(32, 32, "tanscomplexmagic:textures/block/zodiac_card2.png");
-                    ScreenDrawing.ComponentOverlay.drawTextCenteredBasic(true, 1, "Taurus");
-                    ScreenDrawing.ComponentOverlay.drawTextCenteredBasic(true, ScreenDrawing.normal_font_scale, "§8Hardiness and Worthlessness");
-                    
-                    ScreenDrawing.ComponentOverlay.drawTextParagraph(160, "   The 2nd sign of zodiac. Taurus is the big strong bull. The legend is that Zeus turned himself into the strong white bull to win the heart of the princess Europa, then carrying her across the sea.");
-                    ScreenDrawing.ComponentOverlay.drawTextParagraph(160, "   Even the history is about love and relationship, but the power of Taurus sign is one of strongest power in the zodiac. The sign gives power of body protection that can protect from almost all damage of any weapons, as though this is the bless of Zeus for the princess Europa.");
-                    ScreenDrawing.ComponentOverlay.drawTextParagraph(160, "   Note that the sign does not giving people body strength, only body protection. Some magicians called it \"Iron Skin\".");
-                    
-                    ScreenDrawing.ComponentOverlay.drawTextParagraph(160, "   The card has ability to share part of protection to people and other living things. Can absorbs almost all of incoming damages. While flipping the card not giving them vulnerability, but instead they will receive the feeling of drunken, as if heartbroken.");
+                ScreenDrawing.Position.set(ScreenDrawing.Anchor.Type.CENTER, 8 * -22 + 0, 8 * -12 + 0);
+                ScreenDrawing.ComponentWidget.Board.ListEntity.draw("Target Mark", Utils.Tag.getUser(ScreenDrawing.player_local) + "_spell1_mark", "   You can mark specific targets you want to give effects using this list. Once adding them, you can enable target mode \"Mark\" in the card settings page.");
 
-                });
+            });
 
-                GUIManager.Storage.add("book", "spell1_wiki_card3", () -> {
+            GUIManager.create("book", "spell1_statuses_settings_card1", () -> {
 
-                    generateBackground();
+                generateBackground();
 
-                    ScreenDrawing.ComponentOverlay.drawImageBasic(20, 36, "tanscomplexmagic:textures/screens/background.png");
-                    ScreenDrawing.ComponentOverlay.drawImageBasic(32, 32, "tanscomplexmagic:textures/block/zodiac_card3.png");
-                    ScreenDrawing.ComponentOverlay.drawTextCenteredBasic(true, 1, "Gemini ");
-                    ScreenDrawing.ComponentOverlay.drawTextCenteredBasic(true, ScreenDrawing.normal_font_scale, "§8Hopeful and Hopeless");
-                    
-                    ScreenDrawing.ComponentOverlay.drawTextParagraph(160, "   The 3rd sign of zodiac. Gemini is the twins. Some history tell that they is Pollux and Castor. One has the bloodline of god, so he is an immortal. But other one is a mortal, since he is human. After Castor died, Pollux begged his father to give Castor immortality.");
-                    ScreenDrawing.ComponentOverlay.drawTextParagraph(160, "   Gemini sign can make people feel of motivation, increasing their strength by no reason. Some astral magicians said that this sign is one of dangerous signs if use it incorrectly. Even it has the power to give people motivation, but can also give the feeling of discouraged and hopeless to some people.");
-                    
-                    ScreenDrawing.Position.set(ScreenDrawing.Anchor.Type.CENTER, 8 * 2 + 0, 8 * -12 + 0);
-                    ScreenDrawing.ComponentOverlay.drawTextParagraph(160, "   The card has ability to give people feeling of bond, motivation, and energy. If flipping, it will make them feel tired and sometime hopeless.");
-                    
+                ScreenDrawing.Position.set(ScreenDrawing.Anchor.Type.CENTER, 8 * -22 + 0, 8 * -12 + 0);
+                ScreenDrawing.ComponentOverlay.drawTextBasic(1, "Statuses");
+                ScreenDrawing.Position.addZ(8);
+                ScreenDrawing.ComponentOverlay.drawTextBasic(ScreenDrawing.DEFAULT_FONT_SCALE, "Empowered Card : " + Spell1.getNameFromNumber((int) NBTManager.Mob.getNumber(ScreenDrawing.player_local, "spell1", "empowered_card")));
+                ScreenDrawing.Position.addZ(4);
+                ScreenDrawing.ComponentOverlay.drawTextBasic(ScreenDrawing.DEFAULT_FONT_SCALE, "Empower Level : " + (int) NBTManager.Mob.getNumber(ScreenDrawing.player_local, "spell1", "empowered_card_level"));
+                ScreenDrawing.Position.addZ(4);
+                String positive_negative = "";
 
-                });
+                if (NBTManager.Mob.getLogic(ScreenDrawing.player_local, "spell1", "is_empowered_card_negative") == true) {
 
-                GUIManager.Storage.add("book", "spell1_wiki_card4", () -> {
+                    positive_negative = "Negative";
 
-                    generateBackground();
+                } else {
 
-                    ScreenDrawing.ComponentOverlay.drawImageBasic(20, 36, "tanscomplexmagic:textures/screens/background.png");
-                    ScreenDrawing.ComponentOverlay.drawImageBasic(32, 32, "tanscomplexmagic:textures/block/zodiac_card4.png");
-                    ScreenDrawing.ComponentOverlay.drawTextCenteredBasic(true, 1, "Cancer");
-                    ScreenDrawing.ComponentOverlay.drawTextCenteredBasic(true, ScreenDrawing.normal_font_scale, "§8Luck and Unluck");
-                    
-                    ScreenDrawing.ComponentOverlay.drawTextParagraph(160, "   The 4st sign of zodiac. Cancer is the crab. Some history tells that he crushed under the foot of Heracles. Moved by his loyalty, Hera brings him placed in the sky and becomes the Cancer constellation.");
-                    ScreenDrawing.ComponentOverlay.drawTextParagraph(160, "   Many astral magicians said that the crab is one of weakest signs in the zodiac, with the power of animal attraction in very small scale. However after my some experiments, I discovered that it might be one of the most powerful sign. While making the card and trying to apply the power of it to my body, I noticed my luck changes instead of attracting the butterflies in the room. Sometimes I'm very lucky, sometimes nearly die in accidents.");
-                    
-                    ScreenDrawing.ComponentOverlay.drawTextParagraph(160, "   The card has ability to control luck of people. Head up card gives good luck, while head down card gives bad luck. But be careful while using this, the result is unstable. Luck may change to unluck, or just no affect to targets.");
-                    
-                });
+                    positive_negative = "Positive";
 
-                GUIManager.Storage.add("book", "spell1_wiki_card7", () -> {
+                }
 
-                    generateBackground();
+                ScreenDrawing.ComponentOverlay.drawTextBasic(ScreenDrawing.DEFAULT_FONT_SCALE, "Effect Type : " + positive_negative);
+                ScreenDrawing.Position.addZ(4);
+                ScreenDrawing.ComponentOverlay.drawTextBasic(ScreenDrawing.DEFAULT_FONT_SCALE, "Time of Next Empower : " + TimeUtils.getRemainReadable(NBTManager.Mob.getText(ScreenDrawing.player_local, "spell1", "timestamp_next_bonus")));
 
-                    ScreenDrawing.ComponentOverlay.drawImageBasic(20, 36, "tanscomplexmagic:textures/screens/background.png");
-                    ScreenDrawing.ComponentOverlay.drawImageBasic(32, 32, "tanscomplexmagic:textures/block/zodiac_card7.png");
-                    ScreenDrawing.ComponentOverlay.drawTextCenteredBasic(true, 1, "Libra");
-                    ScreenDrawing.ComponentOverlay.drawTextCenteredBasic(true, ScreenDrawing.normal_font_scale, "§8Fairness and Unfairness");
-                    
-                    ScreenDrawing.ComponentOverlay.drawTextParagraph(160, "   The 7st sign of zodiac. The scales of justice. The only sign in the zodiac that represented as an object.");
-                    ScreenDrawing.ComponentOverlay.drawTextParagraph(160, "   Libra doesn't have much information. No one know the true power of it. Some astral magicians discovered that it can detect liars perfectly, some discovered it can change some reality. So they mark this sign as still in dangerous to use, because of not enough information.");
-                    ScreenDrawing.ComponentOverlay.drawTextParagraph(160, "   I bring one of its popular powers into the card. Astral magicians named it \"Fair Fight\", used in arenas. It cleanses buffs and debuffs from all fighters in the area.");
-                    
-                    ScreenDrawing.ComponentOverlay.drawTextParagraph(160, "   Another power I bring into flipped card. Some astral magicians used it, they named it \"Justice Reflection\". The card will reflect buff and debuff from user into the targets, makes them have the same buff and debuff as user.");
+                ScreenDrawing.Position.addZ(16);
+                ScreenDrawing.ComponentOverlay.drawTextBasic(1, "General Settings");
+                ScreenDrawing.Position.addZ(8);
+                ScreenDrawing.ComponentWidget.Switch.drawText("spell1", "is_pause_all", "Pause All Cards");
+                ScreenDrawing.Position.addZ(2);
+                ScreenDrawing.ComponentWidget.Switch.drawText("spell1", "is_overlay_enable", "Show Overlay While Active");
+                ScreenDrawing.Position.addZ(8);
+                ScreenDrawing.ComponentWidget.Slider.drawText(160, 1, 200, 1, "spell1", "radius", "Radius");
 
+                generateSpell1SettingsCard(false, "Aries", 1, base_duration_per_mana * 3, base_duration_per_mana * 5);
 
-                });
+            });
 
-            }
+            GUIManager.create("book", "spell1_settings_card1", () -> {
 
-            // Settings
-            {
+                generateBackground();
+                generateSpell1SettingsCard(true, "Taurus", 2, base_duration_per_mana * 1, base_duration_per_mana * 5);
+                generateSpell1SettingsCard(false, "Gemini", 3, base_duration_per_mana * 2, base_duration_per_mana * 5);
 
-                GUIManager.Storage.add("book", "spell1_settings", () -> {
+            });
 
-                    generateBackground();
+            GUIManager.create("book", "spell1_settings_card2", () -> {
 
-                    ScreenDrawing.Position.set(ScreenDrawing.Anchor.Type.CENTER, 8 * -22 + 0, 8 * -12 + 0);
-                    ScreenDrawing.ComponentOverlay.drawTextBasic(1.25, "Settings");
-                    ScreenDrawing.Position.addZ(8);
-                    ScreenDrawing.ComponentWidget.Switch.drawText("spell1", "is_overlay_enable", "Show Overlay While Active");
-                    ScreenDrawing.Position.addZ(2);
-                    ScreenDrawing.ComponentWidget.Switch.drawText("spell1", "is_pause_all", "Pause All Cards");
-                    ScreenDrawing.Position.addZ(8);
-                    ScreenDrawing.ComponentWidget.Slider.drawText(160, 1, 200, 1, "spell1", "radius", "Radius");
+                generateBackground();
+                generateSpell1SettingsCard(true, "Cancer", 4, base_duration_per_mana * 3, base_duration_per_mana * 3);
+                generateSpell1SettingsCard(false, "Leo", 5, base_duration_per_mana * 1, base_duration_per_mana * 4);
 
-                });
+            });
 
-                GUIManager.Storage.add("book", "spell1_target_mark_manager", () -> {
+            GUIManager.create("book", "spell1_settings_card3", () -> {
 
-                    generateBackground();
+                generateBackground();
+                generateSpell1SettingsCard(true, "Virgo", 6, base_duration_per_mana * 1, base_duration_per_mana * 2);
+                generateSpell1SettingsCard(false, "Libra", 7, base_duration_per_mana * 1, base_duration_per_mana * 1);
 
-                    ScreenDrawing.Position.set(ScreenDrawing.Anchor.Type.CENTER, 8 * -22 + 0, 8 * -12 + 0);
-                    ScreenDrawing.ComponentWidget.Board.ListEntity.draw("Target Mark", Utils.Tag.getUser(ScreenDrawing.player_local) + "_spell1_mark", "   You can mark specific targets you want to add effects using this list. Once adding them, you can enable target mode \"Mark\" in the card settings page.");
+            });
 
-                });
+            GUIManager.create("book", "spell1_settings_card4", () -> {
 
-            }
+                generateBackground();
+                generateSpell1SettingsCard(true, "Scorpio", 8, base_duration_per_mana * 3, base_duration_per_mana * 2);
+                generateSpell1SettingsCard(false, "Sagittarius", 9, base_duration_per_mana * 2, base_duration_per_mana * 4);
 
-            // Settings : Cards
-            {
+            });
 
-                GUIManager.Storage.add("book", "spell1_settings_card1", () -> {
+            GUIManager.create("book", "spell1_settings_card5", () -> {
 
-                    generateBackground();
-                    generateSpell1SettingsCard(true, "Aries 1", 1, 150 * 3, 150 * 5);
-                    generateSpell1SettingsCard(false, "Taurus 2", 2, 150 * 1, 150 * 5);
+                generateBackground();
+                generateSpell1SettingsCard(true, "Capricorn", 10, base_duration_per_mana * 1, base_duration_per_mana * 3);
+                generateSpell1SettingsCard(false, "Aquarius", 11, base_duration_per_mana * 2, base_duration_per_mana * 3);
 
-                });
+            });
 
-                GUIManager.Storage.add("book", "spell1_settings_card2", () -> {
+            GUIManager.create("book", "spell1_settings_card6", () -> {
 
-                    generateBackground();
-                    generateSpell1SettingsCard(true, "Gemini 3", 3, 150 * 2, 150 * 5);
-                    generateSpell1SettingsCard(false, "Cancer 4", 4, 150 * 3, 150 * 3);
+                generateBackground();
+                generateSpell1SettingsCard(true, "Pisces", 12, base_duration_per_mana * 2, base_duration_per_mana * 3);
+                generateSpell1SettingsCard(false, "Ophiuchus", 13, base_duration_per_mana * 1, base_duration_per_mana * 1);
 
-                });
-
-                GUIManager.Storage.add("book", "spell1_settings_card3", () -> {
-
-                    generateBackground();
-                    generateSpell1SettingsCard(true, "Leo 5", 5, 150 * 1, 150 * 4);
-                    generateSpell1SettingsCard(false, "Virgo 6", 6, 150 * 1, 150 * 2);
-
-                });
-
-                GUIManager.Storage.add("book", "spell1_settings_card4", () -> {
-
-                    generateBackground();
-                    generateSpell1SettingsCard(true, "Libra 7", 7, 150 * 1, 150 * 1);
-                    generateSpell1SettingsCard(false, "Scorpio 8", 8, 150 * 3, 150 * 2);
-
-                });
-
-                GUIManager.Storage.add("book", "spell1_settings_card5", () -> {
-
-                    generateBackground();
-                    generateSpell1SettingsCard(true, "Sagittarius 9", 9, 150 * 2, 150 * 4);
-                    generateSpell1SettingsCard(false, "Capricorn 10", 10, 150 * 1, 150 * 3);
-
-                });
-
-                GUIManager.Storage.add("book", "spell1_settings_card6", () -> {
-
-                    generateBackground();
-                    generateSpell1SettingsCard(true, "Aquarius 11", 11, 150 * 2, 150 * 3);
-                    generateSpell1SettingsCard(false, "Pisces 12", 12, 150 * 2, 150 * 3);
-
-                });
-
-                GUIManager.Storage.add("book", "spell1_settings_card7", () -> {
-
-                    generateBackground();
-                    generateSpell1SettingsCard(true, "Ophiuchus 13", 13, 150 * 1, 150 * 1);
-
-                });
-                
-            }
+            });
 
         }
 
@@ -240,7 +187,6 @@ public class GUIs {
         String group = NBTManager.Mob.getText(ScreenDrawing.player_local, "gui", "group");
         String name = NBTManager.Mob.getText(ScreenDrawing.player_local, "gui", "name");
         int number = GUIManager.Storage.getNumber(group, name);
-        int mana = (int) NBTManager.Mob.getNumber(ScreenDrawing.player_local, "main", "mana");
 
         ScreenDrawing.Position.set(ScreenDrawing.Anchor.Type.CENTER, 8 * -25 + 0, 8 * -15 + 0);
         ScreenDrawing.ComponentOverlay.drawImageBasic(400, 240, "tanscomplexmagic:textures/screens/book/background.png");
@@ -459,23 +405,57 @@ public class GUIs {
         // Mana Bar
         {
 
+            ScreenDrawing.Position.set(ScreenDrawing.Anchor.Type.CENTER, 8 * 24 + 3, 8 * -14 + 4);
+            ScreenDrawing.ComponentOverlay.drawImageSplit(151, 150, true, 151, (int) NBTManager.Mob.getNumber(ScreenDrawing.player_local, "main", "mana"), "tanscomplexmagic:textures/screens/book/mana_bar.png");
             ScreenDrawing.Position.set(ScreenDrawing.Anchor.Type.CENTER, 8 * 24 + 3, 8 * 5 + 6);
             ScreenDrawing.ComponentOverlay.drawImageSplit(61, 60, true, 61, (int) NBTManager.Mob.getNumber(ScreenDrawing.player_local, "main", "mana_charge"), "tanscomplexmagic:textures/screens/book/mana_bar_charge.png");
-            ScreenDrawing.Position.set(ScreenDrawing.Anchor.Type.CENTER, 8 * 24 + 3, 8 * -14 + 4);
-            ScreenDrawing.ComponentOverlay.drawImageSplit(151, 150, true, 151, mana, "tanscomplexmagic:textures/screens/book/mana_bar.png");
 
         }
 
     }
     
-    private static void generateWikiCard () {
-        
-        
-        
+    private static void generateWikiCard (int number, String caption, String drawing, String[] description_left, String[] description_right) {
+
+        generateBackground();
+
+        ScreenDrawing.Position.set(ScreenDrawing.Anchor.Type.CENTER, 8 * -22 + 0, 8 * -12 + 0);
+        ScreenDrawing.ComponentOverlay.drawImageBasic(20, 36, "tanscomplexmagic:textures/screens/background.png");
+        ScreenDrawing.Position.add(2, 2);
+        ScreenDrawing.ComponentOverlay.drawImageBasic(32, 32, "tanscomplexmagic:textures/block/zodiac_card" + number + ".png");
+        ScreenDrawing.Position.set(ScreenDrawing.Anchor.Type.CENTER, 8 * -18 + 0, 8 * -10 - 3);
+        ScreenDrawing.ComponentOverlay.drawTextCenteredBasic(true, 1, Spell1.getNameFromNumber(number));
+        ScreenDrawing.Position.set(ScreenDrawing.Anchor.Type.CENTER, 8 * -18 + 0, 8 * -9 - 1);
+        ScreenDrawing.ComponentOverlay.drawTextCenteredBasic(true, ScreenDrawing.DEFAULT_FONT_SCALE, caption);
+
+        ScreenDrawing.Position.set(ScreenDrawing.Anchor.Type.CENTER, 8 * -22 + 0, 8 * -6 + 0);
+
+        for (String scan : description_left) {
+
+            ScreenDrawing.ComponentOverlay.drawTextParagraph(160, scan);
+            ScreenDrawing.Position.addZ(8);
+
+        }
+
+        ScreenDrawing.Position.set(ScreenDrawing.Anchor.Type.CENTER, 8 * 2 + 0, 8 * -12 + 0);
+
+        for (String scan : description_right) {
+
+            ScreenDrawing.ComponentOverlay.drawTextParagraph(160, scan);
+            ScreenDrawing.Position.addZ(8);
+
+        }
+
+        if (drawing.isEmpty() == false) {
+
+            ScreenDrawing.Position.addZ(8);
+            ScreenDrawing.ComponentOverlay.drawImageBasic(160, 80, "tanscomplexmagic:textures/screens/" + drawing + ".png");
+
+        }
+
     }
 
     private static void generateSpell1SettingsCard (boolean is_page_left, String name, int number, int duration_per_mana_positive, int duration_per_mana_negative) {
-        
+
         int mana = (int) NBTManager.Mob.getNumber(ScreenDrawing.player_local, "main", "mana");
         int posX = 0;
 
@@ -492,9 +472,9 @@ public class GUIs {
         ScreenDrawing.Position.set(ScreenDrawing.Anchor.Type.CENTER, posX, 8 * -12 + 0);
         ScreenDrawing.ComponentOverlay.drawTextBasic(1, "Card Settings : " + name);
         ScreenDrawing.Position.addZ(8);
-        ScreenDrawing.ComponentOverlay.drawTextBasic( ScreenDrawing.normal_font_scale, "§8Detected Targets : " + (int) NBTManager.Mob.getNumber(ScreenDrawing.player_local, "spell1", "number_of_targets_detected" + number));
-        ScreenDrawing.Position.addZ(3);
-        ScreenDrawing.ComponentOverlay.drawTextBasic(ScreenDrawing.normal_font_scale, "§8Remaining Duration : " + NBTManager.Mob.getText(ScreenDrawing.player_local, "spell1", "remaining_duration" + number));
+        ScreenDrawing.ComponentOverlay.drawTextBasic( ScreenDrawing.DEFAULT_FONT_SCALE, "Detected Targets : " + (int) NBTManager.Mob.getNumber(ScreenDrawing.player_local, "spell1", "number_of_targets_detected" + number));
+        ScreenDrawing.Position.addZ(4);
+        ScreenDrawing.ComponentOverlay.drawTextBasic(ScreenDrawing.DEFAULT_FONT_SCALE, "Remaining Duration : " + OutsideUtils.Calculation.convertSecondToTime((int) NBTManager.Mob.getNumber(ScreenDrawing.player_local, "spell1", "remaining_duration" + number)));
         ScreenDrawing.Position.addZ(8);
         ScreenDrawing.Position.setMarkZ();
         ScreenDrawing.ComponentWidget.Switch.drawText("spell1", "is_card_enable" + number, "Enable");
@@ -512,7 +492,7 @@ public class GUIs {
         {
 
             ScreenDrawing.Position.addZ(8);
-            ScreenDrawing.ComponentOverlay.drawTextBasic(ScreenDrawing.normal_font_scale, "Targets");
+            ScreenDrawing.ComponentOverlay.drawTextBasic(ScreenDrawing.DEFAULT_FONT_SCALE, "Targets");
             ScreenDrawing.Position.addZ(4);
 
             boolean is_libra = number == 7;
@@ -541,8 +521,28 @@ public class GUIs {
         // Duration
         {
 
+            String empowered_positive = "";
+            String empowered_negative = "";
+
+            if (number == NBTManager.Mob.getNumber(ScreenDrawing.player_local, "spell1", "empowered_card")) {
+
+                int level = (int) NBTManager.Mob.getNumber(ScreenDrawing.player_local, "spell1", "empowered_card_level");
+                String text = "§7(+" + level + " Empower)";
+
+                if (NBTManager.Mob.getLogic(ScreenDrawing.player_local, "spell1", "is_empowered_card_negative") == true) {
+
+                    empowered_negative = text;
+
+                } else {
+
+                    empowered_positive = text;
+
+                }
+
+            }
+
             ScreenDrawing.Position.setZ(26);
-            ScreenDrawing.ComponentWidget.Slider.drawText(160, 0, NBTManager.Mob.getNumber(ScreenDrawing.player_local, "spell1", "card_duration_max_positive" + number), 1, "spell1", "card_duration_positive" + number, "Positive Duration");
+            ScreenDrawing.ComponentWidget.Slider.drawTextWithSuffix(160, 0, NBTManager.Mob.getNumber(ScreenDrawing.player_local, "spell1", "card_duration_max_positive" + number), 1, "spell1", "card_duration_positive" + number, "Positive Duration", empowered_positive);
             ScreenDrawing.Position.addZ(2);
 
             ScreenDrawing.ComponentWidget.ButtonTiny.drawTextLockable(160, true, mana < 1, "+" + duration_per_mana_positive + " / 1 Mana", "+" + duration_per_mana_positive + " / 1 Mana", () -> {
@@ -556,7 +556,7 @@ public class GUIs {
             });
 
             ScreenDrawing.Position.addZ(8);
-            ScreenDrawing.ComponentWidget.Slider.drawText(160, 0, NBTManager.Mob.getNumber(ScreenDrawing.player_local, "spell1", "card_duration_max_negative" + number), 1, "spell1", "card_duration_negative" + number, "Negative Duration");
+            ScreenDrawing.ComponentWidget.Slider.drawTextWithSuffix(160, 0, NBTManager.Mob.getNumber(ScreenDrawing.player_local, "spell1", "card_duration_max_negative" + number), 1, "spell1", "card_duration_negative" + number, "Negative Duration", empowered_negative);
             ScreenDrawing.Position.addZ(2);
 
             ScreenDrawing.ComponentWidget.ButtonTiny.drawTextLockable(160, true, mana < 1, "+" + duration_per_mana_negative + " / 1 Mana)", "+" + duration_per_mana_negative + " / 1 Mana", () -> {

@@ -5,17 +5,13 @@ import net.minecraft.world.level.ChunkPos;
 import tannyjung.tanscomplexmagic_core.Core;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.FileOutputStream;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
 public class OutsideUtils {
 
@@ -108,8 +104,8 @@ public class OutsideUtils {
 
             HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
             connection.setRequestMethod("HEAD");
-            connection.setConnectTimeout(5000);
-            connection.setReadTimeout(5000);
+            connection.setConnectTimeout(10000);
+            connection.setReadTimeout(10000);
             connection.connect();
             return true;
 
@@ -341,78 +337,6 @@ public class OutsideUtils {
         }
 
         return write.substring(1);
-
-    }
-
-    public static String[] readOnlineTXT (String url) {
-
-        if (OutsideUtils.isURLAvailable(url) == true) {
-
-            try {
-
-                List<String> data = new ArrayList<>();
-
-                {
-
-                    BufferedReader buffered_reader = new BufferedReader(new InputStreamReader(new URI(url).toURL().openStream()), 65536);
-                    String scan = "";
-
-                    while ((scan = buffered_reader.readLine()) != null) {
-
-                        data.add(scan);
-
-                    }
-
-                    buffered_reader.close();
-
-                }
-
-                return data.toArray(new String[]{});
-
-            } catch (Exception exception) {
-
-                exception(new Exception(), exception, "");
-
-            }
-
-        }
-
-        return new String[]{};
-
-    }
-
-    public static Map<String, String> convertFileToDataMap (String path) {
-
-        Map<String, String> data = new HashMap<>();
-        String[] split = null;
-
-        for (String scan : FileManager.readTXT(path)) {
-
-            {
-
-                if (scan.isEmpty() == false) {
-
-                    if (scan.contains(" = ") == true) {
-
-                        split = scan.split(" = ");
-
-                        if (split[1].equals("none") == true) {
-
-                            split[1] = "";
-
-                        }
-
-                        data.put(split[0], split[1]);
-
-                    }
-
-                }
-
-            }
-
-        }
-
-        return data;
 
     }
 

@@ -2,7 +2,10 @@ package tannyjung.tanscomplexmagic_core.game;
 
 import net.minecraft.commands.CommandSource;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.core.*;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.Registries;
@@ -17,19 +20,29 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.*;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.chunk.ProtoChunk;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.fml.ModList;
 import tannyjung.tanscomplexmagic_core.Core;
+import tannyjung.tanscomplexmagic_core.outside.CacheManager;
+import tannyjung.tanscomplexmagic_core.outside.FileManager;
+import tannyjung.tanscomplexmagic_core.outside.OutsideUtils;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /*
 (1.20.1)
@@ -42,11 +55,6 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.scores.ScoreHolder;
 */
-import net.neoforged.fml.ModList;
-import net.minecraft.world.level.chunk.status.ChunkStatus;
-import tannyjung.tanscomplexmagic_core.outside.config.CacheManager;
-import tannyjung.tanscomplexmagic_core.outside.FileManager;
-import tannyjung.tanscomplexmagic_core.outside.OutsideUtils;
 
 public class GameUtils {
 
@@ -248,9 +256,9 @@ public class GameUtils {
 
 		}
 
-		public static boolean testChunkStatus (LevelAccessor level_accessor, ChunkPos chunk_pos, String status) {
+		public static boolean testChunkStatus (LevelAccessor level_accessor, ChunkPos chunk_pos, ChunkStatus status) {
 
-			return level_accessor.hasChunk(chunk_pos.x, chunk_pos.z) == true && level_accessor.getChunk(chunk_pos.x, chunk_pos.z).getHighestGeneratedStatus().isOrAfter(ChunkStatus.byName(status)) == true;
+			return level_accessor.hasChunk(chunk_pos.x, chunk_pos.z) == true && level_accessor.getChunk(chunk_pos.x, chunk_pos.z).getHighestGeneratedStatus().isOrAfter(status) == true;
 
 		}
 
@@ -272,36 +280,32 @@ public class GameUtils {
 
 		}
 
-		public static int getHeight (LevelAccessor level_accessor, int posX, int posZ, String type) {
-
-			return level_accessor.getHeight(Heightmap.Types.valueOf(type), posX, posZ);
-
-		}
-
-		public static int getHeightWorldGen (LevelAccessor level_accessor, ServerLevel level_server, ChunkGenerator chunk_generator, int posX, int posZ, String type_normal, String type_outside) {
+		public static int getHeightWorldGen (WorldGenLevel level_world_gen, ServerLevel level_server, ChunkGenerator chunk_generator, int posX, int posZ, Heightmap.Types type_normal, Heightmap.Types type_outside) {
 
 			BlockPos pos = new BlockPos(posX, 0, posZ);
 			ChunkPos chunk_pos = new ChunkPos(pos);
 
-			if (level_accessor.hasChunk(chunk_pos.x, chunk_pos.z) == true) {
+			if (level_world_gen.hasChunk(chunk_pos.x, chunk_pos.z) == true) {
 
-				if (level_accessor.getChunk(pos) instanceof ProtoChunk == true) {
+				ChunkAccess chunk = level_world_gen.getChunk(pos);
 
-					if (Space.testChunkStatus(level_accessor, chunk_pos, "carvers") == true) {
+				if (chunk instanceof ProtoChunk == true) {
 
-						return level_accessor.getChunk(chunk_pos.x, chunk_pos.z).getHeight(Heightmap.Types.valueOf(type_normal), pos.getX(), pos.getZ()) + 1;
+					if (Space.testChunkStatus(level_world_gen, chunk_pos, ChunkStatus.CARVERS) == true) {
+
+						return chunk.getHeight(type_normal, pos.getX(), pos.getZ()) + 1;
 
 					}
 
 				} else {
 
-					return getHeight(level_accessor, posX, posZ, type_normal);
+					return level_world_gen.getHeight(type_normal, posX, posZ);
 
 				}
 
 			}
 
-			return chunk_generator.getBaseHeight(posX, posZ, Heightmap.Types.valueOf(type_outside), level_accessor, level_server.getChunkSource().randomState());
+			return chunk_generator.getBaseHeight(posX, posZ, type_outside, level_world_gen, level_server.getChunkSource().randomState());
 
 		}
 
@@ -430,7 +434,7 @@ public class GameUtils {
 
 			ChunkPos chunk_pos = new ChunkPos(pos);
 
-			if (Space.testChunkStatus(level_accessor, chunk_pos, "biomes") == true) {
+			if (Space.testChunkStatus(level_accessor, chunk_pos, ChunkStatus.BIOMES) == true) {
 
 				return level_accessor.getChunk(chunk_pos.x, chunk_pos.z).getNoiseBiome(pos.getX() >> 2, pos.getY() >> 2, pos.getZ() >> 2);
 
@@ -468,10 +472,8 @@ public class GameUtils {
 
 		}
 
-		public static String convertFileToForgeData (String path) {
+		public static String convertFileToTag (String path) {
 
-			StringBuilder data = new StringBuilder();
-			String[] split = null;
 			Set<String> normal = new HashSet<>();
 
 			// Add Normal
@@ -490,6 +492,9 @@ public class GameUtils {
 				normal.add("9");
 
 			}
+
+			StringBuilder data = new StringBuilder();
+			String[] split = null;
 
 			for (String scan : FileManager.readTXT(path)) {
 
@@ -521,7 +526,7 @@ public class GameUtils {
 
 			}
 
-			return "{NeoForgeData:{" + Core.mod_id + ":{" + data + "}}}";
+			return "{" + data + "}";
 
 		}
 

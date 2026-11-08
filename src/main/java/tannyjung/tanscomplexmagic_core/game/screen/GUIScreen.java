@@ -1,32 +1,38 @@
 package tannyjung.tanscomplexmagic_core.game.screen;
 
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.*;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.MenuType;
 import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.lwjgl.glfw.GLFW;
-import tannyjung.tanscomplexmagic.TanscomplexmagicMod;
+import tannyjung.tanscomplexmagic_core.Core;
+import tannyjung.tanscomplexmagic_core.outside.NetworkManager;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class GUIScreen extends AbstractContainerScreen<GUIContainer> {
 
-    public static final DeferredRegister<MenuType<?>> register = DeferredRegister.create(Registries.MENU, TanscomplexmagicMod.MODID);
+    public static final DeferredRegister<MenuType<?>> register = DeferredRegister.create(Registries.MENU, Core.mod_id);
     public static final DeferredHolder<MenuType<?>, MenuType<GUIContainer>> gui = register.register("gui", () -> IMenuTypeExtension.create(GUIContainer::new));
-
     public static String id_group = "";
     public static String id_name = "";
+    public static final List<ServerPlayer> player_server_watching = new ArrayList<>();
 
     public GUIScreen (GUIContainer container, Inventory inventory, Component text) {
 
         super(container, inventory, text);
-        this.imageWidth = 0;
-        this.imageHeight = 0;
         ScreenDrawing.screen = this;
         ScreenDrawing.player_local = (LocalPlayer) container.player;
 
@@ -37,6 +43,9 @@ public class GUIScreen extends AbstractContainerScreen<GUIContainer> {
         ScreenDrawing.screen = null;
         ScreenDrawing.graphic = null;
         ScreenDrawing.player_local = null;
+
+        ScreenDrawing.refresh_client = true;
+        NetworkManager.runServerCore("gui", "when_close", new CompoundTag());
 
     }
 
@@ -113,18 +122,19 @@ public class GUIScreen extends AbstractContainerScreen<GUIContainer> {
     public void render (GuiGraphics graphic, int mouseX, int mouseY, float tick) {
 
         super.render(graphic, mouseX, mouseY, tick);
-        this.renderTooltip(graphic, mouseX, mouseY);
-
-    }
-
-    @Override
-    protected void renderBg (GuiGraphics graphic, float partialTicks, int mouseX, int mouseY) {
 
         if (ScreenDrawing.graphic == null) {
 
             ScreenDrawing.graphic = graphic;
 
         }
+
+        ScreenDrawing.refresh();
+
+    }
+
+    @Override
+    protected void renderBg (GuiGraphics graphic, float partialTicks, int mouseX, int mouseY) {
 
         ScreenDrawing.ComponentOverlay.Storage.renderImage();
 
@@ -132,12 +142,6 @@ public class GUIScreen extends AbstractContainerScreen<GUIContainer> {
 
     @Override
     protected void renderLabels (GuiGraphics graphic, int mouseX, int mouseY) {
-
-        if (ScreenDrawing.graphic == null) {
-
-            ScreenDrawing.graphic = graphic;
-
-        }
 
         ScreenDrawing.ComponentOverlay.Storage.renderText();
 
@@ -147,9 +151,10 @@ public class GUIScreen extends AbstractContainerScreen<GUIContainer> {
     public void init () {
 
         super.init();
-
         GUIScreen.id_group = "";
         GUIScreen.id_name = "";
+
+        ScreenDrawing.refresh_client = true;
         ScreenDrawing.refresh();
 
     }

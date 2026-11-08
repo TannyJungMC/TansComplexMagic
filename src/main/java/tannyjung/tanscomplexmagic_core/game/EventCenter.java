@@ -3,19 +3,34 @@ package tannyjung.tanscomplexmagic_core.game;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.storage.LevelResource;
-
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.neoforged.neoforge.client.event.*;
+import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
+import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
+import net.neoforged.neoforge.client.event.RenderGuiEvent;
+import net.neoforged.neoforge.client.event.ScreenEvent;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.level.ChunkEvent;
+import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
+import net.neoforged.neoforge.event.server.ServerStartedEvent;
+import net.neoforged.neoforge.event.server.ServerStoppingEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import tannyjung.tanscomplexmagic.TanscomplexmagicMod;
 import tannyjung.tanscomplexmagic_core.Core;
@@ -23,10 +38,12 @@ import tannyjung.tanscomplexmagic_core.game.screen.GUIScreen;
 import tannyjung.tanscomplexmagic_core.game.screen.ScreenDrawing;
 import tannyjung.tanscomplexmagic_core.game.world_gen.*;
 import tannyjung.tanscomplexmagic_core.outside.NetworkManager;
-import tannyjung.tanscomplexmagic_core.outside.config.CustomPackOrganizing;
+import tannyjung.tanscomplexmagic_core.outside.config.CustomPack;
 import tannyjung.tanscomplexmagic_core.outside.config.TannyPackManager;
 import tannyjung.tanscomplexmagic_handcode.core.Commands;
 import tannyjung.tanscomplexmagic_handcode.core.Overlays;
+
+import java.util.Map;
 
 /*
 (1.20.1)
@@ -58,26 +75,13 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.api.distmarker.Dist;
 */
-import net.neoforged.neoforge.event.RegisterCommandsEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerEvent;
-import net.neoforged.neoforge.event.level.ChunkEvent;
-import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
-import net.neoforged.neoforge.event.server.ServerStartedEvent;
-import net.neoforged.neoforge.event.server.ServerStoppingEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import net.neoforged.bus.api.EventPriority;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.api.distmarker.Dist;
-
-import java.util.Map;
 
 @EventBusSubscriber
 public class EventCenter {
 
     private static boolean first_player_joined = false;
 
-    public static void bus (IEventBus bus) {
+    public static void register (IEventBus bus) {
 
         GUIScreen.register.register(bus);
 
@@ -117,8 +121,8 @@ public class EventCenter {
         Core.path_world_core = path_world + "/data/tannyjung/" + Core.data_structure_version_core;
         Core.path_world_mod = path_world + "/data/" + Core.mod_id;
 
-        Core.DataMigration.run(true);
-        Core.restart(null, false, true);
+        Core.DataMigration.runWorld();
+        Core.DataManagement.restart(null, false, true);
 
     }
 
@@ -127,8 +131,8 @@ public class EventCenter {
 
         ServerLevel level_server = event.getServer().overworld();
 
-        Core.generateDataWorld(level_server);
-        Core.restart(level_server, true, false);
+        Core.DataManagement.regenerateWorld(level_server);
+        Core.DataManagement.restart(level_server, true, false);
 
     }
 
@@ -206,7 +210,7 @@ public class EventCenter {
 
             Core.DelayedWork.createAsync(100, () -> {
 
-                CustomPackOrganizing.Error.sendMessage(level_server);
+                CustomPack.Error2.sendMessage(level_server);
 
                 if (Core.auto_check_update == true) {
 
@@ -235,6 +239,31 @@ public class EventCenter {
     public static void eventPlayerClone (PlayerEvent.Clone event) {
 
         NBTManager.Mob.merge(event.getEntity(), NBTManager.Mob.getAllForMerge(event.getOriginal()), true);
+
+    }
+
+    @SubscribeEvent
+    public static void eventPlayerTick (PlayerTickEvent.Post event) {
+
+        Player player = event.getEntity();
+
+        if (player.level().isClientSide == true) {
+
+            return;
+
+        }
+
+        if (ScreenDrawing.refresh_server == true) {
+
+            ScreenDrawing.refresh_server = false;
+
+            for (ServerPlayer player_server : GUIScreen.player_server_watching) {
+
+                NetworkManager.runClientCore(player_server, "gui", "refresh", new CompoundTag());
+
+            }
+
+        }
 
     }
 
@@ -290,7 +319,7 @@ public class EventCenter {
         }
 
         @SubscribeEvent
-        public static void eventTick (ClientTickEvent.Post event) {
+        public static void eventTick (PlayerTickEvent.Post event) {
 
             KeyBindingMaker.Storage.tick();
 
@@ -299,12 +328,14 @@ public class EventCenter {
         @SubscribeEvent(priority = EventPriority.NORMAL)
         public static void eventOverlayMenu (ScreenEvent.Render.Post event) {
 
-            if (ScreenDrawing.graphic == null) {
+            if (ScreenDrawing.screen != null) {
 
-                ScreenDrawing.graphic = event.getGuiGraphics();
+                return;
 
             }
 
+            ScreenDrawing.graphic = event.getGuiGraphics();
+            ScreenDrawing.player_local = Minecraft.getInstance().player;
             Overlays.eventMenu();
 
         }
@@ -324,18 +355,8 @@ public class EventCenter {
 
             }
 
-            if (ScreenDrawing.graphic == null) {
-
-                ScreenDrawing.graphic = event.getGuiGraphics();
-
-            }
-
-            if (ScreenDrawing.player_local == null) {
-
-                ScreenDrawing.player_local = Minecraft.getInstance().player;
-
-            }
-
+            ScreenDrawing.graphic = event.getGuiGraphics();
+            ScreenDrawing.player_local = Minecraft.getInstance().player;
             Overlays.eventInGame();
 
         }

@@ -15,6 +15,7 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import tannyjung.tanscomplexmagic_core.Core;
+import tannyjung.tanscomplexmagic_core.game.screen.ScreenDrawing;
 import tannyjung.tanscomplexmagic_core.outside.FileManager;
 import tannyjung.tanscomplexmagic_core.outside.NetworkManager;
 import tannyjung.tanscomplexmagic_core.outside.OutsideUtils;
@@ -272,6 +273,7 @@ public class NBTManager {
             if (tag.sizeInBytes() / 1024 < 900) {
 
                 NetworkManager.runClientCore(player_server, "nbt", "sync", tag);
+                ScreenDrawing.refresh_server = true;
 
             } else {
 
@@ -331,7 +333,7 @@ public class NBTManager {
 
         public static void setText (Entity entity, String type, String name, String value, boolean should_sync) {
 
-            merge(entity, NBTManager.PutInTag.fromText(type, name, value), should_sync);
+            merge(entity, PutInTag.fromText(type, name, value), should_sync);
 
         }
 
@@ -351,7 +353,7 @@ public class NBTManager {
 
         public static void setLogic (Entity entity, String type, String name, boolean value, boolean should_sync) {
 
-            merge(entity, NBTManager.PutInTag.fromLogic(type, name, value), should_sync);
+            merge(entity, PutInTag.fromLogic(type, name, value), should_sync);
 
         }
 
@@ -371,7 +373,7 @@ public class NBTManager {
 
         public static void setNumber (Entity entity, String type, String name, double value, boolean should_sync) {
 
-            merge(entity, NBTManager.PutInTag.fromNumber(type, name, value), should_sync);
+            merge(entity, PutInTag.fromNumber(type, name, value), should_sync);
 
         }
 
@@ -397,16 +399,16 @@ public class NBTManager {
         public static List<String> getListAsList (Entity entity, String type, String name) {
 
             ListTag list = getList(entity, type, name);
-            java.util.List<String> convert = new ArrayList<>();
+            List<String> convert = new ArrayList<>();
 
             for (int number = 0; number < list.size(); number++) {
 
-                    /*
-                    (1.20.1) (1.21.1)
-                    convert.add(list.getString(number));
-                    (1.21.8)
-                    convert.add(list.getString(number)).get();
-                    */
+                /*
+                (1.20.1) (1.21.1)
+                convert.add(list.getString(number));
+                (1.21.8)
+                convert.add(list.getString(number)).get();
+                */
                 convert.add(list.getString(number));
 
             }
@@ -417,7 +419,7 @@ public class NBTManager {
 
         public static void setList (Entity entity, String type, String name, ListTag value, boolean should_sync) {
 
-            merge(entity, NBTManager.PutInTag.fromList(type, name, value), should_sync);
+            merge(entity, PutInTag.fromList(type, name, value), should_sync);
 
         }
 
@@ -440,7 +442,7 @@ public class NBTManager {
             ListTag list = getList(entity, type, name);
             list.add(value);
 
-            merge(entity, NBTManager.PutInTag.fromList(type, name, list), should_sync);
+            merge(entity, PutInTag.fromList(type, name, list), should_sync);
 
         }
 
@@ -462,7 +464,7 @@ public class NBTManager {
 
             }
 
-            merge(entity, NBTManager.PutInTag.fromList(type, name, list), should_sync);
+            merge(entity, PutInTag.fromList(type, name, list), should_sync);
 
         }
 
@@ -470,7 +472,7 @@ public class NBTManager {
 
     public static class Tile {
 
-        public static boolean getLogic (LevelAccessor level_accessor, BlockPos pos, String type, String name) {
+        public static boolean getLogic (ServerLevel level_server, BlockPos pos, String type, String name) {
 
             return new Object() {
 
@@ -502,11 +504,11 @@ public class NBTManager {
 
                 }
 
-            }.getValue(level_accessor, pos, name);
+            }.getValue(level_server, pos, name);
 
         }
 
-        public static String getText (LevelAccessor level_accessor, BlockPos pos, String type, String name) {
+        public static String getText (ServerLevel level_server, BlockPos pos, String type, String name) {
 
             return new Object() {
 
@@ -538,11 +540,11 @@ public class NBTManager {
 
                 }
 
-            }.getValue(level_accessor, pos, name);
+            }.getValue(level_server, pos, name);
 
         }
 
-        public static double getNumber (LevelAccessor level_accessor, BlockPos pos, String type, String name) {
+        public static double getNumber (ServerLevel level_server, BlockPos pos, String type, String name) {
 
             return new Object() {
 
@@ -574,11 +576,11 @@ public class NBTManager {
 
                 }
 
-            }.getValue(level_accessor, pos, name);
+            }.getValue(level_server, pos, name);
 
         }
         
-        private static void set (LevelAccessor level_accessor, ServerLevel level_server, BlockPos pos, BlockEntity entity_block, String type, CompoundTag tag_value) {
+        private static void set (ServerLevel level_server, BlockPos pos, BlockEntity entity_block, String type, CompoundTag tag_value) {
 
             CompoundTag tag = new CompoundTag();
 
@@ -595,57 +597,57 @@ public class NBTManager {
             }
 
             entity_block.getPersistentData().merge(tag);
-            BlockState block = level_accessor.getBlockState(pos);
+            BlockState block = level_server.getBlockState(pos);
             level_server.sendBlockUpdated(pos, block, block, 2);
             
         }
 
-        public static void setLogic (LevelAccessor level_accessor, ServerLevel level_server, BlockPos pos, String type, String name, boolean value) {
+        public static void setLogic (ServerLevel level_server, BlockPos pos, String type, String name, boolean value) {
 
-            BlockEntity entity_block = level_accessor.getBlockEntity(pos);
+            BlockEntity entity_block = level_server.getBlockEntity(pos);
 
             if (entity_block != null) {
 
                 CompoundTag tag = new CompoundTag();
                 tag.putBoolean(name, value);
-                set(level_accessor, level_server, pos, entity_block, type, tag);
+                set(level_server, pos, entity_block, type, tag);
 
             }
 
         }
 
-        public static void setText (LevelAccessor level_accessor, ServerLevel level_server, BlockPos pos, String type, String name, String value) {
+        public static void setText (ServerLevel level_server, BlockPos pos, String type, String name, String value) {
 
-            BlockEntity entity_block = level_accessor.getBlockEntity(pos);
+            BlockEntity entity_block = level_server.getBlockEntity(pos);
 
             if (entity_block != null) {
 
                 CompoundTag tag = new CompoundTag();
                 tag.putString(name, value);
-                set(level_accessor, level_server, pos, entity_block, type, tag);
+                set(level_server, pos, entity_block, type, tag);
 
             }
 
         }
 
-        public static void setNumber (LevelAccessor level_accessor, ServerLevel level_server, BlockPos pos, String type, String name, double value) {
+        public static void setNumber (ServerLevel level_server, BlockPos pos, String type, String name, double value) {
 
-            BlockEntity entity_block = level_accessor.getBlockEntity(pos);
+            BlockEntity entity_block = level_server.getBlockEntity(pos);
 
             if (entity_block != null) {
 
                 CompoundTag tag = new CompoundTag();
                 tag.putDouble(name, value);
-                set(level_accessor, level_server, pos, entity_block, type, tag);
+                set(level_server, pos, entity_block, type, tag);
 
             }
 
         }
 
-        public static void addNumber (LevelAccessor level_accessor, ServerLevel level_server, BlockPos pos, String type, String name, double value) {
+        public static void addNumber (ServerLevel level_server, BlockPos pos, String type, String name, double value) {
 
-            value = getNumber(level_accessor, pos, type, name) + value;
-            setNumber(level_accessor, level_server, pos, type, name, value);
+            value = getNumber(level_server, pos, type, name) + value;
+            setNumber(level_server, pos, type, name, value);
 
         }
 
@@ -653,95 +655,68 @@ public class NBTManager {
 
     public static class Item {
 
-        public static boolean getLogic (ItemStack item, String type, String name) {
+        public static CompoundTag getAll (ItemStack item) {
 
             /*
             (1.20.1)
-            return item.getOrCreateTag().getCompound(Core.mod_id).getCompound(type);
+            return item.getOrCreateTag().getCompound(Core.mod_id);
             (1.21.1)
-            return item.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag().getCompound(Core.mod_id).getCompound(type);
+            return item.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag().getCompound(Core.mod_id);
             */
-            CompoundTag tag = item.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag().getCompound(Core.mod_id).getCompound(type);
-
-            return tag.getBoolean(name);
+            return item.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag().getCompound(Core.mod_id);
 
         }
 
-        public static String getText (ItemStack item, String type, String name) {
-
-            /*
-            (1.20.1)
-            return item.getOrCreateTag().getCompound(Core.mod_id).getCompound(type);
-            (1.21.1)
-            return item.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag().getCompound(Core.mod_id).getCompound(type);
-            */
-            CompoundTag tag = item.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag().getCompound(Core.mod_id).getCompound(type);
-
-            return tag.getString(name);
-
-        }
-
-        public static double getNumber (ItemStack item, String type, String name) {
-
-            /*
-            (1.20.1)
-            return item.getOrCreateTag().getCompound(Core.mod_id).getCompound(type);
-            (1.21.1)
-            return item.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag().getCompound(Core.mod_id).getCompound(type);
-            */
-            CompoundTag tag = item.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag().getCompound(Core.mod_id).getCompound(type);
-
-            return tag.getDouble(name);
-
-        }
-
-        private static void set (ItemStack item, String type, CompoundTag tag_value) {
-
-            CompoundTag tag = new CompoundTag();
-
-            if (type.isEmpty() == false) {
-
-                CompoundTag tag_type = new CompoundTag();
-                tag_type.put(type, tag_value);
-                tag.put(Core.mod_id, tag_type);
-
-            } else {
-
-                tag.put(Core.mod_id, tag_value);
-
-            }
+        private static void merge (ItemStack item, CompoundTag tag) {
 
             /*
             (1.20.1)
             item.getOrCreateTag().merge(tag);
             (1.21.1)
-            CustomData.update(DataComponents.CUSTOM_DATA, item, create -> create.merge(tag));
+            CustomData.update(DataComponents.CUSTOM_DATA, item, original -> original.merge(tag));
             */
-            CustomData.update(DataComponents.CUSTOM_DATA, item, create -> create.merge(tag));
+            CustomData.update(DataComponents.CUSTOM_DATA, item, original -> original.merge(tag));
+
+            ScreenDrawing.refresh_server = true;
+
+        }
+
+        public static boolean getLogic (ItemStack item, String type, String name) {
+
+            CompoundTag tag = getAll(item).getCompound(type);
+            return tag.getBoolean(name);
 
         }
 
         public static void setLogic (ItemStack item, String type, String name, boolean value) {
 
-            CompoundTag tag = new CompoundTag();
-            tag.putBoolean(name, value);
-            set(item, type, tag);
+            merge(item, PutInTag.fromLogic(type, name, value));
+
+        }
+
+        public static String getText (ItemStack item, String type, String name) {
+
+            CompoundTag tag = getAll(item).getCompound(type);
+            return tag.getString(name);
 
         }
 
         public static void setText (ItemStack item, String type, String name, String value) {
 
-            CompoundTag tag = new CompoundTag();
-            tag.putString(name, value);
-            set(item, type, tag);
+            merge(item, PutInTag.fromText(type, name, value));
+
+        }
+
+        public static double getNumber (ItemStack item, String type, String name) {
+
+            CompoundTag tag = getAll(item).getCompound(type);
+            return tag.getDouble(name);
 
         }
 
         public static void setNumber (ItemStack item, String type, String name, double value) {
 
-            CompoundTag tag = new CompoundTag();
-            tag.putDouble(name, value);
-            set(item, type, tag);
+            merge(item, PutInTag.fromNumber(type, name, value));
 
         }
 
@@ -749,6 +724,85 @@ public class NBTManager {
 
             value = getNumber(item, type, name) + value;
             setNumber(item, type, name, value);
+
+        }
+
+        public static ListTag getList (ItemStack item, String type, String name) {
+
+            CompoundTag tag = getAll(item).getCompound(type);
+            return tag.getList(name, Tag.TAG_STRING);
+
+        }
+
+        public static List<String> getListAsList (ItemStack item, String type, String name) {
+
+            ListTag list = getList(item, type, name);
+            List<String> convert = new ArrayList<>();
+
+            for (int number = 0; number < list.size(); number++) {
+
+                    /*
+                    (1.20.1) (1.21.1)
+                    convert.add(list.getString(number));
+                    (1.21.8)
+                    convert.add(list.getString(number)).get();
+                    */
+                convert.add(list.getString(number));
+
+            }
+
+            return convert;
+
+        }
+
+        public static void setList (ItemStack item, String type, String name, ListTag value) {
+
+            merge(item, PutInTag.fromList(type, name, value));
+
+        }
+
+        public static void setListAlternate (ItemStack item, String type, String name, List<String> value) {
+
+            ListTag list = new ListTag();
+
+            for (String scan : value) {
+
+                list.add(StringTag.valueOf(scan));
+
+            }
+
+            setList(item, type, name, list);
+
+        }
+
+        public static void addList (ItemStack item, String type, String name, ListTag value) {
+
+            ListTag list = getList(item, type, name);
+            list.add(value);
+
+            merge(item, PutInTag.fromList(type, name, list));
+
+        }
+
+        public static void addListAlternate (ItemStack item, String type, String name, String value) {
+
+            ListTag list = new ListTag();
+            list.add(StringTag.valueOf(value));
+            addList(item, type, name, list);
+
+        }
+
+        public static void addListMultiple (ItemStack item, String type, String name, List<String> value) {
+
+            ListTag list = getList(item, type, name);
+
+            for (String scan : value) {
+
+                list.add(StringTag.valueOf(scan));
+
+            }
+
+            merge(item, PutInTag.fromList(type, name, list));
 
         }
 

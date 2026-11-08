@@ -214,7 +214,7 @@ public class TanscomplexmagicModVariables {
 		public String book_log_display_notification_duraation = "";
 		public double book_log_display_notification_duration = 0;
 		public String book_log_type = "";
-		public double book_page = 0;
+		public double book_page = 0.0;
 		public double book_shortcut_custom = 0;
 		public String id = "";
 		public boolean main_key = false;
@@ -306,7 +306,7 @@ public class TanscomplexmagicModVariables {
 		public boolean user_book_item_open = false;
 		public boolean user_book_place = false;
 		public double user_book_posX = 0;
-		public double user_book_posY = 0;
+		public double user_book_posY = 0.0;
 		public double user_book_posZ = 0;
 		public String user_DELETE_THIS = "";
 		public boolean user = false;

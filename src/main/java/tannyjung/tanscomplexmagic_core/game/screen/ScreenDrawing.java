@@ -12,7 +12,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.player.Player;
 import tannyjung.tanscomplexmagic_core.Core;
 import tannyjung.tanscomplexmagic_core.game.EntityManager;
 import tannyjung.tanscomplexmagic_core.game.NBTManager;
@@ -26,81 +27,172 @@ import java.util.*;
 
 public class ScreenDrawing {
 
+    public static final double DEFAULT_FONT_SCALE = 0.67;
+
     public static GUIScreen screen = null;
     public static GuiGraphics graphic = null;
     public static LocalPlayer player_local = null;
-    public static ItemStack item = ItemStack.EMPTY;
-    public static double normal_font_scale = 0.67;
+    public static boolean refresh_client = false;
+    public static boolean refresh_server = false;
 
     public static void refresh () {
 
-        ComponentOverlay.Storage.clear();
+        if (refresh_client == false) {
 
-        if (screen != null) {
+            return;
 
-            String group = NBTManager.Mob.getText(player_local, "gui", "group");
-            String name = NBTManager.Mob.getText(player_local, "gui", "name");
+        } else {
 
-            if (GUIScreen.id_group.equals(group) == false || GUIScreen.id_name.equals(name) == false) {
+            refresh_client = false;
 
-                GUIScreen.id_group = group;
-                GUIScreen.id_name = name;
-                GUIScreen.Widget.removeAll();
-
-                ComponentWidget.Shape.map.clear();
-                ComponentWidget.ButtonTiny.map.clear();
-                ComponentWidget.ButtonImage.map.clear();
-                ComponentWidget.TextBox.map.clear();
-                ComponentWidget.Slider.map.clear();
-                ComponentWidget.Radio.set.clear();
-
-            }
-
-            GUIManager.Storage.draw(group, name);
-            
         }
-        
+
+        String group = NBTManager.Mob.getText(player_local, "gui", "group");
+        String name = NBTManager.Mob.getText(player_local, "gui", "name");
+
+        if (GUIScreen.id_group.equals(group) == false || GUIScreen.id_name.equals(name) == false) {
+
+            GUIScreen.id_group = group;
+            GUIScreen.id_name = name;
+            GUIScreen.Widget.removeAll();
+
+            ComponentWidget.Shape.map.clear();
+            ComponentWidget.ButtonTiny.map.clear();
+            ComponentWidget.ButtonImage.map.clear();
+            ComponentWidget.TextBox.map.clear();
+            ComponentWidget.Slider.map.clear();
+            ComponentWidget.Radio.set.clear();
+
+        }
+
+        ComponentOverlay.Storage.clear();
+        GUIManager.Storage.draw(group, name);
+
     }
 
-    private static class NBT {
+    public static class NBT {
 
-        private static boolean getLogic (String type, String name) {
+        public static boolean getLogic (Player player, String type, String name) {
 
-            if (item.isEmpty() == true) {
+            if (NBTManager.Mob.getText(player, "gui", "nbt_type").equals("item") == true) {
 
-                return NBTManager.Mob.getLogic(player_local, type, name);
+                return NBTManager.Item.getLogic(player.getItemBySlot(EquipmentSlot.MAINHAND), type, name);
 
             } else {
 
-                return NBTManager.Item.getLogic(item, type, name);
+                return NBTManager.Mob.getLogic(player, type, name);
 
             }
 
         }
 
-        private static String getText (String type, String name) {
+        public static void setLogic (ServerPlayer player_server, String type, String name, boolean value) {
 
-            if (item.isEmpty() == true) {
+            if (NBTManager.Mob.getText(player_server, "gui", "nbt_type").equals("item") == true) {
 
-                return NBTManager.Mob.getText(player_local, type, name);
+                NBTManager.Item.setLogic(player_server.getItemBySlot(EquipmentSlot.MAINHAND), type, name, value);
 
             } else {
 
-                return NBTManager.Item.getText(item, type, name);
+                NBTManager.Mob.setLogic(player_server, type, name, value, true);
 
             }
 
         }
 
-        private static double getNumber (String type, String name) {
+        public static String getText (Player player, String type, String name) {
 
-            if (item.isEmpty() == true) {
+            if (NBTManager.Mob.getText(player, "gui", "nbt_type").equals("item") == true) {
 
-                return NBTManager.Mob.getNumber(player_local, type, name);
+                return NBTManager.Item.getText(player.getItemBySlot(EquipmentSlot.MAINHAND), type, name);
 
             } else {
 
-                return NBTManager.Item.getNumber(item, type, name);
+                return NBTManager.Mob.getText(player, type, name);
+
+            }
+
+        }
+
+        public static void setText (ServerPlayer player_server, String type, String name, String value) {
+
+            if (NBTManager.Mob.getText(player_server, "gui", "nbt_type").equals("item") == true) {
+
+                NBTManager.Item.setText(player_server.getItemBySlot(EquipmentSlot.MAINHAND), type, name, value);
+
+            } else {
+
+                NBTManager.Mob.setText(player_server, type, name, value, true);
+
+            }
+
+        }
+
+        public static double getNumber (Player player, String type, String name) {
+
+            if (NBTManager.Mob.getText(player, "gui", "nbt_type").equals("item") == true) {
+
+                return NBTManager.Item.getNumber(player.getItemBySlot(EquipmentSlot.MAINHAND), type, name);
+
+            } else {
+
+                return NBTManager.Mob.getNumber(player, type, name);
+
+            }
+
+        }
+
+        public static void setNumber (ServerPlayer player_server, String type, String name, double value) {
+
+            if (NBTManager.Mob.getText(player_server, "gui", "nbt_type").equals("item") == true) {
+
+                NBTManager.Item.setNumber(player_server.getItemBySlot(EquipmentSlot.MAINHAND), type, name, value);
+
+            } else {
+
+                NBTManager.Mob.setNumber(player_server, type, name, value, true);
+
+            }
+
+        }
+
+        public static List<String> getList (Player player, String type, String name) {
+
+            if (NBTManager.Mob.getText(player, "gui", "nbt_type").equals("item") == true) {
+
+                return NBTManager.Item.getListAsList(player.getItemBySlot(EquipmentSlot.MAINHAND), type, name);
+
+            } else {
+
+                return NBTManager.Mob.getListAsList(player, type, name);
+
+            }
+
+        }
+
+        public static void setList (ServerPlayer player_server, String type, String name, List<String> value) {
+
+            if (NBTManager.Mob.getText(player_server, "gui", "nbt_type").equals("item") == true) {
+
+                NBTManager.Item.setListAlternate(player_server.getItemBySlot(EquipmentSlot.MAINHAND), type, name, value);
+
+            } else {
+
+                NBTManager.Mob.setListAlternate(player_server, type, name, value, true);
+
+            }
+
+        }
+
+        public static void addListMultiple (ServerPlayer player_server, String type, String name, List<String> value) {
+
+            if (NBTManager.Mob.getText(player_server, "gui", "nbt_type").equals("item") == true) {
+
+                NBTManager.Item.addListMultiple(player_server.getItemBySlot(EquipmentSlot.MAINHAND), type, name, value);
+
+            } else {
+
+                NBTManager.Mob.addListMultiple(player_server, type, name, value, true);
 
             }
 
@@ -342,7 +434,7 @@ public class ScreenDrawing {
             for (String word : text.split(" ")) {
 
                 word = word + " ";
-                width = (int) (Minecraft.getInstance().font.width(word) * normal_font_scale);
+                width = (int) (Minecraft.getInstance().font.width(word) * DEFAULT_FONT_SCALE);
 
                 if (width_all + width < length_per_line) {
 
@@ -361,7 +453,7 @@ public class ScreenDrawing {
 
             for (Map.Entry<Integer, StringBuilder> entry : paragraph.entrySet()) {
 
-                Storage.addText(normal_font_scale, false, entry.getValue().toString());
+                Storage.addText(DEFAULT_FONT_SCALE, false, entry.getValue().toString());
                 Position.addZ(8);
 
             }
@@ -561,7 +653,7 @@ public class ScreenDrawing {
 
             public static void renderText () {
 
-                for (Object[] objects : text) {
+                for (Object[] objects : new ArrayList<>(text)) {
 
                     Position.set(Anchor.type, (int) objects[0], (int) objects[1]);
                     drawText((double) objects[2], (boolean) objects[3], (String) objects[4]);
@@ -572,7 +664,7 @@ public class ScreenDrawing {
 
             public static void renderImage () {
 
-                for (Object[] objects : image) {
+                for (Object[] objects : new ArrayList<>(image)) {
 
                     Position.set(Anchor.type, (int) objects[0], (int) objects[1]);
                     drawImage((int) objects[2], (int) objects[3], (int) objects[4], (int) objects[5], (int) objects[6], (int) objects[7], (String) objects[8]);
@@ -693,7 +785,7 @@ public class ScreenDrawing {
                     int posX = Position.posX;
                     int posZ = Position.posZ;
                     Position.add(length / 2, -5);
-                    ComponentOverlay.drawTextCenteredShadow(false, normal_font_scale, text);
+                    ComponentOverlay.drawTextCenteredShadow(false, DEFAULT_FONT_SCALE, text);
                     Position.set(Anchor.type, posX, posZ);
 
                 }
@@ -809,7 +901,6 @@ public class ScreenDrawing {
                         }
 
                         CompoundTag extra = new CompoundTag();
-                        extra.putBoolean("is_item", item.isEmpty() == false);
                         extra.putString("nbt_type", nbt_type);
                         extra.putString("nbt_name", nbt_name);
                         extra.putString("nbt_value", value);
@@ -832,7 +923,7 @@ public class ScreenDrawing {
 
                     if (box.isFocused() == false) {
 
-                        box.setValue(NBT.getText(nbt_type, nbt_name));
+                        box.setValue(NBT.getText(player_local, nbt_type, nbt_name));
 
                     }
 
@@ -844,7 +935,7 @@ public class ScreenDrawing {
                     if (is_lock == true) {
 
                         Position.add(9 + (box.getWidth() / 2), 15);
-                        ComponentOverlay.drawTextCenteredBasic(false, normal_font_scale, text_lock);
+                        ComponentOverlay.drawTextCenteredBasic(false, DEFAULT_FONT_SCALE, text_lock);
 
                     }
 
@@ -877,7 +968,7 @@ public class ScreenDrawing {
                 // Ingredient
                 {
 
-                    ComponentOverlay.drawTextBasic(normal_font_scale, text);
+                    ComponentOverlay.drawTextBasic(DEFAULT_FONT_SCALE, text);
 
                 }
 
@@ -912,7 +1003,7 @@ public class ScreenDrawing {
                 // Get Default Value
                 {
 
-                    double value = NBT.getNumber(nbt_type, nbt_name);
+                    double value = NBT.getNumber(player_local, nbt_type, nbt_name);
                     value_default = (value - value_min) / range;
 
                     if (value_default < 0.0 || value_default > 1.0) {
@@ -932,7 +1023,6 @@ public class ScreenDrawing {
                         }
 
                         CompoundTag extra = new CompoundTag();
-                        extra.putBoolean("is_item", item.isEmpty() == false);
                         extra.putString("nbt_type", nbt_type);
                         extra.putString("nbt_name", nbt_name);
                         extra.putDouble("nbt_value", set);
@@ -983,7 +1073,6 @@ public class ScreenDrawing {
 
                             value_previous = value;
                             CompoundTag extra = new CompoundTag();
-                            extra.putBoolean("is_item", item.isEmpty() == false);
                             extra.putString("nbt_type", nbt_type);
                             extra.putString("nbt_name", nbt_name);
                             extra.putDouble("nbt_value", value);
@@ -1018,10 +1107,16 @@ public class ScreenDrawing {
 
             public static void drawText (int length, double value_min, double value_max, double value_move, String nbt_type, String nbt_name, String text) {
 
+                drawTextWithSuffix(length, value_min, value_max, value_move, nbt_type, nbt_name, text, "");
+
+            }
+
+            public static void drawTextWithSuffix (int length, double value_min, double value_max, double value_move, String nbt_type, String nbt_name, String text, String suffix) {
+
                 // Ingredient
                 {
 
-                    double value_default = NBT.getNumber(nbt_type, nbt_name);
+                    double value_default = NBT.getNumber(player_local, nbt_type, nbt_name);
                     StringBuilder builder = new StringBuilder();
                     builder.append(text).append(" ");
 
@@ -1060,7 +1155,8 @@ public class ScreenDrawing {
 
                     }
 
-                    ComponentOverlay.drawTextBasic(normal_font_scale, builder.toString());
+                    builder.append(" ").append(suffix);
+                    ComponentOverlay.drawTextBasic(DEFAULT_FONT_SCALE, builder.toString());
 
                 }
 
@@ -1101,12 +1197,11 @@ public class ScreenDrawing {
 
             private static void draw (boolean is_active, boolean is_lock, String nbt_type, String nbt_name) {
 
-                boolean value = NBT.getLogic(nbt_type, nbt_name);
+                boolean value = NBT.getLogic(player_local, nbt_type, nbt_name);
 
                 Runnable runnable = () -> {
 
                     CompoundTag tag = new CompoundTag();
-                    tag.putBoolean("is_item", item.isEmpty() == false);
                     tag.putString("nbt_type", nbt_type);
                     tag.putString("nbt_name", nbt_name);
                     NetworkManager.runServerCore("gui", "switch", tag);
@@ -1151,7 +1246,7 @@ public class ScreenDrawing {
                         int posX = Position.posX;
                         int posZ = Position.posZ;
                         Position.add(16, -2);
-                        ComponentOverlay.drawTextCenteredBasic(true, normal_font_scale, text);
+                        ComponentOverlay.drawTextCenteredBasic(true, DEFAULT_FONT_SCALE, text);
                         Position.set(Anchor.type, posX, posZ);
 
                     }
@@ -1179,10 +1274,9 @@ public class ScreenDrawing {
                     // Start Auto Sync
                     {
 
-                        if (NBT.getText(nbt_type, nbt_name).isEmpty() == true) {
+                        if (NBT.getText(player_local, nbt_type, nbt_name).isEmpty() == true) {
 
                             CompoundTag extra = new CompoundTag();
-                            extra.putBoolean("is_item", item.isEmpty() == false);
                             extra.putString("nbt_type", nbt_type);
                             extra.putString("nbt_name", nbt_name);
                             extra.putString("nbt_value", nbt_values[0]);
@@ -1197,7 +1291,7 @@ public class ScreenDrawing {
                 // Ingredient
                 {
 
-                    ComponentOverlay.drawTextBasic(normal_font_scale, text);
+                    ComponentOverlay.drawTextBasic(DEFAULT_FONT_SCALE, text);
 
                 }
 
@@ -1209,13 +1303,12 @@ public class ScreenDrawing {
                 for (String scan : nbt_values) {
 
                     Position.addZ(2);
-                    is_select = NBT.getText(nbt_type, nbt_name).equals(scan) == true;
+                    is_select = NBT.getText(player_local, nbt_type, nbt_name).equals(scan) == true;
                     String scan_final = scan;
 
                     ButtonTiny.drawBasicLockable(6, 6, is_active, is_lock == true || is_select == true, () -> {
 
                         CompoundTag extra = new CompoundTag();
-                        extra.putBoolean("is_item", item.isEmpty() == false);
                         extra.putString("nbt_type", nbt_type);
                         extra.putString("nbt_name", nbt_name);
                         extra.putString("nbt_value", scan_final);
@@ -1239,7 +1332,7 @@ public class ScreenDrawing {
                         scanX = Position.posX;
                         scanZ = Position.posZ;
                         Position.add(10, -2);
-                        ComponentOverlay.drawTextCenteredBasic(true, normal_font_scale, scan);
+                        ComponentOverlay.drawTextCenteredBasic(true, DEFAULT_FONT_SCALE, scan);
 
                     }
 
@@ -1265,19 +1358,18 @@ public class ScreenDrawing {
 
         public static class Board {
 
-            private static void draw (int sizeX, int sizeZ, String nbt_type, String nbt_name) {
+            private static void draw (int sizeX, int sizeZ, String name) {
 
                 int posX = Position.posX;
                 int posZ = Position.posZ;
 
-                List<String> list = NBTManager.Mob.getListAsList(player_local, nbt_type, nbt_name);
-                int line_limit = (int) (Math.round(sizeZ / 8.0) - 2);
-                int count = 0;
+                List<String> list = NBT.getList(player_local, "gui", name);
+                int line_limit = (int) Math.floor(sizeZ / 10.5);
 
                 if (list.isEmpty() == true) {
 
                     Position.add(sizeX / 2, sizeZ / 2);
-                    ComponentOverlay.drawTextCenteredBasic(false, normal_font_scale, "§fEmpty List");
+                    ComponentOverlay.drawTextCenteredBasic(false, DEFAULT_FONT_SCALE, "§fEmpty List");
 
                 } else {
 
@@ -1286,63 +1378,35 @@ public class ScreenDrawing {
                     // List
                     {
 
-                        int sub_start = 0;
-                        int sub_end = 0;
+                        int sub_start = (int) NBT.getNumber(player_local, "gui", name + "_page");
+                        int sub_end = (sub_start + line_limit);
+                        int select = (int) NBT.getNumber(player_local, "gui", name + "_select");
+                        int number = -1;
 
-                        // Get Sub Start and End
-                        {
+                        for (String scan : list) {
 
-                            int page = (int) NBTManager.Mob.getNumber(player_local, nbt_type, nbt_name + "_page");
-                            sub_start = page * line_limit;
-                            sub_end = sub_start + line_limit;
+                            number = number + 1;
 
-                            if (sub_start < 0) {
+                            if (number < sub_start) {
 
-                                sub_start = 0;
-
-                            } else if (sub_start > list.size()) {
-
-                                sub_start = list.size();
+                                continue;
 
                             }
 
-                            if (sub_end < 0) {
-
-                                sub_end = 0;
-
-                            } else if (sub_end > list.size()) {
-
-                                sub_end = list.size();
-
-                            }
-
-                        }
-
-                        int select = (int) NBTManager.Mob.getNumber(player_local, nbt_type, nbt_name + "_select");
-                        int number = 1;
-
-                        for (String scan : list.subList(sub_start, sub_end)) {
-
-                            count = count + 1;
-
-                            if (number == select) {
-
-                                scan = scan + "     §e<-";
-
-                            }
-
-                            Position.addZ(3);
-                            ComponentOverlay.drawTextBasic(normal_font_scale, scan);
-
-                            if (number < line_limit) {
-
-                                number = number + 1;
-
-                            } else {
+                            if (number > sub_end) {
 
                                 break;
 
                             }
+
+                            if (number == select) {
+
+                                scan = scan + "          §e<-";
+
+                            }
+
+                            Position.addZ(4);
+                            ComponentOverlay.drawTextBasic(DEFAULT_FONT_SCALE, "§8" + number + " " + scan);
 
                         }
 
@@ -1350,43 +1414,48 @@ public class ScreenDrawing {
 
                 }
 
-                Position.set(Anchor.type, posX, posZ);
-
-                int max_page = 0;
-
-                if (list.isEmpty() == false) {
-
-                    max_page = (int) Math.floor((list.size() - 1) / (double) line_limit);
-
-                }
-
                 // Ingredient
                 {
 
+                    int slide_size = list.size() - line_limit;
+
+                    if (slide_size < 0) {
+
+                        slide_size = 0;
+
+                    }
+
+                    Position.set(Anchor.type, posX, posZ);
                     Shape.drawLockedButton(sizeX, sizeZ);
                     Position.addZ(sizeZ + 2);
-                    Slider.drawBasic(160, 0, max_page, 1, nbt_type, nbt_name + "_page");
+                    Slider.drawBasic(sizeX, 0, slide_size - 1, 1, "gui", name + "_page");
                     Position.addZ(2);
-                    Slider.drawBasic(160, 0, count, 1, nbt_type, nbt_name + "_select");
+                    Slider.drawBasic(sizeX, 0, list.size() - 1, 1, "gui", name + "_select");
 
                 }
 
             }
 
+            public static void drawBasic (int sizeX, int sizeZ, String name) {
+
+                Board.draw(sizeX, sizeZ, "board_" + name);
+
+            }
+
             public static class ListEntity {
 
-                public static void draw (String title, String tag, String description) {
+                public static void draw (String title, String name, String description) {
 
                     int posX = Position.posX;
                     int posZ = Position.posZ;
                     Position.addX(192);
-                    Board.draw(160, 150, "gui", "board_entity_" + tag + "_show");
+                    drawBasic(160, 150, "entity_" + name);
 
                     // Ingredient
                     {
 
                         CompoundTag extra = new CompoundTag();
-                        extra.putString("nbt_tag", tag);
+                        extra.putString("nbt_name", name);
 
                         int temporary_number = 0;
 
@@ -1399,20 +1468,20 @@ public class ScreenDrawing {
 
                         Position.set(Anchor.type, posX, posZ);
 
-                        ComponentOverlay.drawTextBasic(1.25, title);
+                        ComponentOverlay.drawTextBasic(1, title);
                         Position.addZ(8);
                         ComponentOverlay.drawTextParagraph(160, description);
 
                         Position.setZ(posZ + 80);
-                        TextBox.drawText(160, "gui", "board_entity_" + tag + "_id", "Entity ID and Name");
+                        TextBox.drawText(160, "gui", "board_entity_" + name + "_id", "Entity ID and Name");
                         Position.addZ(2);
-                        TextBox.drawBasic(160, "gui", "board_entity_" + tag + "_name");
+                        TextBox.drawBasic(160, "gui", "board_entity_" + name + "_name");
                         Position.addZ(8);
-                        Slider.drawText(160, 5, 200, 10, "gui", "board_entity_" + tag + "_radius", "Area Radius");
+                        Slider.drawText(160, 5, 200, 10, "gui", "board_entity_" + name + "_radius", "Area Radius");
 
                         Position.addZ(8);
                         posZ = Position.posZ;
-                        Radio.drawBasic("Removal Mode", "gui", "board_entity_" + tag + "_remove_mode", new String[]{"Area", "Overall", "Selection"});
+                        Radio.drawBasic("Removal Mode", "gui", "board_entity_" + name + "_remove_mode", new String[]{"Area", "Overall", "Selection"});
                         Position.setZ(posZ);
                         Position.add(80, 22);
                         posZ = Position.posZ;
@@ -1425,16 +1494,16 @@ public class ScreenDrawing {
 
                 }
 
-                public static void runRefresh (ServerLevel level_server, ServerPlayer player_server, String tag) {
+                public static void runRefresh (ServerLevel level_server, ServerPlayer player_server, String name) {
 
-                    for (Entity scan : EntityManager.Population.getEverywhereUpdatable(level_server, "", "", new String[]{tag})) {
+                    for (Entity scan : EntityManager.Population.getEverywhereUpdatable(level_server, "", "", new String[]{name})) {
 
-                        scan.removeTag(tag);
+                        scan.removeTag(name);
 
                     }
 
-                    List<String> list_id = NBTManager.Mob.getListAsList(player_server, "gui", "board_entity_" + tag + "_list_id");
-                    List<String> list_name = NBTManager.Mob.getListAsList(player_server, "gui", "board_entity_" + tag + "_list_name");
+                    List<String> list_id = NBT.getList(player_server, "gui", "board_entity_" + name + "_list_id");
+                    List<String> list_name = NBT.getList(player_server, "gui", "board_entity_" + name + "_list_name");
                     List<String> list = new ArrayList<>();
                     Entity entity = null;
                     String entity_name = "";
@@ -1442,7 +1511,7 @@ public class ScreenDrawing {
                     String entity_status = "";
                     int number = 0;
 
-                    for (String scan : NBTManager.Mob.getListAsList(player_server, "gui", "board_entity_" + tag + "_list_uuid")) {
+                    for (String scan : NBT.getList(player_server, "gui", "board_entity_" + name + "_list_uuid")) {
 
                         entity = EntityManager.getByUUID(level_server, scan);
                         entity_name = list_name.get(number);
@@ -1458,7 +1527,7 @@ public class ScreenDrawing {
 
                                 entity_name_color = "§a";
                                 entity_status = " (Online)";
-                                entity.addTag(tag);
+                                entity.addTag(name);
 
                             }
 
@@ -1479,11 +1548,11 @@ public class ScreenDrawing {
                                 } else {
 
                                     entity_name_color = "§f";
-                                    entity_status = " §8(" + (number + 1) + ")";
+                                    entity_status = "";
 
                                 }
 
-                                entity.addTag(tag);
+                                entity.addTag(name);
 
                             }
 
@@ -1494,17 +1563,17 @@ public class ScreenDrawing {
 
                     }
 
-                    NBTManager.Mob.setListAlternate(player_server, "gui", "board_entity_" + tag + "_show", list, true);
+                    NBT.setList(player_server, "gui", "board_entity_" + name, list);
 
                 }
 
-                public static void runAdd (ServerPlayer player_server, String tag) {
+                public static void runAdd (ServerPlayer player_server, String name) {
 
-                    String target_id = NBTManager.Mob.getText(player_server, "gui", "board_entity_" + tag + "_id");
-                    String target_name = NBTManager.Mob.getText(player_server, "gui", "board_entity_" + tag + "_name");
-                    int radius = (int) NBTManager.Mob.getNumber(player_server, "gui", "board_entity_" + tag + "_radius");
+                    String target_id = NBT.getText(player_server, "gui", "board_entity_" + name + "_id");
+                    String target_name = NBT.getText(player_server, "gui", "board_entity_" + name + "_name");
+                    int radius = (int) NBT.getNumber(player_server, "gui", "board_entity_" + name + "_radius");
 
-                    List<String> list_uuid_original = NBTManager.Mob.getListAsList(player_server, "gui", "board_entity_" + tag + "_list_uuid");
+                    List<String> list_uuid_original = NBT.getList(player_server, "gui", "board_entity_" + name + "_list_uuid");
                     List<String> list_uuid = new ArrayList<>();
                     List<String> list_id = new ArrayList<>();
                     List<String> list_name = new ArrayList<>();
@@ -1526,63 +1595,63 @@ public class ScreenDrawing {
 
                     }
 
-                    NBTManager.Mob.addListMultiple(player_server, "gui", "board_entity_" + tag + "_list_uuid", list_uuid, true);
-                    NBTManager.Mob.addListMultiple(player_server, "gui", "board_entity_" + tag + "_list_id", list_id, true);
-                    NBTManager.Mob.addListMultiple(player_server, "gui", "board_entity_" + tag + "_list_name", list_name, true);
+                    NBT.addListMultiple(player_server, "gui", "board_entity_" + name + "_list_uuid", list_uuid);
+                    NBT.addListMultiple(player_server, "gui", "board_entity_" + name + "_list_id", list_id);
+                    NBT.addListMultiple(player_server, "gui", "board_entity_" + name + "_list_name", list_name);
 
                 }
 
-                public static void runClear (ServerPlayer player_server, String tag) {
+                public static void runClear (ServerPlayer player_server, String name) {
 
-                    NBTManager.Mob.setListAlternate(player_server, "gui", "board_entity_" + tag + "_list_uuid", new ArrayList<>(), true);
-                    NBTManager.Mob.setListAlternate(player_server, "gui", "board_entity_" + tag + "_list_id", new ArrayList<>(), true);
-                    NBTManager.Mob.setListAlternate(player_server, "gui", "board_entity_" + tag + "_list_name", new ArrayList<>(), true);
-                    NBTManager.Mob.setListAlternate(player_server, "gui", "board_entity_" + tag + "_list_name_custom", new ArrayList<>(), true);
+                    NBT.setList(player_server, "gui", "board_entity_" + name + "_list_uuid", new ArrayList<>());
+                    NBT.setList(player_server, "gui", "board_entity_" + name + "_list_id", new ArrayList<>());
+                    NBT.setList(player_server, "gui", "board_entity_" + name + "_list_name", new ArrayList<>());
+                    NBT.setList(player_server, "gui", "board_entity_" + name + "_list_name_custom", new ArrayList<>());
 
                 }
 
-                public static void runRemove (ServerLevel level_server, ServerPlayer player_server, String tag) {
+                public static void runRemove (ServerLevel level_server, ServerPlayer player_server, String name) {
 
-                    String mode = NBTManager.Mob.getText(player_server, "gui", "board_entity_" + tag + "_remove_mode");
+                    String mode = NBT.getText(player_server, "gui", "board_entity_" + name + "_remove_mode");
 
                     if (mode.equals("Area") == true) {
 
-                        runRemoveModeScan(level_server, player_server, tag, false);
+                        runRemoveScan(level_server, player_server, name, false);
 
                     } else if (mode.equals("Overall") == true) {
 
-                        runRemoveModeScan(level_server, player_server, tag, true);
+                        runRemoveScan(level_server, player_server, name, true);
 
                     } else if (mode.equals("Selection") == true) {
 
-                        runRemoveModeSelected(player_server, tag);
+                        runRemoveSelected(player_server, name);
 
                     }
 
                 }
 
-                private static void runRemoveModeScan (ServerLevel level_server, ServerPlayer player_server, String tag, boolean is_mode_overall) {
+                private static void runRemoveScan (ServerLevel level_server, ServerPlayer player_server, String tag, boolean is_mode_overall) {
 
-                    String target_id = NBTManager.Mob.getText(player_server, "gui", "board_entity_" + tag + "_id");
-                    String target_name = NBTManager.Mob.getText(player_server, "gui", "board_entity_" + tag + "_name");
-                    int radius = (int) NBTManager.Mob.getNumber(player_server, "gui", "board_entity_" + tag + "_radius");
+                    String target_id = NBT.getText(player_server, "gui", "board_entity_" + tag + "_id");
+                    String target_name = NBT.getText(player_server, "gui", "board_entity_" + tag + "_name");
+                    int radius = (int) NBT.getNumber(player_server, "gui", "board_entity_" + tag + "_radius");
 
-                    List<String> list_original_id = NBTManager.Mob.getListAsList(player_server, "gui", "board_entity_" + tag + "_list_id");
-                    List<String> list_original_name = NBTManager.Mob.getListAsList(player_server, "gui", "board_entity_" + tag + "_list_name");
-                    List<String> list_uuid = new ArrayList<>();
-                    List<String> list_id = new ArrayList<>();
-                    List<String> list_name = new ArrayList<>();
+                    List<String> list_id = NBT.getList(player_server, "gui", "board_entity_" + tag + "_list_id");
+                    List<String> list_name = NBT.getList(player_server, "gui", "board_entity_" + tag + "_list_name");
+                    List<String> list_uuid_new = new ArrayList<>();
+                    List<String> list_id_new = new ArrayList<>();
+                    List<String> list_name_new = new ArrayList<>();
 
                     int number = -1;
                     String scan_id = "";
                     String scan_name = "";
                     Entity entity = null;
 
-                    for (String scan : NBTManager.Mob.getListAsList(player_server, "gui", "board_entity_" + tag + "_list_uuid")) {
+                    for (String scan : NBT.getList(player_server, "gui", "board_entity_" + tag + "_list_uuid")) {
 
                         number = number + 1;
-                        scan_id = list_original_id.get(number);
-                        scan_name = list_original_name.get(number);
+                        scan_id = list_id.get(number);
+                        scan_name = list_name.get(number);
 
                         if (is_mode_overall == true) {
 
@@ -1610,9 +1679,13 @@ public class ScreenDrawing {
 
                                     if (player_server.position().distanceTo(entity.position()) <= radius) {
 
-                                        if (EntityManager.getID(entity).equals(target_id) == true || entity.getDisplayName().getString().equals(target_name) == true) {
+                                        if (target_id.isEmpty() == true || EntityManager.getID(entity).equals(target_id) == true) {
 
-                                            continue;
+                                            if (target_name.isEmpty() == true || entity.getDisplayName().getString().equals(target_name) == true) {
+
+                                                continue;
+
+                                            }
 
                                         }
 
@@ -1624,41 +1697,31 @@ public class ScreenDrawing {
 
                         }
 
-                        list_uuid.add(scan);
-                        list_id.add(scan_id);
-                        list_name.add(scan_name);
+                        list_uuid_new.add(scan);
+                        list_id_new.add(scan_id);
+                        list_name_new.add(scan_name);
 
                     }
 
-                    NBTManager.Mob.addListMultiple(player_server, "gui", "board_entity_" + tag + "_list_uuid", list_uuid, true);
-                    NBTManager.Mob.addListMultiple(player_server, "gui", "board_entity_" + tag + "_list_id", list_id, true);
-                    NBTManager.Mob.addListMultiple(player_server, "gui", "board_entity_" + tag + "_list_name", list_name, true);
+                    NBT.setList(player_server, "gui", "board_entity_" + tag + "_list_uuid", list_uuid_new);
+                    NBT.setList(player_server, "gui", "board_entity_" + tag + "_list_id", list_id_new);
+                    NBT.setList(player_server, "gui", "board_entity_" + tag + "_list_name", list_name_new);
 
                 }
 
-                private static void runRemoveModeSelected (ServerPlayer player_server, String tag) {
+                private static void runRemoveSelected (ServerPlayer player_server, String name) {
 
-                    int page = (int) NBTManager.Mob.getNumber(player_server, "gui", "board_entity_" + tag + "_show_page");
-                    int select = (int) NBTManager.Mob.getNumber(player_server, "gui", "board_entity_" + tag + "_show_select");
+                    int select = (int) NBT.getNumber(player_server, "gui", "board_entity_" + name + "_select");
 
-                    if (select == 0) {
-
-                        return;
-
-                    }
-
-                    int number = (page * 17) + select;
-                    number = number - 1;
-
-                    List<String> list_uuid = NBTManager.Mob.getListAsList(player_server, "gui", "board_entity_" + tag + "_list_uuid");
-                    List<String> list_id = NBTManager.Mob.getListAsList(player_server, "gui", "board_entity_" + tag + "_list_id");
-                    List<String> list_name = NBTManager.Mob.getListAsList(player_server, "gui", "board_entity_" + tag + "_list_name");
-                    list_uuid.remove(number);
-                    list_id.remove(number);
-                    list_name.remove(number);
-                    NBTManager.Mob.addListMultiple(player_server, "gui", "board_entity_" + tag + "_list_uuid", list_uuid, true);
-                    NBTManager.Mob.addListMultiple(player_server, "gui", "board_entity_" + tag + "_list_id", list_id, true);
-                    NBTManager.Mob.addListMultiple(player_server, "gui", "board_entity_" + tag + "_list_name", list_name, true);
+                    List<String> list_uuid = NBT.getList(player_server, "gui", "board_entity_" + name + "_list_uuid");
+                    List<String> list_id = NBT.getList(player_server, "gui", "board_entity_" + name + "_list_id");
+                    List<String> list_name = NBT.getList(player_server, "gui", "board_entity_" + name + "_list_name");
+                    list_uuid.remove(select);
+                    list_id.remove(select);
+                    list_name.remove(select);
+                    NBT.setList(player_server, "gui", "board_entity_" + name + "_list_uuid", list_uuid);
+                    NBT.setList(player_server, "gui", "board_entity_" + name + "_list_id", list_id);
+                    NBT.setList(player_server, "gui", "board_entity_" + name + "_list_name", list_name);
 
                 }
 

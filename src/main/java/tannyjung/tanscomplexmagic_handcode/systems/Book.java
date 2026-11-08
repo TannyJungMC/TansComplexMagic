@@ -8,13 +8,14 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import tannyjung.tanscomplexmagic.init.TanscomplexmagicModItems;
 import tannyjung.tanscomplexmagic_core.Core;
 import tannyjung.tanscomplexmagic_core.game.*;
 import tannyjung.tanscomplexmagic_core.game.screen.GUIManager;
-import tannyjung.tanscomplexmagic_core.outside.OutsideUtils;
+import tannyjung.tanscomplexmagic_core.game.screen.GUIScreen;
+import tannyjung.tanscomplexmagic_core.game.screen.ScreenDrawing;
+import tannyjung.tanscomplexmagic_core.outside.TimeUtils;
 
 public class Book {
 
@@ -73,7 +74,7 @@ public class Book {
 
         }
 
-        GUIManager.open(player_server, "book", page);
+        GUIManager.open(player_server, "entity", "book", page);
         GameUtils.playSound(level_server, player_server.position(), (Math.random() * 0.5) + 0.5, 10, "minecraft:item.book.page_turn");
 
     }
@@ -99,7 +100,7 @@ public class Book {
         }
 
         NBTManager.Mob.setText(player_server, "main", "page", page, false);
-        GUIManager.open(player_server, "book", page);
+        GUIManager.open(player_server, "entity", "book", page);
         GameUtils.playSound(level_server, player_server.position(), (Math.random() * 0.5) + 0.5, 10, "minecraft:item.book.page_turn");
 
     }
@@ -122,6 +123,10 @@ public class Book {
 
                 type = "warning";
 
+            } else {
+
+                type = "";
+
             }
 
             NBTManager.Mob.setText(player_server, "book", "log", type, true);
@@ -130,6 +135,12 @@ public class Book {
         }
 
         public static void update (ServerPlayer player_server) {
+
+            if (GUIScreen.player_server_watching.isEmpty() == true) {
+
+                return;
+
+            }
 
             String type = NBTManager.Mob.getText(player_server, "book", "log");
             String text = "";
@@ -142,7 +153,7 @@ public class Book {
 
                 if (mana != 150) {
 
-                    time = " - Full in " + OutsideUtils.Calculation.convertSecondToTime(((150 - mana) * 60) + (60 - mana_charge));
+                    time = " - Full in " + TimeUtils.getRemainReadable(NBTManager.Mob.getText(player_server, "main", "timestamp_mana"));
 
                 }
 
@@ -155,12 +166,6 @@ public class Book {
             } else if (type.equals("warning") == true) {
 
                 text = "§c17 - Detected enemy in radius of buoy \"Beach 11\"";
-
-            }
-
-            if (text.isEmpty() == true) {
-
-                return;
 
             }
 

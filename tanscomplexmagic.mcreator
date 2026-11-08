@@ -6111,24 +6111,6 @@
       }
     },
     {
-      "name": "CreativeManaTick",
-      "type": "procedure",
-      "compiles": true,
-      "locked_code": false,
-      "registry_name": "creative_mana_tick",
-      "metadata": {
-        "dependencies": [
-          {
-            "name": "entity",
-            "type": "entity"
-          }
-        ],
-        "files": [
-          "src/main/java/tannyjung/tanscomplexmagic/procedures/CreativeManaTickProcedure.java"
-        ]
-      }
-    },
-    {
       "name": "Tab",
       "type": "tab",
       "compiles": true,
@@ -6229,6 +6211,24 @@
         ],
         "files": [
           "src/main/java/tannyjung/tanscomplexmagic/procedures/UserBookWhenRightClickAtBlockProcedure.java"
+        ]
+      }
+    },
+    {
+      "name": "CreativeManaClick",
+      "type": "procedure",
+      "compiles": true,
+      "locked_code": false,
+      "registry_name": "creative_mana_click",
+      "metadata": {
+        "dependencies": [
+          {
+            "name": "entity",
+            "type": "entity"
+          }
+        ],
+        "files": [
+          "src/main/java/tannyjung/tanscomplexmagic/procedures/CreativeManaClickProcedure.java"
         ]
       }
     }

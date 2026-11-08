@@ -9,7 +9,12 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.LevelAccessor;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import tannyjung.tanscomplexmagic_core.Core;
+import tannyjung.tanscomplexmagic_core.outside.OutsideUtils;
+import tannyjung.tanscomplexmagic_core.outside.TXTFunction;
+import tannyjung.tanscomplexmagic_core.outside.TimeUtils;
+import tannyjung.tanscomplexmagic_core.outside.config.TannyPackManager;
 
 import java.util.function.Consumer;
 
@@ -19,10 +24,6 @@ import net.minecraftforge.event.RegisterCommandsEvent;
 (1.21.1)
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 */
-import net.neoforged.neoforge.event.RegisterCommandsEvent;
-import tannyjung.tanscomplexmagic_core.outside.OutsideUtils;
-import tannyjung.tanscomplexmagic_core.outside.TXTFunction;
-import tannyjung.tanscomplexmagic_core.outside.config.TannyPackManager;
 
 public class CommandMaker {
 
@@ -254,6 +255,7 @@ public class CommandMaker {
 
             }
 
+            CommandMaker.create(event_object, 2, "command / reset_timestamps", run.command::reset_timestamps);
             CommandMaker.create(event_object, 2, "restart", run::restart);
 
         }
@@ -261,6 +263,12 @@ public class CommandMaker {
         private static class run {
 
             private static class command {
+
+                private static void reset_timestamps (CommandContext<CommandSourceStack> data) {
+
+                    TimeUtils.resetTimestamps();
+
+                }
 
                 private static void txt_function (CommandContext<CommandSourceStack> data) {
 
@@ -305,7 +313,7 @@ public class CommandMaker {
             private static void restart (CommandContext<CommandSourceStack> data) {
 
                 ServerLevel level_server = data.getSource().getLevel();
-                Core.restart(level_server, true, true);
+                Core.DataManagement.restart(level_server, true, true);
 
             }
 

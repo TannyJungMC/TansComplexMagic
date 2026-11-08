@@ -12,6 +12,23 @@ public class BasicSpells {
 
     public static void loopTick (ServerLevel level_server, ServerPlayer player_server) {
 
+
+
+
+
+
+
+        if (true) return;
+
+
+
+
+
+
+
+
+
+
         Entity entity_target = null;
 
         for (Entity entity : EntityManager.Population.getEverywhereStatic(level_server, "", "", Utils.Tag.convertSystemSpecific(player_server, new String[]{"protector_fireball"}))) {
@@ -59,7 +76,7 @@ public class BasicSpells {
 
     public static void loopSecond (ServerLevel level_server, ServerPlayer player_server) {
 
-        Protector.loopSecond(level_server, player_server);
+        // Protector.loopSecond(level_server, player_server);
 
     }
 

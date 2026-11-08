@@ -13,6 +13,7 @@ import tannyjung.tanscomplexmagic_core.Core;
 import tannyjung.tanscomplexmagic_core.game.*;
 import tannyjung.tanscomplexmagic_core.game.screen.GUIManager;
 import tannyjung.tanscomplexmagic_handcode.systems.Book;
+import tannyjung.tanscomplexmagic_handcode.systems.Mana;
 import tannyjung.tanscomplexmagic_handcode.systems.Spell1;
 import tannyjung.tanscomplexmagic_handcode.systems.Utils;
 
@@ -278,7 +279,7 @@ public class Networks {
                         String positive_negative = extra.getString("positive_negative");
                         int duration_per_mana = extra.getInt("duration_per_mana");
 
-                        if (Utils.trySpendMana(player_server, 1) == true) {
+                        if (Mana.spend(player_server, 1) == true) {
 
                             NBTManager.Mob.addNumber(player_server, "spell1", "card_duration_max_" + positive_negative + number, duration_per_mana, true);
 

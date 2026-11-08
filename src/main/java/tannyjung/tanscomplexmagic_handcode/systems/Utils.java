@@ -7,21 +7,6 @@ import tannyjung.tanscomplexmagic_core.game.NBTManager;
 
 public class Utils {
 
-    public static boolean trySpendMana (ServerPlayer player_server, int amount) {
-
-        int mana = (int) NBTManager.Mob.getNumber(player_server, "main", "mana");
-
-        if (mana < amount) {
-
-            return false;
-
-        }
-
-        NBTManager.Mob.setNumber(player_server, "main", "mana", mana - amount, true);
-        return true;
-
-    }
-
     public static class Tag {
 
         public static String getUser (Player player) {

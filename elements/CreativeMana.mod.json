@@ -43,8 +43,8 @@
     },
     "inventorySize": 9,
     "inventoryStackSize": 64,
-    "onItemInInventoryTick": {
-      "name": "CreativeManaTick"
+    "onRightClickedInAir": {
+      "name": "CreativeManaClick"
     },
     "enableRanged": false,
     "shootConstantly": false,

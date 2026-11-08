@@ -4,13 +4,14 @@ import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.phys.Vec3;
 import tannyjung.tanscomplexmagic_core.game.*;
-import tannyjung.tanscomplexmagic_core.outside.OutsideUtils;
+import tannyjung.tanscomplexmagic_core.outside.TimeUtils;
 
 import java.util.*;
 
@@ -57,7 +58,7 @@ public class Spell1 {
         }
 
         Map<Integer, Entity> cards = Card.getActive(level_server, player_server);
-        updateCenter(entity_center);
+        updateCenter(player_server, entity_center);
         Card.updateTick(level_server, player_server, entity_center, cards);
 
         // Radius Key Control
@@ -140,6 +141,8 @@ public class Spell1 {
 
     public static void loopSecond (ServerLevel level_server, ServerPlayer player_server) {
 
+        Empower.updateSecond(level_server, player_server);
+
         Entity entity_center = EntityManager.Population.getEverywhereOneStatic(level_server, "", "", Utils.Tag.convertSystemSpecific(player_server, new String[]{"spell1", "spell1_center"}));
 
         if (entity_center == null) {
@@ -153,9 +156,9 @@ public class Spell1 {
 
     }
 
-    private static void updateCenter (Entity entity_center) {
+    private static void updateCenter (ServerPlayer player_server, Entity entity_center) {
 
-        double rotation = entity_center.getYRot() + -0.025;
+        double rotation = entity_center.getYRot() - (((1.0 - (NBTManager.Mob.getNumber(player_server, "spell1", "radius") / 200.0)) * 0.1) + 0.025);
 
         if (rotation >= 360) {
 
@@ -164,6 +167,38 @@ public class Spell1 {
         }
 
         entity_center.setYRot((float) rotation);
+
+    }
+
+    public static String getNameFromNumber (int number) {
+
+        if (number == 1) return "Aries";
+        else if (number == 2)
+            return "Taurus";
+        else if (number == 3)
+            return "Gemini";
+        else if (number == 4)
+            return "Cancer";
+        else if (number == 5)
+            return "Leo";
+        else if (number == 6)
+            return "Virgo";
+        else if (number == 7)
+            return "Libra";
+        else if (number == 8)
+            return "Scorpio";
+        else if (number == 9)
+            return "Sagittarius";
+        else if (number == 10)
+            return "Capricorn";
+        else if (number == 11)
+            return "Aquarius";
+        else if (number == 12)
+            return "Pisces";
+        else if (number == 13)
+            return "Ophiuchus";
+
+        return "";
 
     }
 
@@ -259,7 +294,7 @@ public class Spell1 {
 
             NBTManager.Mob.setText(player_server, "spell1", "card_status" + card_number, "", true);
             NBTManager.Mob.setNumber(player_server, "spell1", "number_of_targets_detected" + card_number, 0, true);
-            NBTManager.Mob.setText(player_server, "spell1", "remaining_duration" + card_number, "00s", true);
+            NBTManager.Mob.setNumber(player_server, "spell1", "remaining_duration" + card_number, 0, true);
 
             GameUtils.spawnParticle(level_server, entity_card.position(), 0, 0, 0, 0, 1, "minecraft:flash");
             GameUtils.playSound(level_server, entity_card.position(), 0, radius * 4, "minecraft:entity.evoker.cast_spell");
@@ -326,11 +361,12 @@ public class Spell1 {
 
             }
 
-            List<Entity> target_all = new ArrayList<>();
+            Set<Entity> target_all = new HashSet<>();
             Entity[] target_sort = new Entity[]{};
             boolean is_enable = false;
             boolean is_negative = false;
             String positive_negative = "";
+
             int duration_spend_per_second = 0;
             int remaining_duration = 0;
             boolean is_high_power_mode = false;
@@ -338,11 +374,10 @@ public class Spell1 {
             for (int number = 1; number <= 13; number++) {
 
                 entity_card = cards.get(number);
+                is_enable = NBTManager.Mob.getLogic(player_server, "spell1", "is_card_enable" + number);
 
                 // When Update Card Enable
                 {
-
-                    is_enable = NBTManager.Mob.getLogic(player_server, "spell1", "is_card_enable" + number);
 
                     if (is_enable != NBTManager.Mob.getLogic(player_server, "spell1", "save_is_card_enable" + number)) {
 
@@ -398,7 +433,7 @@ public class Spell1 {
                     if (NBTManager.Mob.getLogic(player_server, "spell1", "is_card_target_mark" + number) == true || is_libra_force_target == true)
                         target_all.addAll(targets.get("mark"));
 
-                    target_sort = EntityManager.Population.sort(target_all, entity_center.position(), false, 0);
+                    target_sort = EntityManager.Population.sort(target_all.stream().toList(), entity_center.position(), false, 0);
 
                 }
 
@@ -426,6 +461,12 @@ public class Spell1 {
                         } else {
 
                             duration_spend_per_second = 1;
+
+                        }
+
+                        if (level_server.isDay() == true) {
+
+                            duration_spend_per_second = duration_spend_per_second * 2;
 
                         }
 
@@ -464,9 +505,15 @@ public class Spell1 {
 
                 if (remaining_duration != 0) {
 
-                    remaining_duration = (int) (NBTManager.Mob.getNumber(player_server, "spell1", "card_duration_" + positive_negative + number) / remaining_duration);
+                    remaining_duration = (int) (NBTManager.Mob.getNumber(player_server, "spell1", "card_duration_" + positive_negative + number) / target_sort.length);
 
                     if (is_high_power_mode == true) {
+
+                        remaining_duration = remaining_duration / 2;
+
+                    }
+
+                    if (level_server.isDay() == true) {
 
                         remaining_duration = remaining_duration / 2;
 
@@ -475,7 +522,7 @@ public class Spell1 {
                 }
 
                 NBTManager.Mob.setNumber(player_server, "spell1", "number_of_targets_detected" + number, target_sort.length, true);
-                NBTManager.Mob.setText(player_server, "spell1", "remaining_duration" + number, OutsideUtils.Calculation.convertSecondToTime(remaining_duration), true);
+                NBTManager.Mob.setNumber(player_server, "spell1", "remaining_duration" + number, remaining_duration, true);
 
             }
 
@@ -547,48 +594,7 @@ public class Spell1 {
 
             }
 
-            int degree_set = 90;
-
-            if (NBTManager.Mob.getLogic(player_server, "spell1", "is_pause_all") == false) {
-
-                if (NBTManager.Mob.getLogic(player_server, "spell1", "is_card_active" + card_number) == true) {
-
-                    boolean is_libra_blocking = card_number != 7 && NBTManager.Mob.getLogic(player_server, "spell1", "is_card_negative7") == false && NBTManager.Mob.getText(player_server, "spell1", "card_status7").equals("effect") == true;
-
-                    if (is_libra_blocking == false) {
-
-                        boolean is_negative = NBTManager.Mob.getLogic(player_server, "spell1", "is_card_negative" + card_number);
-                        String positive_negative = "";
-
-                        if (is_negative == true) {
-
-                            positive_negative = "negative";
-
-                        } else {
-
-                            positive_negative = "positive";
-
-                        }
-
-                        if (NBTManager.Mob.getNumber(player_server, "spell1", "card_duration_" + positive_negative + card_number) > 0) {
-
-                            if (is_negative == true) {
-
-                                degree_set = -180;
-
-                            } else {
-
-                                degree_set = 0;
-
-                            }
-
-                        }
-
-                    }
-
-                }
-
-            }
+            int degree_set = testAvailableToActive(level_server, player_server, card_number);
 
             if (entity_card.getXRot() != degree_set) {
 
@@ -695,6 +701,70 @@ public class Spell1 {
 
             double scale = NBTManager.Mob.getNumber(player_server, "spell1", "radius") / 5.0;
             DisplayManager.setItemScale(entity_card, scale);
+
+        }
+
+        private static int testAvailableToActive (ServerLevel level_server, ServerPlayer player_server, int card_number) {
+
+            if (NBTManager.Mob.getLogic(player_server, "spell1", "is_pause_all") == true) {
+
+                return 90;
+
+            }
+
+            if (NBTManager.Mob.getLogic(player_server, "spell1", "is_card_active" + card_number) == false) {
+
+                return 90;
+
+            }
+
+            // Libra Blocking
+            {
+
+                if (card_number != 7) {
+
+                    if (NBTManager.Mob.getLogic(player_server, "spell1", "is_card_negative7") == false) {
+
+                        if (NBTManager.Mob.getText(player_server, "spell1", "card_status7").equals("effect") == true) {
+
+                            return 90;
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+            boolean is_negative = NBTManager.Mob.getLogic(player_server, "spell1", "is_card_negative" + card_number);
+            String positive_negative = "";
+
+            if (is_negative == true) {
+
+                positive_negative = "negative";
+
+            } else {
+
+                positive_negative = "positive";
+
+            }
+
+            if (NBTManager.Mob.getNumber(player_server, "spell1", "card_duration_" + positive_negative + card_number) == 0) {
+
+                return 90;
+
+            }
+
+            if (is_negative == true) {
+
+                return -180;
+
+            } else {
+
+                return 0;
+
+            }
 
         }
 
@@ -1823,6 +1893,75 @@ public class Spell1 {
                 }
 
             }
+
+        }
+
+    }
+
+    private static class Empower {
+
+        private static void updateSecond (ServerLevel level_server, ServerPlayer player_server) {
+
+            int number = 0;
+            int empowered_card_level = 0;
+            boolean is_empowered_card_negative = false;
+
+            if (TimeUtils.getRemain(NBTManager.Mob.getText(player_server, "spell1", "timestamp_next_bonus")) == 0) {
+
+                NBTManager.Mob.setText(player_server, "spell1", "timestamp_next_bonus", TimeUtils.getTimestampEvery(1, 0, 0), true);
+
+                RandomSource random = RandomSource.create(Long.parseLong(TimeUtils.getTimestampCurrent()));
+                number = random.nextInt(13) + 1;
+                is_empowered_card_negative = random.nextBoolean();
+
+                if (random.nextDouble() < 0.1) {
+
+                    empowered_card_level = 4;
+
+                } else if (random.nextDouble() < 0.05) {
+
+                    empowered_card_level = 5;
+
+                } else {
+
+                    empowered_card_level = random.nextInt(3) + 1;
+
+                }
+
+                NBTManager.Mob.setNumber(player_server, "spell1", "empowered_card", number, true);
+                NBTManager.Mob.setNumber(player_server, "spell1", "empowered_card_level", empowered_card_level, true);
+                NBTManager.Mob.setLogic(player_server, "spell1", "is_empowered_card_negative", is_empowered_card_negative, true);
+
+            } else {
+
+                number = (int) NBTManager.Mob.getNumber(player_server, "spell1", "empowered_card");
+                empowered_card_level = (int) NBTManager.Mob.getNumber(player_server, "spell1", "empowered_card_level");
+                is_empowered_card_negative = NBTManager.Mob.getLogic(player_server, "spell1", "is_empowered_card_negative");
+
+            }
+
+            String positive_negative = "";
+
+            if (is_empowered_card_negative == true) {
+
+                positive_negative = "negative";
+
+            } else {
+
+                positive_negative = "positive";
+
+            }
+
+            int duration = (int) NBTManager.Mob.getNumber(player_server, "spell1", "card_duration_" + positive_negative + number);
+            int duration_max = (int) NBTManager.Mob.getNumber(player_server, "spell1", "card_duration_max_" + positive_negative + number);
+
+            if (duration == duration_max) {
+
+                NBTManager.Mob.setNumber(player_server, "spell1", "card_duration_" + positive_negative + number, duration_max + empowered_card_level, true);
+
+            }
+
+            NBTManager.Mob.setNumber(player_server, "spell1", "card_duration_max_" + positive_negative + number, duration_max + empowered_card_level, true);
 
         }
 

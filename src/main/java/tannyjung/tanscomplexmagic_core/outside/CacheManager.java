@@ -1,10 +1,11 @@
-package tannyjung.tanscomplexmagic_core.outside.config;
+package tannyjung.tanscomplexmagic_core.outside;
 
 import tannyjung.tanscomplexmagic_core.Core;
-import tannyjung.tanscomplexmagic_core.outside.FileManager;
-import tannyjung.tanscomplexmagic_core.outside.OutsideUtils;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class CacheManager {
 

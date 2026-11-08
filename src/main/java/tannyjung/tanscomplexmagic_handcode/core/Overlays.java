@@ -2,6 +2,7 @@ package tannyjung.tanscomplexmagic_handcode.core;
 
 import tannyjung.tanscomplexmagic_core.game.NBTManager;
 import tannyjung.tanscomplexmagic_core.game.screen.ScreenDrawing;
+import tannyjung.tanscomplexmagic_core.outside.OutsideUtils;
 
 public class Overlays {
     
@@ -26,7 +27,11 @@ public class Overlays {
                 // Cards
                 {
 
-                    String status = "";
+                    int empowered_card = (int) NBTManager.Mob.getNumber(ScreenDrawing.player_local, "spell1", "empowered_card");
+                    boolean is_empowered_card_negative = NBTManager.Mob.getLogic(ScreenDrawing.player_local, "spell1", "is_empowered_card_negative");
+                    StringBuilder status = new StringBuilder();
+                    String positive_negative = "";
+                    String card_status = "";
 
                     for (int number = 1; number <= 13; number++) {
 
@@ -37,36 +42,60 @@ public class Overlays {
                         }
 
                         ScreenDrawing.ComponentOverlay.drawImageBasic(12, 12, "tanscomplexmagic:textures/block/zodiac_card" + number + ".png");
-                        ScreenDrawing.Position.setMark();
-                        ScreenDrawing.Position.add(10, 2);
-                        ScreenDrawing.ComponentOverlay.drawTextBasic(0.4, "§f" + (int) NBTManager.Mob.getNumber(ScreenDrawing.player_local, "spell1", "number_of_targets_detected" + number));
 
-                        if (NBTManager.Mob.getLogic(ScreenDrawing.player_local, "spell1", "is_card_active" + number) == true) {
+                        // Status
+                        {
 
-                            status = NBTManager.Mob.getText(ScreenDrawing.player_local, "spell1", "card_status" + number);
+                            status.setLength(0);
 
-                            if (status.equals("effect") == true) {
+                            if (NBTManager.Mob.getLogic(ScreenDrawing.player_local, "spell1", "is_card_negative" + number) == true) {
 
-                                status = "§a*";
-
-                            } else if (status.equals("flip") == true) {
-
-                                status = "§e*";
+                                positive_negative = "§c[-] ";
 
                             } else {
 
-                                status = "§c*";
+                                positive_negative = "§a[+] ";
 
                             }
 
-                        } else {
+                            status.append(positive_negative);
+                            status.append(" ");
 
-                            status = "";
+                            if (NBTManager.Mob.getLogic(ScreenDrawing.player_local, "spell1", "is_card_active" + number) == true) {
+
+                                card_status = NBTManager.Mob.getText(ScreenDrawing.player_local, "spell1", "card_status" + number);
+
+                                if (card_status.equals("effect") == true) {
+
+                                    status.append("§b[O] ");
+
+                                } else if (card_status.equals("flip") == true) {
+
+                                    status.append("§6[>] ");
+
+                                } else {
+
+                                    status.append("§7[=] ");
+
+                                }
+
+                            }
+
+                            if (number == empowered_card && is_empowered_card_negative == NBTManager.Mob.getLogic(ScreenDrawing.player_local, "spell1", "is_card_negative" + number)) {
+
+                                status.append("§d");
+                                status.repeat("<> ", (int) NBTManager.Mob.getNumber(ScreenDrawing.player_local, "spell1", "empowered_card_level"));
+
+                            }
+
+                            ScreenDrawing.Position.setMark();
+                            ScreenDrawing.Position.add(10, 2);
+                            ScreenDrawing.ComponentOverlay.drawTextBasic(0.4, status.toString());
 
                         }
 
                         ScreenDrawing.Position.addZ(2);
-                        ScreenDrawing.ComponentOverlay.drawTextBasic(0.4, "§f" + NBTManager.Mob.getText(ScreenDrawing.player_local, "spell1", "remaining_duration" + number) + " " + status);
+                        ScreenDrawing.ComponentOverlay.drawTextBasic(0.4, "§f" + (int) NBTManager.Mob.getNumber(ScreenDrawing.player_local, "spell1", "number_of_targets_detected" + number) + " > " + OutsideUtils.Calculation.convertSecondToTime((int) NBTManager.Mob.getNumber(ScreenDrawing.player_local, "spell1", "remaining_duration" + number)));
                         ScreenDrawing.Position.returnMark();
                         ScreenDrawing.Position.addZ(15);
 

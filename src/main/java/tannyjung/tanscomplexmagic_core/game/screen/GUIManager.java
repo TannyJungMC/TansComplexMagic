@@ -17,7 +17,13 @@ import java.util.Map;
 
 public class GUIManager {
 
-    public static void open (ServerPlayer player_server, String group, String name) {
+    public static void create (String group, String name, Runnable runnable) {
+
+        Storage.map.computeIfAbsent(group, create -> new LinkedHashMap<>()).put(name, runnable);
+
+    }
+
+    public static void open (ServerPlayer player_server, String nbt_type, String group, String name) {
 
         MenuProvider provider = new MenuProvider() {
 
@@ -50,6 +56,13 @@ public class GUIManager {
 
         }
 
+        if (NBTManager.Mob.getText(player_server, "gui", "group").isEmpty() == true) {
+
+            GUIScreen.player_server_watching.add(player_server);
+
+        }
+
+        NBTManager.Mob.setText(player_server, "gui", "nbt_type", nbt_type, true);
         NBTManager.Mob.setText(player_server, "gui", "group", group, true);
         NBTManager.Mob.setText(player_server, "gui", "name", name, true);
         player_server.openMenu(provider, player_server.blockPosition());
@@ -85,12 +98,6 @@ public class GUIManager {
             }
 
             runnable.run();
-
-        }
-
-        public static void add (String group, String name, Runnable runnable) {
-
-            map.computeIfAbsent(group, create -> new LinkedHashMap<>()).put(name, runnable);
 
         }
 

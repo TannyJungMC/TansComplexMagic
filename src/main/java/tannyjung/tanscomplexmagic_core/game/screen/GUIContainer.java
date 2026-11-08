@@ -38,6 +38,7 @@ public class GUIContainer extends AbstractContainerMenu {
             if (!this.containsKey(key) && this.size() >= 34)
                 return null;
             return super.put(key, value);
+
         }
 
     };
@@ -55,6 +56,13 @@ public class GUIContainer extends AbstractContainerMenu {
             this.z = pos.getZ();
             access = ContainerLevelAccess.create(world, pos);
         }
+
+        player.getAllSlots().forEach(item -> {
+
+            this.addSlot(new Slot(inv, inv.selected, 0, -1000));
+
+        });
+
     }
 
     @Override

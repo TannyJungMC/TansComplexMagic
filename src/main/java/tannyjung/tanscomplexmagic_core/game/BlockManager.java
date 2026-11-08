@@ -13,7 +13,7 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.block.state.properties.Property;
-import tannyjung.tanscomplexmagic_core.outside.config.CacheManager;
+import tannyjung.tanscomplexmagic_core.outside.CacheManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -244,7 +244,7 @@ public class BlockManager {
 
     }
 
-    public static BlockState fromText (ServerLevel level_server, String data) {
+    public static BlockState fromText (LevelAccessor level_accessor, String data) {
 
         BlockState block = null;
 
@@ -266,7 +266,7 @@ public class BlockManager {
 
             }
 
-            get = level_server.registryAccess().registryOrThrow(Registries.BLOCK).get(ResourceLocation.parse(id));
+            get = level_accessor.registryAccess().registryOrThrow(Registries.BLOCK).get(ResourceLocation.parse(id));
 
             if (get == null) {
 

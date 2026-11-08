@@ -2,13 +2,14 @@ package tannyjung.tanscomplexmagic_core.outside.config;
 
 
 import tannyjung.tanscomplexmagic_core.Core;
+import tannyjung.tanscomplexmagic_core.outside.CacheManager;
 import tannyjung.tanscomplexmagic_core.outside.FileManager;
-import tannyjung.tanscomplexmagic_core.outside.OutsideUtils;
 
 import java.io.File;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class ConfigDynamic {
 
@@ -88,21 +89,9 @@ public class ConfigDynamic {
 
                     Map<String, Map<String, String>> temp = read(default_values, name);
 
-                    try {
+                    for (File file : FileManager.getAllFiles(file_organized.getPath())) {
 
-                        Files.walk(file_organized.toPath()).forEach(source -> {
-
-                            if (source.toFile().isDirectory() == false) {
-
-                                write.append(write(default_values, temp, scan_at, source));
-
-                            }
-
-                        });
-
-                    } catch (Exception exception) {
-
-                        OutsideUtils.exception(new Exception(), exception, "");
+                        write.append(write(default_values, temp, scan_at, file.toPath()));
 
                     }
 
@@ -181,7 +170,7 @@ public class ConfigDynamic {
 
         }
 
-        Map<String, String> options = OutsideUtils.convertFileToDataMap(source.toString());
+        Map<String, String> options = CustomPack.convertDataToMap(FileManager.readTXT(source.toString()));
         String value = "";
 
         for (Map.Entry<String, String> entry : default_values.entrySet()) {

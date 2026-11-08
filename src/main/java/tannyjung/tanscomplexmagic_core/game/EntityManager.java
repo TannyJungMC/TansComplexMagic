@@ -378,7 +378,7 @@ public class EntityManager {
 
                         Core.DelayedWork.createBasic(1, () -> {
 
-                            population.getOrDefault(request, new ArrayList<>()).remove(entity);
+                            population.getOrDefault(request, new ArrayList<>()).removeIf(scan -> scan.getId() == entity.getId());
 
                         });
 

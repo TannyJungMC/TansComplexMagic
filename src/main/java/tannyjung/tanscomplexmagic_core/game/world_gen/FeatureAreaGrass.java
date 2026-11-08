@@ -9,7 +9,6 @@ import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 import tannyjung.tanscomplexmagic_core.game.BlockManager;
-import tannyjung.tanscomplexmagic_core.game.GameUtils;
 
 public class FeatureAreaGrass extends Feature <NoneFeatureConfiguration> {
 

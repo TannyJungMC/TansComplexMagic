@@ -8,12 +8,14 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 import tannyjung.tanscomplexmagic_core.Core;
 import tannyjung.tanscomplexmagic_core.game.BlockManager;
 import tannyjung.tanscomplexmagic_core.game.EntityManager;
 import tannyjung.tanscomplexmagic_core.game.GameUtils;
 import tannyjung.tanscomplexmagic_core.game.NBTManager;
-import tannyjung.tanscomplexmagic_core.outside.config.CacheManager;
+
+import java.util.List;
 
 public class TXTFunction {
 
@@ -30,7 +32,7 @@ public class TXTFunction {
 
         } else {
 
-            random = RandomSource.create(level_accessor.getServer().overworld().getSeed() ^ ((pos.getX() * 341873128712L) + (pos.getZ() * 132897987541L) + pos.getY()));
+            random = RandomSource.create(level_server.getSeed() ^ ((pos.getX() * 341873128712L) + (pos.getZ() * 132897987541L) + pos.getY()));
 
         }
         
@@ -267,7 +269,7 @@ public class TXTFunction {
 
                                                                 pos_convert = pos.offset(offset_posX, offset_posY, offset_posZ);
 
-                                                                if (GameUtils.Space.testChunkStatus(level_accessor, new ChunkPos(pos_convert), "surface") == true) {
+                                                                if (GameUtils.Space.testChunkStatus(level_accessor, new ChunkPos(pos_convert), ChunkStatus.SURFACE) == true) {
 
                                                                     if (BlockManager.test(level_accessor.getBlockState(pos_convert), variable_text) == true) {
 
@@ -312,7 +314,7 @@ public class TXTFunction {
                                                                     maxY = Integer.parseInt(min_max[4]);
                                                                     maxZ = Integer.parseInt(min_max[5]);
 
-                                                                    block = BlockManager.fromText(level_server, split[3]);
+                                                                    block = BlockManager.fromText(level_accessor, split[3]);
                                                                     variable_text = split[4];
 
                                                                 } catch (Exception ignored) {
@@ -437,7 +439,7 @@ public class TXTFunction {
 
                                                                         String variable_text_final = variable_text;
 
-                                                                        level_server.getServer().execute(() -> {
+                                                                        level_accessor.getServer().execute(() -> {
 
                                                                             GameUtils.runCommand(level_server, pos.getCenter(), variable_text_final);
 
@@ -503,28 +505,30 @@ public class TXTFunction {
 
     public static void runDelayedCommand (ServerLevel level_server, Entity entity) {
 
-        if (level_server.isPositionEntityTicking(entity.blockPosition()) == true) {
+        if (level_server.isPositionEntityTicking(entity.blockPosition()) == false) {
 
-            for (String command : NBTManager.Mob.getText(entity, "core", "command").replace("*", "'").replace("$", "\"").split("\\|")) {
-
-                level_server.getServer().execute(() -> GameUtils.runCommand(level_server, entity.position(), command));
-
-            }
-
-            entity.discard();
+            return;
 
         }
 
+        for (String command : NBTManager.Mob.getText(entity, "core", "command").replace("*", "'").replace("$", "\"").split("\\|")) {
+
+            level_server.getServer().execute(() -> GameUtils.runCommand(level_server, entity.position(), command));
+
+        }
+
+        entity.discard();
+
     }
 
-    public static void loop (ServerLevel level_server) {
+    public static void loop (ServerLevel level_accessor) {
 
-        count_delayed_command = 0;
+        List<Entity> list = EntityManager.Population.getEverywhereStatic(level_accessor, "", "", new String[]{Core.mod_id_big + "-delayed_command"});
+        count_delayed_command = list.size();
 
-        for (Entity entity : EntityManager.Population.getEverywhereStatic(level_server, "", "", new String[]{Core.mod_id_big + "-delayed_command"})) {
+        for (Entity entity : list) {
 
-            count_delayed_command = count_delayed_command + 1;
-            TXTFunction.runDelayedCommand(level_server, entity);
+            TXTFunction.runDelayedCommand(level_accessor, entity);
 
         }
 

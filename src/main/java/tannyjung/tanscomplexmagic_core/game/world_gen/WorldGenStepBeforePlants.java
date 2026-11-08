@@ -2,7 +2,7 @@ package tannyjung.tanscomplexmagic_core.game.world_gen;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
@@ -21,13 +21,13 @@ public class WorldGenStepBeforePlants extends Feature <NoneFeatureConfiguration>
     @Override
     public boolean place (FeaturePlaceContext <NoneFeatureConfiguration> context) {
 
-        LevelAccessor level_accessor = context.level();
+        WorldGenLevel level_world_gen = context.level();
         ServerLevel level_server = context.level().getLevel();
         ChunkGenerator chunk_generator = context.chunkGenerator();
         String dimension = GameUtils.Space.getDimensionID(level_server).replace(":", "-");
         ChunkPos chunk_pos = new ChunkPos(context.origin());
 
-        WorldGen.stepBeforePlants(level_accessor, level_server, chunk_generator, dimension, chunk_pos);
+        WorldGen.stepBeforePlants(level_world_gen, level_server, chunk_generator, dimension, chunk_pos);
         return true;
 
     }
