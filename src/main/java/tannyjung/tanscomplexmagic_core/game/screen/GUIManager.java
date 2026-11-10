@@ -1,34 +1,70 @@
 package tannyjung.tanscomplexmagic_core.game.screen;
 
 import io.netty.buffer.Unpooled;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.MenuType;
+import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.DeferredRegister;
+import org.jetbrains.annotations.NotNull;
 import tannyjung.tanscomplexmagic_core.Core;
+import tannyjung.tanscomplexmagic_core.game.EntityManager;
 import tannyjung.tanscomplexmagic_core.game.NBTManager;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 public class GUIManager {
 
-    public static void create (String group, String name, Runnable runnable) {
+    public static final DeferredRegister<MenuType<?>> register = DeferredRegister.create(Registries.MENU, Core.mod_id);
+    public static final DeferredHolder<MenuType<?>, MenuType<GUIContainer>> gui = register.register("gui", () -> IMenuTypeExtension.create(GUIContainer::new));
 
-        Storage.map.computeIfAbsent(group, create -> new LinkedHashMap<>()).put(name, runnable);
+    private static final LinkedHashMap<Integer, Runnable> guis = new LinkedHashMap<>();
+    public static final List<ServerPlayer> server_player_watching = new ArrayList<>();
+    public static int client_current_id = 0;
+    public static boolean server_refresh = false;
+
+    public static void add (Runnable runnable) {
+
+        guis.put(guis.size() + 1, runnable);
 
     }
 
-    public static void open (ServerPlayer player_server, String nbt_type, String group, String name) {
+    public static void draw (int id) {
+
+        if (guis.isEmpty() == true) {
+
+            return;
+
+        }
+
+        Runnable runnable = guis.get(id);
+
+        if (runnable == null) {
+
+            runnable = guis.get(guis.size());
+
+        }
+
+        runnable.run();
+
+    }
+
+    public static void open (ServerPlayer player_server, String nbt_type, int id) {
 
         MenuProvider provider = new MenuProvider() {
 
             @Override
-            public Component getDisplayName () {
+            public @NotNull Component getDisplayName () {
 
                 return Component.literal(Core.mod_name);
 
@@ -42,7 +78,7 @@ public class GUIManager {
             }
 
             @Override
-            public AbstractContainerMenu createMenu (int id, Inventory inventory, Player player) {
+            public AbstractContainerMenu createMenu (int id, @NotNull Inventory inventory, Player player) {
 
                 return new GUIContainer(id, inventory, new FriendlyByteBuf(Unpooled.buffer()).writeBlockPos(player.blockPosition()));
 
@@ -50,21 +86,14 @@ public class GUIManager {
 
         };
 
-        if (Storage.getNumber(group, name) == 0) {
+        if (NBTManager.Mob.getNumber(player_server, "gui", "id") == 0) {
 
-            return;
-
-        }
-
-        if (NBTManager.Mob.getText(player_server, "gui", "group").isEmpty() == true) {
-
-            GUIScreen.player_server_watching.add(player_server);
+            server_player_watching.add(player_server);
 
         }
 
         NBTManager.Mob.setText(player_server, "gui", "nbt_type", nbt_type, true);
-        NBTManager.Mob.setText(player_server, "gui", "group", group, true);
-        NBTManager.Mob.setText(player_server, "gui", "name", name, true);
+        NBTManager.Mob.setNumber(player_server, "gui", "id", id, true);
         player_server.openMenu(provider, player_server.blockPosition());
 
     }
@@ -75,145 +104,366 @@ public class GUIManager {
 
     }
 
-    public static class Storage {
+    public static class NBT {
 
-        private static final Map<String, LinkedHashMap<String, Runnable>> map = new HashMap<>();
+        public static boolean getLogic (Player player, String type, String name) {
 
-        public static void draw (String group, String name) {
+            if (NBTManager.Mob.getText(player, "gui", "nbt_type").equals("item") == true) {
 
-            Map<String, Runnable> data = map.get(group);
+                return NBTManager.Item.getLogic(player.getItemBySlot(EquipmentSlot.MAINHAND), type, name);
 
-            if (data == null) {
+            } else {
 
-                return;
-
-            }
-
-            Runnable runnable = data.get(name);
-
-            if (runnable == null) {
-
-                return;
+                return NBTManager.Mob.getLogic(player, type, name);
 
             }
-
-            runnable.run();
 
         }
 
-        public static int getNumber (String group, String name) {
+        public static void setLogic (Player player, String type, String name, boolean value) {
 
-            LinkedHashMap<String, Runnable> data = map.get(group);
+            if (NBTManager.Mob.getText(player, "gui", "nbt_type").equals("item") == true) {
 
-            if (data == null) {
+                NBTManager.Item.setLogic(player.getItemBySlot(EquipmentSlot.MAINHAND), type, name, value);
 
-                return 0;
+            } else {
+
+                NBTManager.Mob.setLogic(player, type, name, value, true);
 
             }
 
-            int number = 1;
+        }
 
-            for (Map.Entry<String, Runnable> entry : data.entrySet()) {
+        public static String getText (Player player, String type, String name) {
 
-                if (entry.getKey().equals(name) == true) {
+            if (NBTManager.Mob.getText(player, "gui", "nbt_type").equals("item") == true) {
 
-                    return number;
+                return NBTManager.Item.getText(player.getItemBySlot(EquipmentSlot.MAINHAND), type, name);
+
+            } else {
+
+                return NBTManager.Mob.getText(player, type, name);
+
+            }
+
+        }
+
+        public static void setText (Player player, String type, String name, String value) {
+
+            if (NBTManager.Mob.getText(player, "gui", "nbt_type").equals("item") == true) {
+
+                NBTManager.Item.setText(player.getItemBySlot(EquipmentSlot.MAINHAND), type, name, value);
+
+            } else {
+
+                NBTManager.Mob.setText(player, type, name, value, true);
+
+            }
+
+        }
+
+        public static double getNumber (Player player, String type, String name) {
+
+            if (NBTManager.Mob.getText(player, "gui", "nbt_type").equals("item") == true) {
+
+                return NBTManager.Item.getNumber(player.getItemBySlot(EquipmentSlot.MAINHAND), type, name);
+
+            } else {
+
+                return NBTManager.Mob.getNumber(player, type, name);
+
+            }
+
+        }
+
+        public static void setNumber (Player player, String type, String name, double value) {
+
+            if (NBTManager.Mob.getText(player, "gui", "nbt_type").equals("item") == true) {
+
+                NBTManager.Item.setNumber(player.getItemBySlot(EquipmentSlot.MAINHAND), type, name, value);
+
+            } else {
+
+                NBTManager.Mob.setNumber(player, type, name, value, true);
+
+            }
+
+        }
+
+        public static List<String> getList (Player player, String type, String name) {
+
+            if (NBTManager.Mob.getText(player, "gui", "nbt_type").equals("item") == true) {
+
+                return NBTManager.Item.getListAsList(player.getItemBySlot(EquipmentSlot.MAINHAND), type, name);
+
+            } else {
+
+                return NBTManager.Mob.getListAsList(player, type, name);
+
+            }
+
+        }
+
+        public static void setList (Player player, String type, String name, List<String> value) {
+
+            if (NBTManager.Mob.getText(player, "gui", "nbt_type").equals("item") == true) {
+
+                NBTManager.Item.setListAlternate(player.getItemBySlot(EquipmentSlot.MAINHAND), type, name, value);
+
+            } else {
+
+                NBTManager.Mob.setListAlternate(player, type, name, value, true);
+
+            }
+
+        }
+
+        public static void addListMultiple (Player player, String type, String name, List<String> value) {
+
+            if (NBTManager.Mob.getText(player, "gui", "nbt_type").equals("item") == true) {
+
+                NBTManager.Item.addListMultiple(player.getItemBySlot(EquipmentSlot.MAINHAND), type, name, value);
+
+            } else {
+
+                NBTManager.Mob.addListMultiple(player, type, name, value, true);
+
+            }
+
+        }
+
+    }
+
+    public static class BoardListEntity {
+
+        public static void refresh (ServerLevel level_server, ServerPlayer player_server, String name) {
+
+            for (Entity scan : EntityManager.Population.getEverywhereUpdatable(level_server, "", "", new String[]{name})) {
+
+                scan.removeTag(name);
+
+            }
+
+            List<String> list_id = NBT.getList(player_server, "gui", "board_entity_" + name + "_list_id");
+            List<String> list_name = NBT.getList(player_server, "gui", "board_entity_" + name + "_list_name");
+            List<String> list = new ArrayList<>();
+            Entity entity = null;
+            String entity_name = "";
+            String entity_name_color = "";
+            String entity_status = "";
+            int number = 0;
+
+            for (String scan : NBT.getList(player_server, "gui", "board_entity_" + name + "_list_uuid")) {
+
+                entity = EntityManager.getByUUID(level_server, scan);
+                entity_name = list_name.get(number);
+
+                if (list_id.get(number).equals("minecraft:player") == true) {
+
+                    if (entity == null) {
+
+                        entity_name_color = "§6";
+                        entity_status = " (Offline)";
+
+                    } else {
+
+                        entity_name_color = "§a";
+                        entity_status = " (Online)";
+                        entity.addTag(name);
+
+                    }
+
+                } else {
+
+                    if (entity == null) {
+
+                        entity_name_color = "§c";
+                        entity_status = " (Not Detected)";
+
+                    } else {
+
+                        if (entity.hasCustomName() == true) {
+
+                            entity_name_color = "§d";
+                            entity_status = "";
+
+                        } else {
+
+                            entity_name_color = "§f";
+                            entity_status = "";
+
+                        }
+
+                        entity.addTag(name);
+
+                    }
 
                 }
 
+                list.add(entity_name_color + entity_name + entity_status);
                 number = number + 1;
 
             }
 
-            return 0;
+            NBT.setList(player_server, "gui", "board_entity_" + name, list);
 
         }
 
-        public static String getNameByNumber (String group, int number) {
+        public static void add (ServerPlayer player_server, String name) {
 
-            LinkedHashMap<String, Runnable> data = map.get(group);
+            String target_id = NBT.getText(player_server, "gui", "board_entity_" + name + "_id");
+            String target_name = NBT.getText(player_server, "gui", "board_entity_" + name + "_name");
+            int radius = (int) NBT.getNumber(player_server, "gui", "board_entity_" + name + "_radius");
 
-            if (data == null) {
+            List<String> list_uuid_original = NBT.getList(player_server, "gui", "board_entity_" + name + "_list_uuid");
+            List<String> list_uuid = new ArrayList<>();
+            List<String> list_id = new ArrayList<>();
+            List<String> list_name = new ArrayList<>();
+            String uuid = "";
 
-                return "";
+            for (Entity entity : EntityManager.Population.sort(EntityManager.Population.getArea(player_server.serverLevel(), player_server.position(), radius, target_id, target_name, new String[]{"!" + Core.mod_id_big}), player_server.position(), false, 0)) {
 
-            }
+                uuid = entity.getStringUUID();
 
-            for (Map.Entry<String, Runnable> entry : data.entrySet()) {
+                if (list_uuid_original.contains(uuid) == true) {
 
-                if (number <= 1) {
-
-                    return entry.getKey();
+                    continue;
 
                 }
 
-                number = number - 1;
+                list_uuid.add(uuid);
+                list_id.add(EntityManager.getID(entity));
+                list_name.add(entity.getDisplayName().getString());
 
             }
 
-            return "";
+            NBT.addListMultiple(player_server, "gui", "board_entity_" + name + "_list_uuid", list_uuid);
+            NBT.addListMultiple(player_server, "gui", "board_entity_" + name + "_list_id", list_id);
+            NBT.addListMultiple(player_server, "gui", "board_entity_" + name + "_list_name", list_name);
 
         }
 
-        public static String getNamePrevious (String group, String name) {
+        public static void clear (ServerPlayer player_server, String name) {
 
-            LinkedHashMap<String, Runnable> data = map.get(group);
+            NBT.setList(player_server, "gui", "board_entity_" + name + "_list_uuid", new ArrayList<>());
+            NBT.setList(player_server, "gui", "board_entity_" + name + "_list_id", new ArrayList<>());
+            NBT.setList(player_server, "gui", "board_entity_" + name + "_list_name", new ArrayList<>());
+            NBT.setList(player_server, "gui", "board_entity_" + name + "_list_name_custom", new ArrayList<>());
 
-            if (data == null) {
+        }
 
-                return "";
+        public static void remove (ServerLevel level_server, ServerPlayer player_server, String name) {
+
+            String mode = NBT.getText(player_server, "gui", "board_entity_" + name + "_remove_mode");
+
+            if (mode.equals("Area") == true) {
+
+                removeScan(level_server, player_server, name, false);
+
+            } else if (mode.equals("Overall") == true) {
+
+                removeScan(level_server, player_server, name, true);
+
+            } else if (mode.equals("Selection") == true) {
+
+                removeSelected(player_server, name);
 
             }
 
-            String previous = "";
+        }
 
-            for (Map.Entry<String, Runnable> entry : data.entrySet()) {
+        private static void removeScan (ServerLevel level_server, ServerPlayer player_server, String tag, boolean is_mode_overall) {
 
-                if (entry.getKey().equals(name) == false) {
+            String target_id = NBT.getText(player_server, "gui", "board_entity_" + tag + "_id");
+            String target_name = NBT.getText(player_server, "gui", "board_entity_" + tag + "_name");
+            int radius = (int) NBT.getNumber(player_server, "gui", "board_entity_" + tag + "_radius");
 
-                    previous = entry.getKey();
+            List<String> list_id = NBT.getList(player_server, "gui", "board_entity_" + tag + "_list_id");
+            List<String> list_name = NBT.getList(player_server, "gui", "board_entity_" + tag + "_list_name");
+            List<String> list_uuid_new = new ArrayList<>();
+            List<String> list_id_new = new ArrayList<>();
+            List<String> list_name_new = new ArrayList<>();
+
+            int number = -1;
+            String scan_id = "";
+            String scan_name = "";
+            Entity entity = null;
+
+            for (String scan : NBT.getList(player_server, "gui", "board_entity_" + tag + "_list_uuid")) {
+
+                number = number + 1;
+                scan_id = list_id.get(number);
+                scan_name = list_name.get(number);
+
+                if (is_mode_overall == true) {
+
+                    {
+
+                        if (target_id.isEmpty() == true || scan_id.equals(target_id) == true) {
+
+                            if (target_name.isEmpty() == true || scan_name.equals(target_name) == true) {
+
+                                continue;
+
+                            }
+
+                        }
+
+                    }
 
                 } else {
 
-                    return previous;
+                    {
+
+                        entity = EntityManager.getByUUID(level_server, scan);
+
+                        if (entity != null) {
+
+                            if (player_server.position().distanceTo(entity.position()) <= radius) {
+
+                                if (target_id.isEmpty() == true || EntityManager.getID(entity).equals(target_id) == true) {
+
+                                    if (target_name.isEmpty() == true || entity.getDisplayName().getString().equals(target_name) == true) {
+
+                                        continue;
+
+                                    }
+
+                                }
+
+                            }
+
+                        }
+
+                    }
 
                 }
 
+                list_uuid_new.add(scan);
+                list_id_new.add(scan_id);
+                list_name_new.add(scan_name);
+
             }
 
-            return "";
+            NBT.setList(player_server, "gui", "board_entity_" + tag + "_list_uuid", list_uuid_new);
+            NBT.setList(player_server, "gui", "board_entity_" + tag + "_list_id", list_id_new);
+            NBT.setList(player_server, "gui", "board_entity_" + tag + "_list_name", list_name_new);
 
         }
 
-        public static String getNameNext (String group, String name) {
+        private static void removeSelected (ServerPlayer player_server, String name) {
 
-            LinkedHashMap<String, Runnable> data = map.get(group);
+            int select = (int) NBT.getNumber(player_server, "gui", "board_entity_" + name + "_select");
 
-            if (data == null) {
-
-                return "";
-
-            }
-
-            boolean test = false;
-
-            for (Map.Entry<String, Runnable> entry : data.entrySet()) {
-
-                if (test == true) {
-
-                    return entry.getKey();
-
-                }
-
-                if (entry.getKey().equals(name) == true) {
-
-                    test = true;
-
-                }
-
-            }
-
-            return "";
+            List<String> list_uuid = NBT.getList(player_server, "gui", "board_entity_" + name + "_list_uuid");
+            List<String> list_id = NBT.getList(player_server, "gui", "board_entity_" + name + "_list_id");
+            List<String> list_name = NBT.getList(player_server, "gui", "board_entity_" + name + "_list_name");
+            list_uuid.remove(select);
+            list_id.remove(select);
+            list_name.remove(select);
+            NBT.setList(player_server, "gui", "board_entity_" + name + "_list_uuid", list_uuid);
+            NBT.setList(player_server, "gui", "board_entity_" + name + "_list_id", list_id);
+            NBT.setList(player_server, "gui", "board_entity_" + name + "_list_name", list_name);
 
         }
 

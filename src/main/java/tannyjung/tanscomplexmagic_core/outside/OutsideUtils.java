@@ -10,39 +10,35 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.nio.ByteBuffer;
-import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class OutsideUtils {
 
     public static void exception (Exception from, Exception exception, String details) {
 
         Core.logger.error("----------------------------------------------------------------------------------------------------");
+        StackTraceElement from_get = from.getStackTrace()[0];
+        Core.logger.error("Found an error reported from {} -> {} -> {}", from_get.getClassName(), from_get.getMethodName(), from_get.getLineNumber());
 
-        {
+        if (details.isEmpty() == false) {
 
-            StackTraceElement from_get = from.getStackTrace()[0];
-            Core.logger.error("Found an error reported from {} -> {} -> {}", from_get.getClassName(), from_get.getMethodName(), from_get.getLineNumber());
+            for (String get : details.split(" / ")) {
 
-            if (details.isEmpty() == false) {
-
-                for (String get : details.split(" / ")) {
-
-                    Core.logger.error(get);
-
-                }
+                Core.logger.error(get);
 
             }
 
-            Core.logger.error(exception.getMessage());
+        }
 
-            for (StackTraceElement get : exception.getStackTrace()) {
+        Core.logger.error(exception.getMessage());
 
-                if (get.toString().contains("tannyjung") == true) {
+        for (StackTraceElement get : exception.getStackTrace()) {
 
-                    Core.logger.error(get);
+            if (get.toString().contains("tannyjung") == true) {
 
-                }
+                Core.logger.error(get);
 
             }
 
@@ -146,201 +142,52 @@ public class OutsideUtils {
 
     }
 
-    public static BlockPos convertPosRotationMirrored (BlockPos pos, int[] rotation_mirrored) {
+    public static class Mathematical {
 
-        int posX = pos.getX();
-        int posZ = pos.getZ();
-        int save_posX = posX;
-        int save_posZ = posZ;
+        public static boolean isNumberStartWith (int number, int test) {
 
-        if (rotation_mirrored[0] == 2) {
+            int base = 1;
 
-            posX = save_posZ;
-            posZ = -save_posX;
+            while (base <= test) {
 
-        } else if (rotation_mirrored[0] == 3) {
-
-            posX = -save_posX;
-            posZ = -save_posZ;
-
-        } else if (rotation_mirrored[0] == 4) {
-
-            posX = -save_posZ;
-            posZ = save_posX;
-
-        }
-
-        if (rotation_mirrored[1] == 1) {
-
-            posX = -posX;
-
-        } else if (rotation_mirrored[1] == 2) {
-
-            posZ = -posZ;
-
-        }
-
-        return new BlockPos(posX, pos.getY(), posZ);
-
-    }
-
-    public static BlockPos convertPosFallen (BlockPos pos, int fallen_direction) {
-
-        int posX = pos.getX();
-        int posY = pos.getY();
-        int posZ = pos.getZ();
-        int posX_save = posX;
-        int posY_save = posY;
-        int posZ_save = posZ;
-
-        if (fallen_direction == 1) {
-
-            posY = posX_save;
-            posX = posY_save;
-
-        } else if (fallen_direction == 2) {
-
-            posY = posZ_save;
-            posZ = posY_save;
-
-        } else if (fallen_direction == 3) {
-
-            posY = posX_save;
-            posX = -posY_save;
-
-        } else if (fallen_direction == 4) {
-
-            posY = posZ_save;
-            posZ = -posY_save;
-
-        }
-
-        return new BlockPos(posX, posY, posZ);
-
-    }
-
-    public static int[] convertSizeRotationMirrored (int[] rotation_mirrored, int sizeX, int sizeZ, int center_sizeX, int center_sizeZ) {
-
-        int save_sizeX = sizeX;
-        int save_sizeZ = sizeZ;
-        int save_center_sizeX = center_sizeX;
-        int save_center_sizeZ = center_sizeZ;
-
-        if (rotation_mirrored[0] == 2) {
-
-            sizeX = save_sizeZ;
-            sizeZ = save_sizeX;
-            center_sizeX = save_center_sizeZ;
-            center_sizeZ = save_sizeX - save_center_sizeX;
-
-        } else if (rotation_mirrored[0] == 3) {
-
-            center_sizeX = save_sizeX - save_center_sizeX;
-            center_sizeZ = save_sizeZ - save_center_sizeZ;
-
-        } else if (rotation_mirrored[0] == 4) {
-
-            sizeX = save_sizeZ;
-            sizeZ = save_sizeX;
-            center_sizeX = save_sizeZ - save_center_sizeZ;
-            center_sizeZ = save_center_sizeX;
-
-        }
-
-        if (rotation_mirrored[1] == 1) {
-
-            center_sizeX = sizeX - center_sizeX;
-
-        } else if (rotation_mirrored[1] == 2) {
-
-            center_sizeZ = sizeZ - center_sizeZ;
-
-        }
-
-        return new int[]{sizeX, sizeZ, center_sizeX, center_sizeZ};
-
-    }
-
-    public static int[] convertSizeFallen (int fallen_direction, int sizeX, int sizeY, int sizeZ, int center_sizeX, int center_sizeY, int center_sizeZ) {
-
-        int save_sizeX = sizeX;
-        int save_sizeY = sizeY;
-        int save_sizeZ = sizeZ;
-        int save_center_sizeX = center_sizeX;
-        int save_center_sizeY = center_sizeY;
-        int save_center_sizeZ = center_sizeZ;
-
-        if (fallen_direction == 1) {
-
-            sizeY = save_sizeX;
-            sizeX = save_sizeY;
-            center_sizeY = save_sizeX - save_center_sizeX;
-            center_sizeX = save_center_sizeY;
-
-        } else if (fallen_direction == 2) {
-
-            sizeY = save_sizeZ;
-            sizeZ = save_sizeY;
-            center_sizeY = save_sizeZ - save_center_sizeZ;
-            center_sizeZ = save_center_sizeY;
-
-        } else if (fallen_direction == 3) {
-
-            sizeY = save_sizeX;
-            sizeX = save_sizeY;
-            center_sizeY = save_center_sizeX;
-            center_sizeX = save_sizeY - save_center_sizeY;
-
-        } else if (fallen_direction == 4) {
-
-            sizeY = save_sizeZ;
-            sizeZ = save_sizeY;
-            center_sizeY = save_center_sizeZ;
-            center_sizeZ = save_sizeY - save_center_sizeY;
-
-        }
-
-        return new int[]{sizeX, sizeY, sizeZ, center_sizeX, center_sizeY, center_sizeZ};
-
-    }
-
-    public static String convertRegionQuadtree (ChunkPos chunk_pos, int level) {
-
-        StringBuilder write = new StringBuilder();
-        int localX = chunk_pos.x & 31;
-        int localZ = chunk_pos.z & 31;
-
-        for (int step = 1; step <= level; step++) {
-
-            int size = 32 >> step;
-            int posX = (localX / size) % 2;
-            int posZ = (localZ / size) % 2;
-
-            if (posX == 0 && posZ == 0) {
-
-                write.append("/NW");
-
-            } else if (posX == 1 && posZ == 0) {
-
-                write.append("/NE");
-
-            } else if (posX == 0) {
-
-                write.append("/SW");
-
-            } else {
-
-                write.append("/SE");
+                base = base * 10;
 
             }
 
+            while (number >= base) {
+
+                number = number / 10;
+
+            }
+
+            return number == test;
+
         }
 
-        return write.substring(1);
+        public static boolean isNumberEndWith (int number, int test) {
+
+            int base = 1;
+
+            while ((base * 10) <= test) {
+
+                base = base * 10;
+
+            }
+
+            return number % base == test;
+
+        }
+
+        public static double shorterDouble (double number, int decimal) {
+
+            double test = Math.pow(10.0, decimal);
+            return Math.ceil(number * test) / test;
+
+        }
 
     }
 
-    public static class Data {
+    public static class Calculation {
 
         public static byte[] convertShortToArrayByte (short value) {
 
@@ -388,54 +235,234 @@ public class OutsideUtils {
 
         }
 
-    }
+        public static Map<String, String> convertTextDataToMap (String[] data) {
 
-    public static class Mathematic {
+            Map<String, String> convert = new HashMap<>();
+            String[] split = null;
 
-        public static boolean isNumberStartWith (int number, int test) {
+            for (String scan : data) {
 
-            int base = 1;
+                if (scan.isEmpty() == true) {
 
-            while (base <= test) {
+                    continue;
 
-                base = base * 10;
+                }
 
-            }
+                if (scan.contains(" = ") == false) {
 
-            while (number >= base) {
+                    continue;
 
-                number = number / 10;
+                }
 
-            }
+                split = scan.split(" = ");
 
-            return number == test;
+                if (split[1].equals("none") == true) {
 
-        }
+                    split[1] = "";
 
-        public static boolean isNumberEndWith (int number, int test) {
+                }
 
-            int base = 1;
-
-            while ((base * 10) <= test) {
-
-                base = base * 10;
+                convert.put(split[0], split[1]);
 
             }
 
-            return number % base == test;
+            return convert;
 
         }
 
-        public static double shorterDouble (double number, int decimal) {
+        public static BlockPos convertPosRotationMirrored (BlockPos pos, int[] rotation_mirrored) {
 
-            double test = Math.pow(10.0, decimal);
-            return Math.ceil(number * test) / test;
+            int posX = pos.getX();
+            int posZ = pos.getZ();
+            int save_posX = posX;
+            int save_posZ = posZ;
+
+            if (rotation_mirrored[0] == 2) {
+
+                posX = save_posZ;
+                posZ = -save_posX;
+
+            } else if (rotation_mirrored[0] == 3) {
+
+                posX = -save_posX;
+                posZ = -save_posZ;
+
+            } else if (rotation_mirrored[0] == 4) {
+
+                posX = -save_posZ;
+                posZ = save_posX;
+
+            }
+
+            if (rotation_mirrored[1] == 1) {
+
+                posX = -posX;
+
+            } else if (rotation_mirrored[1] == 2) {
+
+                posZ = -posZ;
+
+            }
+
+            return new BlockPos(posX, pos.getY(), posZ);
 
         }
 
-    }
+        public static BlockPos convertPosFallen (BlockPos pos, int fallen_direction) {
 
-    public static class Calculation {
+            int posX = pos.getX();
+            int posY = pos.getY();
+            int posZ = pos.getZ();
+            int posX_save = posX;
+            int posY_save = posY;
+            int posZ_save = posZ;
+
+            if (fallen_direction == 1) {
+
+                posY = posX_save;
+                posX = posY_save;
+
+            } else if (fallen_direction == 2) {
+
+                posY = posZ_save;
+                posZ = posY_save;
+
+            } else if (fallen_direction == 3) {
+
+                posY = posX_save;
+                posX = -posY_save;
+
+            } else if (fallen_direction == 4) {
+
+                posY = posZ_save;
+                posZ = -posY_save;
+
+            }
+
+            return new BlockPos(posX, posY, posZ);
+
+        }
+
+        public static int[] convertSizeRotationMirrored (int[] rotation_mirrored, int sizeX, int sizeZ, int center_sizeX, int center_sizeZ) {
+
+            int save_sizeX = sizeX;
+            int save_sizeZ = sizeZ;
+            int save_center_sizeX = center_sizeX;
+            int save_center_sizeZ = center_sizeZ;
+
+            if (rotation_mirrored[0] == 2) {
+
+                sizeX = save_sizeZ;
+                sizeZ = save_sizeX;
+                center_sizeX = save_center_sizeZ;
+                center_sizeZ = save_sizeX - save_center_sizeX;
+
+            } else if (rotation_mirrored[0] == 3) {
+
+                center_sizeX = save_sizeX - save_center_sizeX;
+                center_sizeZ = save_sizeZ - save_center_sizeZ;
+
+            } else if (rotation_mirrored[0] == 4) {
+
+                sizeX = save_sizeZ;
+                sizeZ = save_sizeX;
+                center_sizeX = save_sizeZ - save_center_sizeZ;
+                center_sizeZ = save_center_sizeX;
+
+            }
+
+            if (rotation_mirrored[1] == 1) {
+
+                center_sizeX = sizeX - center_sizeX;
+
+            } else if (rotation_mirrored[1] == 2) {
+
+                center_sizeZ = sizeZ - center_sizeZ;
+
+            }
+
+            return new int[]{sizeX, sizeZ, center_sizeX, center_sizeZ};
+
+        }
+
+        public static int[] convertSizeFallen (int fallen_direction, int sizeX, int sizeY, int sizeZ, int center_sizeX, int center_sizeY, int center_sizeZ) {
+
+            int save_sizeX = sizeX;
+            int save_sizeY = sizeY;
+            int save_sizeZ = sizeZ;
+            int save_center_sizeX = center_sizeX;
+            int save_center_sizeY = center_sizeY;
+            int save_center_sizeZ = center_sizeZ;
+
+            if (fallen_direction == 1) {
+
+                sizeY = save_sizeX;
+                sizeX = save_sizeY;
+                center_sizeY = save_sizeX - save_center_sizeX;
+                center_sizeX = save_center_sizeY;
+
+            } else if (fallen_direction == 2) {
+
+                sizeY = save_sizeZ;
+                sizeZ = save_sizeY;
+                center_sizeY = save_sizeZ - save_center_sizeZ;
+                center_sizeZ = save_center_sizeY;
+
+            } else if (fallen_direction == 3) {
+
+                sizeY = save_sizeX;
+                sizeX = save_sizeY;
+                center_sizeY = save_center_sizeX;
+                center_sizeX = save_sizeY - save_center_sizeY;
+
+            } else if (fallen_direction == 4) {
+
+                sizeY = save_sizeZ;
+                sizeZ = save_sizeY;
+                center_sizeY = save_center_sizeZ;
+                center_sizeZ = save_sizeY - save_center_sizeY;
+
+            }
+
+            return new int[]{sizeX, sizeY, sizeZ, center_sizeX, center_sizeY, center_sizeZ};
+
+        }
+
+        public static String convertRegionQuadtree (ChunkPos chunk_pos, int level) {
+
+            StringBuilder write = new StringBuilder();
+            int localX = chunk_pos.x & 31;
+            int localZ = chunk_pos.z & 31;
+
+            for (int step = 1; step <= level; step++) {
+
+                int size = 32 >> step;
+                int posX = (localX / size) % 2;
+                int posZ = (localZ / size) % 2;
+
+                if (posX == 0 && posZ == 0) {
+
+                    write.append("/NW");
+
+                } else if (posX == 1 && posZ == 0) {
+
+                    write.append("/NE");
+
+                } else if (posX == 0) {
+
+                    write.append("/SW");
+
+                } else {
+
+                    write.append("/SE");
+
+                }
+
+            }
+
+            return write.substring(1);
+
+        }
 
         public static double getDegreeDestinationX (float rotationY, double posX, double posZ, double destinationX, double destinationZ) {
 
@@ -455,39 +482,21 @@ public class OutsideUtils {
 
         }
 
-        public static String convertSecondToTime (int seconds) {
+        public static String convertByteToDigitalStorageUnit (int bytes) {
 
-            int hour = (seconds / 60 / 60) % 60;
-            int minute = (seconds / 60) % 60;
-            int second = seconds % 60;
-            StringBuilder builder = new StringBuilder();
+            if (bytes < 1024) {
 
-            if (hour > 0) {
+                return bytes + " B";
 
-                builder.append(hour).append("h ");
+            } else if (bytes < 1048576) {
 
-            }
+                return OutsideUtils.Mathematical.shorterDouble((double) bytes / 1024.0, 2) + " KB";
 
-            if (hour > 0 || minute > 0) {
+            } else {
 
-                if (minute < 10) {
-
-                    builder.append("0");
-
-                }
-
-                builder.append(minute).append("m ");
+                return OutsideUtils.Mathematical.shorterDouble((double) bytes / 1048576.0, 2) + " MB";
 
             }
-
-            if (second < 10) {
-
-                builder.append("0");
-
-            }
-
-            builder.append(second).append("s");
-            return builder.toString();
 
         }
 

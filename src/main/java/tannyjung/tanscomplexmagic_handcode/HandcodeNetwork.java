@@ -1,6 +1,5 @@
-package tannyjung.tanscomplexmagic_handcode.core;
+package tannyjung.tanscomplexmagic_handcode;
 
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -17,17 +16,11 @@ import tannyjung.tanscomplexmagic_handcode.systems.Mana;
 import tannyjung.tanscomplexmagic_handcode.systems.Spell1;
 import tannyjung.tanscomplexmagic_handcode.systems.Utils;
 
-public class Networks {
+public class HandcodeNetwork {
 
-    public static void client (LocalPlayer player_local, String type, String name, CompoundTag extra) {
+    public static void run (ServerLevel level_server, ServerPlayer player_server, String category, String name, CompoundTag extra) {
 
-
-
-    }
-
-    public static void server (ServerLevel level_server, ServerPlayer player_server, String type, String name, CompoundTag extra) {
-
-        if (type.equals("key") == true) {
+        if (category.equals("key") == true) {
 
             {
 
@@ -79,7 +72,7 @@ public class Networks {
 
                                     if (NBTManager.Mob.getNumber(player_server, "main", "main_key_spam") == 2) {
 
-                                        Book.Placing.stop(level_server, player_server);
+                                        Book.pickup(level_server, player_server);
 
                                     }
 
@@ -195,7 +188,7 @@ public class Networks {
 
             }
 
-        } else if (type.equals("gui") == true) {
+        } else if (category.equals("gui") == true) {
 
             {
 
@@ -244,13 +237,13 @@ public class Networks {
                                         if (name.startsWith("book_bookmark_custom_set") == true) {
 
                                             int number = Integer.parseInt(name.substring("book_bookmark_custom_set".length()));
-                                            NBTManager.Mob.setText(player_server, "main", "bookmark" + number, NBTManager.Mob.getText(player_server, "main", "page"), false);
+                                            NBTManager.Mob.setText(player_server, "main", "bookmark" + number, NBTManager.Mob.getText(player_server, "gui", "id"), false);
 
                                         } else {
 
                                             int number = Integer.parseInt(name.substring("book_bookmark_custom".length()));
                                             String page = NBTManager.Mob.getText(player_server, "main", "bookmark" + number);
-                                            NBTManager.Mob.setText(player_server, "main", "page", page, false);
+                                            NBTManager.Mob.setText(player_server, "gui", "id", page, false);
                                             Book.open(level_server, player_server);
 
                                         }
@@ -260,7 +253,7 @@ public class Networks {
                                 } else {
 
                                     String page = name.substring("book_bookmark_".length());
-                                    NBTManager.Mob.setText(player_server, "main", "page", page, false);
+                                    NBTManager.Mob.setText(player_server, "gui", "id", page, false);
                                     Book.open(level_server, player_server);
 
                                 }
@@ -271,17 +264,79 @@ public class Networks {
 
                     }
 
-                } else if (name.startsWith("spell1_get_duration") == true) {
+                } else if (name.startsWith("spell1_") == true) {
 
                     {
 
-                        int number = extra.getInt("number");
-                        String positive_negative = extra.getString("positive_negative");
-                        int duration_per_mana = extra.getInt("duration_per_mana");
+                        if (name.startsWith("spell1_activate_") == true) {
 
-                        if (Mana.spend(player_server, 1) == true) {
+                            {
 
-                            NBTManager.Mob.addNumber(player_server, "spell1", "card_duration_max_" + positive_negative + number, duration_per_mana, true);
+                                String type = name.substring("spell1_activate_".length());
+
+                                if (type.equals("cards") == true) {
+
+                                    type = "";
+
+                                } else {
+
+                                    type = "_effect";
+
+                                }
+
+                                for (int number = 1; number <= 13; number++) {
+
+                                    NBTManager.Mob.setLogic(player_server, "spell1", "is_card_activate" + type + number, true, true);
+
+                                }
+
+                                if (type.isEmpty() == true) {
+
+                                    Spell1.Card.refresh(level_server, player_server);
+
+                                }
+
+                            }
+
+                        } else if (name.startsWith("spell1_deactivate_") == true) {
+
+                            {
+
+                                String type = name.substring("spell1_deactivate_".length());
+
+                                if (type.equals("cards") == true) {
+
+                                    type = "";
+
+                                } else {
+
+                                    type = "_effect";
+
+                                }
+
+                                for (int number = 1; number <= 13; number++) {
+
+                                    NBTManager.Mob.setLogic(player_server, "spell1", "is_card_activate" + type + number, false, true);
+
+                                }
+
+                            }
+
+                        } else if (name.equals("spell1_buy_duration") == true) {
+
+                            {
+
+                                int number = extra.getInt("number");
+                                String positive_negative = extra.getString("positive_negative");
+                                int duration_per_mana = extra.getInt("duration_per_mana");
+
+                                if (Mana.spend(player_server, 1) == true) {
+
+                                    NBTManager.Mob.addNumber(player_server, "spell1", "card_duration_max_" + positive_negative + number, duration_per_mana, true);
+
+                                }
+
+                            }
 
                         }
 

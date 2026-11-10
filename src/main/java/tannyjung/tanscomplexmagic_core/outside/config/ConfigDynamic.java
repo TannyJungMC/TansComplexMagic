@@ -71,7 +71,7 @@ public class ConfigDynamic {
             }
 
             write.append("\n");
-            File file_organized = new File(Core.path_config + "/dev/temporary/" + scan_at);
+            File file_organized = new File(Core.path_folder_config + "/dev/temporary/" + scan_at);
 
             if (file_organized.exists() == false) {
 
@@ -100,7 +100,7 @@ public class ConfigDynamic {
             }
 
             write.append("----------------------------------------------------------------------------------------------------");
-            FileManager.writeTXT(Core.path_config + "/config_" + name + ".txt", write.toString(), false);
+            FileManager.writeTXT(Core.path_folder_config + "/config_" + name + ".txt", write.toString(), false);
 
         }
 
@@ -121,7 +121,7 @@ public class ConfigDynamic {
 
     private static String write (LinkedHashMap<String, String> default_values, Map<String, Map<String, String>> temp, String scan_at, Path source) {
 
-        String id = Path.of(Core.path_config + "/dev/temporary/" + scan_at).relativize(source).toString().replace("\\", "/").replace(".txt", "");;
+        String id = Path.of(Core.path_folder_config + "/dev/temporary/" + scan_at).relativize(source).toString().replace("\\", "/").replace(".txt", "");;
         boolean incompatible = false;
 
         if (id.contains("[INCOMPATIBLE] ") == true) {
@@ -170,7 +170,7 @@ public class ConfigDynamic {
 
         }
 
-        Map<String, String> options = CustomPack.convertDataToMap(FileManager.readTXT(source.toString()));
+        Map<String, String> options = FileManager.readTXTAsMap(source.toString());
         String value = "";
 
         for (Map.Entry<String, String> entry : default_values.entrySet()) {
@@ -224,7 +224,7 @@ public class ConfigDynamic {
         String id = "";
         boolean skip = true;
 
-        for (String scan : FileManager.readTXT(Core.path_config + "/config_" + name + ".txt")) {
+        for (String scan : FileManager.readTXT(Core.path_folder_config + "/config_" + name + ".txt")) {
 
             {
 
@@ -302,7 +302,7 @@ public class ConfigDynamic {
         boolean lock = false;
         boolean incompatible = false;
 
-        for (String scan : FileManager.readTXT(Core.path_config + "/config_" + name + ".txt")) {
+        for (String scan : FileManager.readTXT(Core.path_folder_config + "/config_" + name + ".txt")) {
 
             {
 

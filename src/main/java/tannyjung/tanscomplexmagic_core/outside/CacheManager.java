@@ -16,20 +16,7 @@ public class CacheManager {
         size = size + DataText.clear();
         size = size + DataShort.clear();
         size = size + DataInt.clear();
-
-        if (size < 1024) {
-
-            return size + " B";
-
-        } else if (size < 1048576) {
-
-            return OutsideUtils.Mathematic.shorterDouble((double) size / 1024.0, 2) + " KB";
-
-        } else {
-
-            return OutsideUtils.Mathematic.shorterDouble((double) size / 1048576.0, 2) + " MB";
-
-        }
+        return OutsideUtils.Calculation.convertByteToDigitalStorageUnit(size);
 
     }
 
@@ -1104,7 +1091,7 @@ public class CacheManager {
 
         if (data == null) {
 
-            data = FileManager.readTXT(Core.path_config + "/dev/temporary/" + path + ".txt");
+            data = FileManager.readTXT(Core.path_folder_config + "/dev/temporary/" + path + ".txt");
             DataText.setArray("functions", path, data);
 
         }
@@ -1124,7 +1111,7 @@ public class CacheManager {
 
                 String value_id = "";
                 String value_text = "";
-                String path = Core.path_world_mod + "/dictionary.txt";
+                String path = Core.path_folder_world_mod + "/dictionary.txt";
                 String[] data = FileManager.readTXT(path);
 
                 for (String scan : data) {

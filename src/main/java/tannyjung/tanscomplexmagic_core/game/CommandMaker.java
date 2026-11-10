@@ -255,7 +255,7 @@ public class CommandMaker {
 
             }
 
-            CommandMaker.create(event_object, 2, "command / reset_timestamps", run.command::reset_timestamps);
+            CommandMaker.create(event_object, 2, "command / reset_timestamp_every", run.command::reset_timestamp_every);
             CommandMaker.create(event_object, 2, "restart", run::restart);
 
         }
@@ -264,9 +264,9 @@ public class CommandMaker {
 
             private static class command {
 
-                private static void reset_timestamps (CommandContext<CommandSourceStack> data) {
+                private static void reset_timestamp_every (CommandContext<CommandSourceStack> data) {
 
-                    TimeUtils.resetTimestamps();
+                    TimeUtils.resetTimestampEvery();
 
                 }
 

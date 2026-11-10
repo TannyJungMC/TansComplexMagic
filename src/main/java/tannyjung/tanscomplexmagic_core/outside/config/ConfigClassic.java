@@ -7,7 +7,35 @@ import java.util.*;
 
 public class ConfigClassic {
 
-	public static void repair (String path, String original) {
+	public static void repair (String original) {
+
+        if (Core.have_custom_pack == true) {
+
+            original = """
+                    ----------------------------------------------------------------------------------------------------
+                    Main Pack
+                    ----------------------------------------------------------------------------------------------------
+                    
+                    main_pack_auto_check_update = true
+                    | Check for new update from GitHub every time the world starts
+                    
+                    main_pack_wip = false
+                    | Use development version of the pack instead of release version. Not recommended for game play, as it's still in development, it might unstable. Sometimes it needed development version of the mod.
+                    
+                    """ + original;
+
+        }
+
+        original = original + """
+                ----------------------------------------------------------------------------------------------------
+                Miscellaneous
+                ----------------------------------------------------------------------------------------------------
+            
+                developer_mode = false
+                | Enable some features for debugging
+            
+                ----------------------------------------------------------------------------------------------------
+                """;
 
         Map<String, String> old_values = new HashMap<>();
         Map<String, Boolean> keep = new HashMap<>();
@@ -24,7 +52,7 @@ public class ConfigClassic {
 
                 String[] split = null;
 
-                for (String scan : FileManager.readTXT(path)) {
+                for (String scan : FileManager.readTXT(Core.path_folder_config + "/config.txt")) {
 
                     if (scan.contains(" = ") == true) {
 
@@ -56,16 +84,23 @@ public class ConfigClassic {
             {
 
                 boolean test = false;
+                String get = "";
 
                 for (int loop = 0; loop < options.size(); loop++) {
 
-                    if (defaults.get(loop).isEmpty() == true) {
+                    if (defaults.isEmpty() == false) {
+
+                        get = defaults.get(loop);
+
+                    }
+
+                    if (get.isEmpty() == true) {
 
                         test = false;
 
                     } else {
 
-                        test = values.get(loop).equals(defaults.get(loop)) == false;
+                        test = values.get(loop).equals(get) == false;
 
                     }
 
@@ -83,33 +118,42 @@ public class ConfigClassic {
         write.append("\n");
         write.append("- To apply this config and repair missing values, run this command [ /").append(Core.mod_id_big).append(" restart ] or restart the world.");
         write.append("\n");
-        write.append("- This config can be automatic repair itself to keep your unchanged values up to date, so don't panic when you see option values change by themselves!");
+        write.append("- This config can be automatic repair itself to keep your unchanged values up to date, so do not panic when you see option values change by themselves!");
+        write.append("\n");
         write.append("\n");
 
-        // Generate
-        {
+        if (original.isEmpty() == false) {
 
-            String option = "";
-            String value = "";
-            String[] split = null;
-            List<String> written_values = new ArrayList<>();
+            // Generate
+            {
 
-            for (String scan : original.split("\\n")) {
+                String option = "";
+                String value = "";
+                String[] split = null;
+                List<String> written_values = new ArrayList<>();
 
-                if (scan.startsWith("|") == false && scan.contains(" = ") == true) {
+                for (String scan : original.split("\\n")) {
 
-                    // Write Normal
-                    {
+                    if (scan.startsWith("|") == false && scan.contains(" = ") == true) {
 
-                        split = scan.split(" = ");
-                        option = split[0];
-                        value = split[1];
+                        // Write Normal
+                        {
 
-                        if (old_values.containsKey(option) == true) {
+                            split = scan.split(" = ");
+                            option = split[0];
+                            value = split[1];
 
-                            if (keep.get(option) == true) {
+                            if (old_values.containsKey(option) == true) {
 
-                                write.append(option).append(" = ").append(old_values.get(option));
+                                if (keep.get(option) == true) {
+
+                                    write.append(option).append(" = ").append(old_values.get(option));
+
+                                } else {
+
+                                    write.append(scan);
+
+                                }
 
                             } else {
 
@@ -117,74 +161,52 @@ public class ConfigClassic {
 
                             }
 
-                        } else {
-
-                            write.append(scan);
+                            written_values.add(value);
 
                         }
 
-                        written_values.add(value);
+                    } else if (scan.isEmpty() == true && written_values.size() > 0) {
 
-                    }
+                        // Write Default
+                        {
 
-                } else if (scan.isEmpty() == true && written_values.size() > 0) {
+                            write.append(scan).append("| Default is");
 
-                    // Write Default
-                    {
+                            for (String get : written_values) {
 
-                        write.append(scan).append("| Default is");
+                                write.append(" [ ").append(get).append(" ]");
 
-                        for (String get : written_values) {
+                            }
 
-                            write.append(" [ ").append(get).append(" ]");
+                            write.append("\n");
+                            written_values.clear();
 
                         }
 
-                        write.append("\n");
-                        written_values.clear();
+                    } else {
+
+                        write.append(scan);
 
                     }
 
-                } else {
-
-                    write.append(scan);
+                    write.append("\n");
 
                 }
 
-                write.append("\n");
-
             }
+
+            write.append("\n");
+            write.append("\n");
 
         }
 
-        FileManager.writeTXT(path, write.toString(), false);
+        FileManager.writeTXT(Core.path_folder_config + "/config.txt", write.toString(), false);
 
 	}
 
     public static Map<String, String> getValues (String path) {
 
-        Map<String, String> data = new HashMap<>();
-        int index = 0;
-
-        for (String scan : FileManager.readTXT(path)) {
-
-            if (scan.isEmpty() == false) {
-
-                index = scan.indexOf(" = ");
-
-                if (index == -1) {
-
-                    continue;
-
-                }
-
-                data.put(scan.substring(0, index), scan.substring(index + 3));
-
-            }
-
-        }
-
-        return data;
+        return FileManager.readTXTAsMap(path);
 
     }
 

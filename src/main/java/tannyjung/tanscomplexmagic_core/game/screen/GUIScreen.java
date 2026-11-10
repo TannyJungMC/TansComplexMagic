@@ -9,7 +9,6 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.MenuType;
 import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
@@ -19,16 +18,7 @@ import org.lwjgl.glfw.GLFW;
 import tannyjung.tanscomplexmagic_core.Core;
 import tannyjung.tanscomplexmagic_core.outside.NetworkManager;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class GUIScreen extends AbstractContainerScreen<GUIContainer> {
-
-    public static final DeferredRegister<MenuType<?>> register = DeferredRegister.create(Registries.MENU, Core.mod_id);
-    public static final DeferredHolder<MenuType<?>, MenuType<GUIContainer>> gui = register.register("gui", () -> IMenuTypeExtension.create(GUIContainer::new));
-    public static String id_group = "";
-    public static String id_name = "";
-    public static final List<ServerPlayer> player_server_watching = new ArrayList<>();
 
     public GUIScreen (GUIContainer container, Inventory inventory, Component text) {
 
@@ -44,7 +34,7 @@ public class GUIScreen extends AbstractContainerScreen<GUIContainer> {
         ScreenDrawing.graphic = null;
         ScreenDrawing.player_local = null;
 
-        ScreenDrawing.refresh_client = true;
+        ScreenDrawing.refresh = true;
         NetworkManager.runServerCore("gui", "when_close", new CompoundTag());
 
     }
@@ -151,10 +141,9 @@ public class GUIScreen extends AbstractContainerScreen<GUIContainer> {
     public void init () {
 
         super.init();
-        GUIScreen.id_group = "";
-        GUIScreen.id_name = "";
+        GUIManager.client_current_id = 0;
 
-        ScreenDrawing.refresh_client = true;
+        ScreenDrawing.refresh = true;
         ScreenDrawing.refresh();
 
     }

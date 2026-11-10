@@ -1,11 +1,11 @@
-package tannyjung.tanscomplexmagic_handcode.core;
+package tannyjung.tanscomplexmagic_handcode;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 
-public class WorldGen {
+public class HandcodeWorldGen {
 
     public static void stepBeforePlants (LevelAccessor level_accessor, ServerLevel level_server, ChunkGenerator chunk_generator, String dimension, ChunkPos chunk_pos) {
 

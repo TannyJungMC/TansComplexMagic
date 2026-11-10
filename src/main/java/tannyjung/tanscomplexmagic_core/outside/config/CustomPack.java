@@ -21,9 +21,9 @@ public class CustomPack {
 
         pack_ids.clear();
 
-        FileManager.delete(Core.path_config + "/dev/temporary");
-        FileManager.createEmptyFile(Core.path_config + "/dev/temporary", true);
-        File[] packs = new File(Core.path_config + "/custom_packs").listFiles();
+        FileManager.delete(Core.path_folder_config + "/dev/temporary");
+        FileManager.createEmptyFile(Core.path_folder_config + "/dev/temporary", true);
+        File[] packs = new File(Core.path_folder_config + "/custom_packs").listFiles();
 
         if (packs == null) {
 
@@ -169,41 +169,6 @@ public class CustomPack {
 
     }
 
-    public static Map<String, String> convertDataToMap (String[] data) {
-
-        Map<String, String> convert = new HashMap<>();
-        String[] split = null;
-
-        for (String scan : data) {
-
-            if (scan.isEmpty() == true) {
-
-                continue;
-
-            }
-
-            if (scan.contains(" = ") == false) {
-
-                continue;
-
-            }
-
-            split = scan.split(" = ");
-
-            if (split[1].equals("none") == true) {
-
-                split[1] = "";
-
-            }
-
-            convert.put(split[0], split[1]);
-
-        }
-
-        return convert;
-
-    }
-
     private static Map<String, Map<String, String>> getInfoData (File[] packs) {
 
         Map<String, Map<String, String>> data = new HashMap<>();
@@ -212,7 +177,7 @@ public class CustomPack {
 
         for (File pack : packs) {
 
-            destination = Core.path_config + "/dev/temporary/info/" + pack.getName() + ".txt";
+            destination = Core.path_folder_config + "/dev/temporary/info/" + pack.getName() + ".txt";
 
             if (pack.isDirectory() == true) {
 
@@ -224,7 +189,7 @@ public class CustomPack {
 
             }
 
-            info_data = convertDataToMap(FileManager.readTXT(destination));
+            info_data = FileManager.readTXTAsMap(destination);
             data.put(pack.getName(), info_data);
             pack_ids.put(pack.getName(), info_data.getOrDefault("pack_id", ""));
 
@@ -240,7 +205,7 @@ public class CustomPack {
 
             if (pack.isDirectory() == true) {
 
-                FileManager.copyFolder(pack.getPath() + "/" + folder, Core.path_config + "/dev/temporary/" + folder + "/" + pack_ids.get(pack.getName()));
+                FileManager.copyFolder(pack.getPath() + "/" + folder, Core.path_folder_config + "/dev/temporary/" + folder + "/" + pack_ids.get(pack.getName()));
 
             } else {
 
@@ -252,7 +217,7 @@ public class CustomPack {
 
                     }
 
-                    FileManager.ZIP.extractSpecific(pack.getPath(), scan, Core.path_config + "/dev/temporary/" + folder + "/" + pack_ids.get(pack.getName()) + "/" + scan.substring((folder + "/").length()));
+                    FileManager.ZIP.extractSpecific(pack.getPath(), scan, Core.path_folder_config + "/dev/temporary/" + folder + "/" + pack_ids.get(pack.getName()) + "/" + scan.substring((folder + "/").length()));
 
                 }
 
@@ -268,7 +233,7 @@ public class CustomPack {
 
             if (pack.isDirectory() == true) {
 
-                FileManager.copyFolder(pack.getPath() + "/" + folder, Core.path_config + "/dev/temporary/" + folder);
+                FileManager.copyFolder(pack.getPath() + "/" + folder, Core.path_folder_config + "/dev/temporary/" + folder);
 
             } else {
 
@@ -280,7 +245,7 @@ public class CustomPack {
 
                     }
 
-                    FileManager.ZIP.extractSpecific(pack.getPath(), scan, Core.path_config + "/dev/temporary/" + folder + "/" + scan.substring((folder + "/").length()));
+                    FileManager.ZIP.extractSpecific(pack.getPath(), scan, Core.path_folder_config + "/dev/temporary/" + folder + "/" + scan.substring((folder + "/").length()));
 
                 }
 
@@ -304,10 +269,10 @@ public class CustomPack {
 
                 for (File scan : FileManager.getAllFiles(pack.getPath() + "/" + folder)) {
 
-                    path = Path.of(Core.path_config + "/custom_packs/" + pack.getName()).relativize(scan.toPath()).toString();
+                    path = Path.of(Core.path_folder_config + "/custom_packs/" + pack.getName()).relativize(scan.toPath()).toString();
                     path = path.substring((folder + "/").length());
                     path = path.replace("\\", "/");
-                    map.put(Core.path_config + "/dev/temporary/" + folder + "/" + pack_id + "/" + path + ".txt", pack.getName() + "|" + folder + "/" + path);
+                    map.put(Core.path_folder_config + "/dev/temporary/" + folder + "/" + pack_id + "/" + path + ".txt", pack.getName() + "|" + folder + "/" + path);
 
                 }
 
@@ -322,7 +287,7 @@ public class CustomPack {
                     }
 
                     path = scan.substring((folder + "/").length());
-                    map.put(Core.path_config + "/dev/temporary/" + folder + "/" + pack_id + "/" + path + ".txt", pack.getName() + "|" + folder + "/" + path);
+                    map.put(Core.path_folder_config + "/dev/temporary/" + folder + "/" + pack_id + "/" + path + ".txt", pack.getName() + "|" + folder + "/" + path);
 
                 }
 
@@ -354,11 +319,11 @@ public class CustomPack {
 
         if (split[0].endsWith(".zip") == true) {
 
-            return FileManager.ZIP.readBIN(Core.path_config + "/custom_packs/" + split[0], split[1]);
+            return FileManager.ZIP.readBIN(Core.path_folder_config + "/custom_packs/" + split[0], split[1]);
 
         } else {
 
-            return FileManager.readBIN(Core.path_config + "/custom_packs/" + split[0] + "/" + split[1]);
+            return FileManager.readBIN(Core.path_folder_config + "/custom_packs/" + split[0] + "/" + split[1]);
 
         }
 
@@ -377,7 +342,7 @@ public class CustomPack {
 
                     for (File scan : FileManager.getAllFiles(pack.getPath() + "/replace")) {
 
-                        replace.computeIfAbsent(pack.getName(), create -> new HashMap<>()).put(Core.path_config + "/dev/temporary/" + Path.of(Core.path_config + "/custom_packs/" + pack.getName() + "/replace").relativize(scan.toPath()), FileManager.readTXT(scan.getPath()));
+                        replace.computeIfAbsent(pack.getName(), create -> new HashMap<>()).put(Core.path_folder_config + "/dev/temporary/" + Path.of(Core.path_folder_config + "/custom_packs/" + pack.getName() + "/replace").relativize(scan.toPath()), FileManager.readTXT(scan.getPath()));
 
                     }
 
@@ -391,7 +356,7 @@ public class CustomPack {
 
                         }
 
-                        replace.computeIfAbsent(pack.getName(), create -> new HashMap<>()).put(Core.path_config + "/dev/temporary/" + scan.substring("replace/".length()), FileManager.ZIP.readTXT(pack.getPath(), scan));
+                        replace.computeIfAbsent(pack.getName(), create -> new HashMap<>()).put(Core.path_folder_config + "/dev/temporary/" + scan.substring("replace/".length()), FileManager.ZIP.readTXT(pack.getPath(), scan));
 
                     }
 
@@ -634,7 +599,7 @@ public class CustomPack {
             builder.append("\n");
             builder.append("----------------------------------------------------------------------------------------------------");
 
-            FileManager.writeTXT(Core.path_config + "/status.txt", builder.toString(), false);
+            FileManager.writeTXT(Core.path_folder_config + "/status.txt", builder.toString(), false);
 
         }
 
@@ -801,7 +766,7 @@ public class CustomPack {
 
             if (pack.getName().endsWith(".zip") == true) {
 
-                file = new File(Core.path_config + "/dev/temporary/pack_zip/" + pack.getName() + "/info.txt");
+                file = new File(Core.path_folder_config + "/dev/temporary/pack_zip/" + pack.getName() + "/info.txt");
 
             } else {
 
@@ -811,7 +776,7 @@ public class CustomPack {
 
             if (file.exists() == true) {
 
-                FileManager.copyFile(file.getPath(), Core.path_config + "/dev/temporary/info/" + pack.getName() + ".txt");
+                FileManager.copyFile(file.getPath(), Core.path_folder_config + "/dev/temporary/info/" + pack.getName() + ".txt");
                 locations.put(pack.getName(), file.getPath());
 
             }
@@ -823,7 +788,7 @@ public class CustomPack {
 
             for (Map.Entry<String, String> entry : locations.entrySet()) {
 
-                pack_ids.put(entry.getKey(), convertDataToMap(FileManager.readTXT(entry.getValue())).get("pack_id"));
+                pack_ids.put(entry.getKey(), FileManager.readTXTAsMap(entry.getValue()).get("pack_id"));
 
             }
 
@@ -850,7 +815,7 @@ public class CustomPack {
 
             }
 
-            data = convertDataToMap(FileManager.readTXT(location));
+            data = FileManager.readTXTAsMap(location);
 
             // Pack ID
             {
@@ -982,7 +947,7 @@ public class CustomPack {
 
             }
 
-            File file = new File(Core.path_config + "/dev/temporary/" + folder);
+            File file = new File(Core.path_folder_config + "/dev/temporary/" + folder);
 
             if (file.exists() == true) {
 
@@ -1015,7 +980,7 @@ public class CustomPack {
 
             if (pack.getName().endsWith(".zip") == true) {
 
-                pack = new File(Core.path_config + "/dev/temporary/pack_zip/" + pack.getName());
+                pack = new File(Core.path_folder_config + "/dev/temporary/pack_zip/" + pack.getName());
 
             }
 
@@ -1051,7 +1016,7 @@ public class CustomPack {
 
                     {
 
-                        Path path_copy_to = Path.of(Core.path_config + "/dev/temporary/" + file.getName());
+                        Path path_copy_to = Path.of(Core.path_folder_config + "/dev/temporary/" + file.getName());
 
                         // Convert Path
                         {
@@ -1089,7 +1054,7 @@ public class CustomPack {
         private static boolean testParse (ServerLevel level_server, File file, boolean is_function) {
 
             boolean pass = true;
-            String id = Path.of(Core.path_config + "/dev/temporary/").relativize(file.toPath()).toString().replace("\\", "/");
+            String id = Path.of(Core.path_folder_config + "/dev/temporary/").relativize(file.toPath()).toString().replace("\\", "/");
             String[] split = null;
             String option = "";
             String value = "";
@@ -1136,7 +1101,7 @@ public class CustomPack {
                                     {
 
                                         option = option.substring("path_".length()).replace("_", " ");
-                                        file_test = new File(Core.path_config + "/dev/temporary/" + value);
+                                        file_test = new File(Core.path_folder_config + "/dev/temporary/" + value);
 
                                         if (file_test.exists() == true) {
 
@@ -1185,7 +1150,7 @@ public class CustomPack {
 
                                     {
 
-                                        file_test = new File(Core.path_config + "/dev/temporary/" + value + ".txt");
+                                        file_test = new File(Core.path_folder_config + "/dev/temporary/" + value + ".txt");
 
 
                                         if (file_test.exists() == false) {

@@ -34,14 +34,17 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import tannyjung.tanscomplexmagic.TanscomplexmagicMod;
 import tannyjung.tanscomplexmagic_core.Core;
+import tannyjung.tanscomplexmagic_core.game.screen.GUIManager;
 import tannyjung.tanscomplexmagic_core.game.screen.GUIScreen;
 import tannyjung.tanscomplexmagic_core.game.screen.ScreenDrawing;
 import tannyjung.tanscomplexmagic_core.game.world_gen.*;
 import tannyjung.tanscomplexmagic_core.outside.NetworkManager;
 import tannyjung.tanscomplexmagic_core.outside.config.CustomPack;
 import tannyjung.tanscomplexmagic_core.outside.config.TannyPackManager;
-import tannyjung.tanscomplexmagic_handcode.core.Commands;
-import tannyjung.tanscomplexmagic_handcode.core.Overlays;
+import tannyjung.tanscomplexmagic_handcode.HandcodeCommand;
+import tannyjung.tanscomplexmagic_handcode.HandcodeGUI;
+import tannyjung.tanscomplexmagic_handcode.HandcodeKeyBinding;
+import tannyjung.tanscomplexmagic_handcode.HandcodeOverlay;
 
 import java.util.Map;
 
@@ -83,7 +86,7 @@ public class EventCenter {
 
     public static void register (IEventBus bus) {
 
-        GUIScreen.register.register(bus);
+        GUIManager.register.register(bus);
 
         // Features
         {
@@ -110,7 +113,7 @@ public class EventCenter {
     public static void eventRegisterCommand (RegisterCommandsEvent event) {
 
         CommandMaker.BuiltinCommands.registry(event);
-        Commands.registry(event);
+        HandcodeCommand.registry(event);
 
     }
 
@@ -118,8 +121,8 @@ public class EventCenter {
     public static void eventWorldAboutToStart (ServerAboutToStartEvent event) {
 
         String path_world = event.getServer().getWorldPath(new LevelResource(".")).toString();
-        Core.path_world_core = path_world + "/data/tannyjung/" + Core.data_structure_version_core;
-        Core.path_world_mod = path_world + "/data/" + Core.mod_id;
+        Core.path_folder_world_core = path_world + "/data/tannyjung/" + Core.data_structure_version_core;
+        Core.path_folder_world_mod = path_world + "/data/" + Core.mod_id;
 
         Core.DataMigration.runWorld();
         Core.DataManagement.restart(null, false, true);
@@ -130,8 +133,6 @@ public class EventCenter {
     public static void eventWorldStart (ServerStartedEvent event) {
 
         ServerLevel level_server = event.getServer().overworld();
-
-        Core.DataManagement.regenerateWorld(level_server);
         Core.DataManagement.restart(level_server, true, false);
 
     }
@@ -202,7 +203,7 @@ public class EventCenter {
         ServerPlayer player_server = (ServerPlayer) event.getEntity();
         ServerLevel level_server = player_server.serverLevel();
 
-        NetworkManager.runClientCore(player_server, "nbt", "sync", NBTManager.Mob.getAllForMerge(player_server));
+        NetworkManager.runClientCore(player_server, "nbt", "sync", NBTManager.Mob.getAll(player_server));
 
         if (first_player_joined == false) {
 
@@ -212,7 +213,7 @@ public class EventCenter {
 
                 CustomPack.Error2.sendMessage(level_server);
 
-                if (Core.auto_check_update == true) {
+                if (Core.main_pack_auto_check_update == true) {
 
                     Core.thread.submit(() -> {
 
@@ -231,14 +232,14 @@ public class EventCenter {
     @SubscribeEvent
     public static void eventPlayerRespawn (PlayerEvent.PlayerRespawnEvent event) {
 
-        NetworkManager.runClientCore((ServerPlayer) event.getEntity(), "nbt", "sync", NBTManager.Mob.getAllForMerge(event.getEntity()));
+        NetworkManager.runClientCore((ServerPlayer) event.getEntity(), "nbt", "sync", NBTManager.Mob.getAll(event.getEntity()));
 
     }
 
     @SubscribeEvent
     public static void eventPlayerClone (PlayerEvent.Clone event) {
 
-        NBTManager.Mob.merge(event.getEntity(), NBTManager.Mob.getAllForMerge(event.getOriginal()), true);
+        NBTManager.Mob.merge(event.getEntity(), NBTManager.Mob.getAll(event.getOriginal()), true);
 
     }
 
@@ -253,11 +254,11 @@ public class EventCenter {
 
         }
 
-        if (ScreenDrawing.refresh_server == true) {
+        if (GUIManager.server_refresh == true) {
 
-            ScreenDrawing.refresh_server = false;
+            GUIManager.server_refresh = false;
 
-            for (ServerPlayer player_server : GUIScreen.player_server_watching) {
+            for (ServerPlayer player_server : GUIManager.server_player_watching) {
 
                 NetworkManager.runClientCore(player_server, "gui", "refresh", new CompoundTag());
 
@@ -303,6 +304,8 @@ public class EventCenter {
         @SubscribeEvent
         public static void eventRegisterKey (RegisterKeyMappingsEvent event) {
 
+            HandcodeKeyBinding.add();
+
             for (Map.Entry<String, KeyMapping> entry : KeyBindingMaker.Storage.keys.entrySet()) {
 
                 event.register(entry.getValue());
@@ -314,7 +317,8 @@ public class EventCenter {
         @SubscribeEvent
         public static void eventRegisterGUI (RegisterMenuScreensEvent event) {
 
-            event.register(GUIScreen.gui.get(), GUIScreen::new);
+            event.register(GUIManager.gui.get(), GUIScreen::new);
+            HandcodeGUI.add();
 
         }
 
@@ -336,7 +340,7 @@ public class EventCenter {
 
             ScreenDrawing.graphic = event.getGuiGraphics();
             ScreenDrawing.player_local = Minecraft.getInstance().player;
-            Overlays.eventMenu();
+            HandcodeOverlay.eventMenu();
 
         }
 
@@ -357,7 +361,7 @@ public class EventCenter {
 
             ScreenDrawing.graphic = event.getGuiGraphics();
             ScreenDrawing.player_local = Minecraft.getInstance().player;
-            Overlays.eventInGame();
+            HandcodeOverlay.eventInGame();
 
         }
 

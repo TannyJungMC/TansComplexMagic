@@ -11,6 +11,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
@@ -264,6 +265,12 @@ public class FileManager {
         }
 
         return new String[]{};
+
+    }
+
+    public static Map<String, String> readTXTAsMap (String path) {
+
+        return OutsideUtils.Calculation.convertTextDataToMap(readTXT(path));
 
     }
 

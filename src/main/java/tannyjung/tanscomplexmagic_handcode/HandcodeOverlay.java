@@ -1,10 +1,10 @@
-package tannyjung.tanscomplexmagic_handcode.core;
+package tannyjung.tanscomplexmagic_handcode;
 
 import tannyjung.tanscomplexmagic_core.game.NBTManager;
 import tannyjung.tanscomplexmagic_core.game.screen.ScreenDrawing;
-import tannyjung.tanscomplexmagic_core.outside.OutsideUtils;
+import tannyjung.tanscomplexmagic_core.outside.TimeUtils;
 
-public class Overlays {
+public class HandcodeOverlay {
     
     public static void eventMenu () {
 
@@ -30,12 +30,13 @@ public class Overlays {
                     int empowered_card = (int) NBTManager.Mob.getNumber(ScreenDrawing.player_local, "spell1", "empowered_card");
                     boolean is_empowered_card_negative = NBTManager.Mob.getLogic(ScreenDrawing.player_local, "spell1", "is_empowered_card_negative");
                     StringBuilder status = new StringBuilder();
+                    boolean is_high_power = false;
                     String positive_negative = "";
                     String card_status = "";
 
                     for (int number = 1; number <= 13; number++) {
 
-                        if (NBTManager.Mob.getLogic(ScreenDrawing.player_local, "spell1", "is_card_enable" + number) == false) {
+                        if (NBTManager.Mob.getLogic(ScreenDrawing.player_local, "spell1", "is_card_activate" + number) == false) {
 
                             continue;
 
@@ -47,44 +48,54 @@ public class Overlays {
                         {
 
                             status.setLength(0);
+                            is_high_power = NBTManager.Mob.getLogic(ScreenDrawing.player_local, "spell1", "is_card_high_power_mode" + number) == true;
 
                             if (NBTManager.Mob.getLogic(ScreenDrawing.player_local, "spell1", "is_card_negative" + number) == true) {
 
-                                positive_negative = "§c[-] ";
+                                if (is_high_power == true) {
+
+                                    positive_negative = "§c[--] ";
+
+                                } else {
+
+                                    positive_negative = "§c[-] ";
+
+                                }
 
                             } else {
 
-                                positive_negative = "§a[+] ";
+                                if (is_high_power == true) {
+
+                                    positive_negative = "§a[++] ";
+
+                                } else {
+
+                                    positive_negative = "§a[+] ";
+
+                                }
 
                             }
 
                             status.append(positive_negative);
                             status.append(" ");
 
-                            if (NBTManager.Mob.getLogic(ScreenDrawing.player_local, "spell1", "is_card_active" + number) == true) {
+                            if (number == empowered_card) {
 
-                                card_status = NBTManager.Mob.getText(ScreenDrawing.player_local, "spell1", "card_status" + number);
+                                status.append("§d");
+                                String symbol = "";
 
-                                if (card_status.equals("effect") == true) {
+                                if (is_empowered_card_negative == NBTManager.Mob.getLogic(ScreenDrawing.player_local, "spell1", "is_card_negative" + number)) {
 
-                                    status.append("§b[O] ");
-
-                                } else if (card_status.equals("flip") == true) {
-
-                                    status.append("§6[>] ");
+                                    symbol = "<";
 
                                 } else {
 
-                                    status.append("§7[=] ");
+                                    symbol = ">";
 
                                 }
 
-                            }
-
-                            if (number == empowered_card && is_empowered_card_negative == NBTManager.Mob.getLogic(ScreenDrawing.player_local, "spell1", "is_card_negative" + number)) {
-
-                                status.append("§d");
-                                status.repeat("<> ", (int) NBTManager.Mob.getNumber(ScreenDrawing.player_local, "spell1", "empowered_card_level"));
+                                status.repeat(symbol, (int) NBTManager.Mob.getNumber(ScreenDrawing.player_local, "spell1", "empowered_card_level"));
+                                status.append(" ").append(TimeUtils.convertSecondToReadable(TimeUtils.getRemain(NBTManager.Mob.getText(ScreenDrawing.player_local, "spell1", "timestamp_next_bonus"))));
 
                             }
 
@@ -95,7 +106,19 @@ public class Overlays {
                         }
 
                         ScreenDrawing.Position.addZ(2);
-                        ScreenDrawing.ComponentOverlay.drawTextBasic(0.4, "§f" + (int) NBTManager.Mob.getNumber(ScreenDrawing.player_local, "spell1", "number_of_targets_detected" + number) + " > " + OutsideUtils.Calculation.convertSecondToTime((int) NBTManager.Mob.getNumber(ScreenDrawing.player_local, "spell1", "remaining_duration" + number)));
+                        String target_duration = "";
+
+                        if (NBTManager.Mob.getText(ScreenDrawing.player_local, "spell1", "card_status" + number).equals("effect") == false || NBTManager.Mob.getNumber(ScreenDrawing.player_local, "spell1", "number_of_targets_detected" + number) == 0) {
+
+                            target_duration = "0";
+
+                        } else {
+
+                            target_duration = (int) NBTManager.Mob.getNumber(ScreenDrawing.player_local, "spell1", "number_of_targets_detected" + number) + " - " + TimeUtils.convertSecondToReadable((long) NBTManager.Mob.getNumber(ScreenDrawing.player_local, "spell1", "remaining_duration" + number));
+
+                        }
+
+                        ScreenDrawing.ComponentOverlay.drawTextBasic(0.4, "§f" + target_duration);
                         ScreenDrawing.Position.returnMark();
                         ScreenDrawing.Position.addZ(15);
 

@@ -9620,7 +9620,7 @@
     "modid": "tanscomplexmagic",
     "modName": "Tan\u0027s Complex Magic",
     "version": "1.0.0",
-    "description": "MAGIC!",
+    "description": "Collection of my magic systems",
     "author": "TannyJung",
     "websiteURL": "https://legacy.curseforge.com/members/tannyjung/projects",
     "license": "All Rights Reserved",
@@ -9631,7 +9631,7 @@
     "dependants": [],
     "mcreatorDependencies": [],
     "currentGenerator": "neoforge-1.21.1",
-    "credits": "Created with MCreator",
+    "credits": "Created with MCreator and IntelliJ",
     "modElementsPackage": "tannyjung.tanscomplexmagic"
   },
   "mcreatorVersion": 202500345720

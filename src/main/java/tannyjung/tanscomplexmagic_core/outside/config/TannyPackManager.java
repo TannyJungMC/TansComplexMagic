@@ -16,23 +16,23 @@ public class TannyPackManager {
 
     public static File getCurrentFile () {
 
-        File file = new File(Core.path_config + "/custom_packs/#main.zip");
+        File file = new File(Core.path_folder_config + "/custom_packs/#main.zip");
 
         if (file.exists() == false) {
 
-            file = new File(Core.path_config + "/custom_packs/[INCOMPATIBLE] #main.zip");
+            file = new File(Core.path_folder_config + "/custom_packs/[INCOMPATIBLE] #main.zip");
 
         }
 
         if (file.exists() == false) {
 
-            file = new File(Core.path_config + "/custom_packs/#main");
+            file = new File(Core.path_folder_config + "/custom_packs/#main");
 
         }
 
         if (file.exists() == false) {
 
-            file = new File(Core.path_config + "/custom_packs/[INCOMPATIBLE] #main");
+            file = new File(Core.path_folder_config + "/custom_packs/[INCOMPATIBLE] #main");
 
         }
 
@@ -98,7 +98,7 @@ public class TannyPackManager {
                     // Get Version (Your)
                     {
 
-                        for (String scan : FileManager.readTXT(Core.path_config + "/dev/temporary/info/" + pack.getName() + ".txt")) {
+                        for (String scan : FileManager.readTXT(Core.path_folder_config + "/dev/temporary/info/" + pack.getName() + ".txt")) {
 
                             if (scan.startsWith("pack_version = ")) {
 
@@ -519,12 +519,12 @@ public class TannyPackManager {
                     // Online
                     {
 
-                        if (OutsideUtils.download("https://github.com/TannyJungMC/" + Core.github_pack + "/archive/refs/heads/" + Core.main_pack_type + ".zip", Core.path_config + "/custom_packs/#main.zip") == true) {
+                        if (OutsideUtils.download("https://github.com/TannyJungMC/" + Core.github_pack + "/archive/refs/heads/" + Core.main_pack_type + ".zip", Core.path_folder_config + "/custom_packs/#main.zip") == true) {
 
-                            FileManager.ZIP.extractAll(Core.path_config + "/custom_packs/#main.zip", Core.path_config + "/custom_packs/#main");
-                            FileManager.delete(Core.path_config + "/custom_packs/#main.zip");
-                            FileManager.ZIP.compress(Core.path_config + "/custom_packs/#main.zip", new File(Core.path_config + "/custom_packs/#main"));
-                            FileManager.delete(Core.path_config + "/custom_packs/#main");
+                            FileManager.ZIP.extractAll(Core.path_folder_config + "/custom_packs/#main.zip", Core.path_folder_config + "/custom_packs/#main");
+                            FileManager.delete(Core.path_folder_config + "/custom_packs/#main.zip");
+                            FileManager.ZIP.compress(Core.path_folder_config + "/custom_packs/#main.zip", new File(Core.path_folder_config + "/custom_packs/#main"));
+                            FileManager.delete(Core.path_folder_config + "/custom_packs/#main");
                             update = true;
 
                         }
@@ -557,7 +557,7 @@ public class TannyPackManager {
 
                                 if (stream != null) {
 
-                                    Files.copy(stream, Path.of(Core.path_config + "/custom_packs/#main.zip"), StandardCopyOption.REPLACE_EXISTING);
+                                    Files.copy(stream, Path.of(Core.path_folder_config + "/custom_packs/#main.zip"), StandardCopyOption.REPLACE_EXISTING);
                                     stream.close();
 
                                 }

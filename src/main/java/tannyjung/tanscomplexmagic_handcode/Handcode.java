@@ -18,7 +18,6 @@ public class Handcode {
                 "",
                 false,
                 false,
-
                 1,
                 "",
                 "",
@@ -27,6 +26,12 @@ public class Handcode {
         );
 
     }
+
+    record a () {}
+
+    private static record b() {};
+
+
 
     public static void organizeCustomPack () {
 
@@ -42,9 +47,9 @@ public class Handcode {
 
     public static class Config {
 
-        public static void repair (String start, String end) {
+        public static String repair () {
 
-
+            return "";
 
         }
 

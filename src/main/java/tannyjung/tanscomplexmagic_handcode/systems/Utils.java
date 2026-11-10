@@ -12,8 +12,7 @@ public class Utils {
         public static String getUser (Player player) {
 
             String mod = Core.mod_id_big;
-            String uuid = player.getUUID().toString();
-
+            int uuid = player.getUUID().hashCode();
             return mod + "-user-" + uuid;
 
         }
@@ -21,8 +20,7 @@ public class Utils {
         public static String getAlly (Player player) {
 
             String mod = Core.mod_id_big;
-            String uuid = player.getUUID().toString();
-
+            int uuid = player.getUUID().hashCode();
             return mod + "-ally-" + uuid;
 
         }

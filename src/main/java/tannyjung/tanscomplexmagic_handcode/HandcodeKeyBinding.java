@@ -1,11 +1,11 @@
-package tannyjung.tanscomplexmagic_handcode.core;
+package tannyjung.tanscomplexmagic_handcode;
 
 import net.minecraft.nbt.CompoundTag;
 import org.lwjgl.glfw.GLFW;
 import tannyjung.tanscomplexmagic_core.game.*;
 import tannyjung.tanscomplexmagic_core.outside.NetworkManager;
 
-public class KeyBindings {
+public class HandcodeKeyBinding {
 
     public static void add () {
 

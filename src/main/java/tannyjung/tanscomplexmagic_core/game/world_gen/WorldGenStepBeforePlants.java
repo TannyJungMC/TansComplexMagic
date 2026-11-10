@@ -8,7 +8,7 @@ import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 import tannyjung.tanscomplexmagic_core.game.GameUtils;
-import tannyjung.tanscomplexmagic_handcode.core.WorldGen;
+import tannyjung.tanscomplexmagic_handcode.HandcodeWorldGen;
 
 public class WorldGenStepBeforePlants extends Feature <NoneFeatureConfiguration> {
 
@@ -27,7 +27,7 @@ public class WorldGenStepBeforePlants extends Feature <NoneFeatureConfiguration>
         String dimension = GameUtils.Space.getDimensionID(level_server).replace(":", "-");
         ChunkPos chunk_pos = new ChunkPos(context.origin());
 
-        WorldGen.stepBeforePlants(level_world_gen, level_server, chunk_generator, dimension, chunk_pos);
+        HandcodeWorldGen.stepBeforePlants(level_world_gen, level_server, chunk_generator, dimension, chunk_pos);
         return true;
 
     }

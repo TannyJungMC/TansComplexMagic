@@ -15,7 +15,7 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import tannyjung.tanscomplexmagic_core.Core;
-import tannyjung.tanscomplexmagic_core.game.screen.ScreenDrawing;
+import tannyjung.tanscomplexmagic_core.game.screen.GUIManager;
 import tannyjung.tanscomplexmagic_core.outside.FileManager;
 import tannyjung.tanscomplexmagic_core.outside.NetworkManager;
 import tannyjung.tanscomplexmagic_core.outside.OutsideUtils;
@@ -222,45 +222,43 @@ public class NBTManager {
 
     public static class PutInTag {
 
-        private static CompoundTag putType (String type, CompoundTag tag) {
+        private static CompoundTag putCategory (String category, CompoundTag tag) {
 
-            CompoundTag tag1 = new CompoundTag();
-            tag1.put(type, tag);
-            CompoundTag tag2 = new CompoundTag();
-            tag2.put(Core.mod_id, tag1);
-            return tag2;
+            CompoundTag put = new CompoundTag();
+            put.put(category, tag);
+            return put;
 
         }
 
-        public static CompoundTag fromText (String type, String name, String value) {
+        public static CompoundTag fromText (String category, String name, String value) {
 
             CompoundTag tag = new CompoundTag();
             tag.putString(name, value);
-            return putType(type, tag);
+            return putCategory(category, tag);
 
         }
 
-        public static CompoundTag fromLogic (String type, String name, boolean value) {
+        public static CompoundTag fromLogic (String category, String name, boolean value) {
 
             CompoundTag tag = new CompoundTag();
             tag.putBoolean(name, value);
-            return putType(type, tag);
+            return putCategory(category, tag);
 
         }
 
-        public static CompoundTag fromNumber (String type, String name, double value) {
+        public static CompoundTag fromNumber (String category, String name, double value) {
 
             CompoundTag tag = new CompoundTag();
             tag.putDouble(name, value);
-            return putType(type, tag);
+            return putCategory(category, tag);
 
         }
 
-        public static CompoundTag fromList (String type, String name, ListTag value) {
+        public static CompoundTag fromList (String category, String name, ListTag value) {
 
             CompoundTag tag = new CompoundTag();
             tag.put(name, value);
-            return putType(type, tag);
+            return putCategory(category, tag);
 
         }
 
@@ -273,15 +271,12 @@ public class NBTManager {
             if (tag.sizeInBytes() / 1024 < 900) {
 
                 NetworkManager.runClientCore(player_server, "nbt", "sync", tag);
-                ScreenDrawing.refresh_server = true;
+                GUIManager.server_refresh = true;
 
             } else {
 
                 Core.logger.error("Detected too big player NBT size sending to client, over 900 MB. Skip sending and reset that server player data.");
-
-                CompoundTag tag_new = new CompoundTag();
-                tag_new.put(Core.mod_id, new CompoundTag());
-                merge(player_server, tag_new, true);
+                merge(player_server, tag, true);
 
             }
 
@@ -289,7 +284,9 @@ public class NBTManager {
 
         public static void merge (Entity entity, CompoundTag tag, boolean should_sync) {
 
-            entity.getPersistentData().merge(tag);
+            CompoundTag tag_convert = new CompoundTag();
+            tag_convert.put(Core.mod_id, tag);
+            entity.getPersistentData().merge(tag_convert);
 
             if (should_sync == true) {
 
@@ -309,37 +306,9 @@ public class NBTManager {
 
         }
 
-        public static CompoundTag getAllForMerge (Entity entity) {
+        public static boolean getLogic (Entity entity, String category, String name) {
 
-            CompoundTag tag = new CompoundTag();
-            tag.put(Core.mod_id, getAll(entity));
-            return tag;
-
-        }
-
-        public static String getText (Entity entity, String type, String name) {
-
-            CompoundTag tag = getAll(entity).getCompound(type);
-
-            /*
-            (1.20.1) (1.21.1)
-            return tag.getString(name);
-            (1.21.8)
-            return tag.getString(name).get();
-            */
-            return tag.getString(name);
-
-        }
-
-        public static void setText (Entity entity, String type, String name, String value, boolean should_sync) {
-
-            merge(entity, PutInTag.fromText(type, name, value), should_sync);
-
-        }
-
-        public static boolean getLogic (Entity entity, String type, String name) {
-
-            CompoundTag tag = getAll(entity).getCompound(type);
+            CompoundTag tag = getAll(entity).getCompound(category);
 
             /*
             (1.20.1) (1.21.1)
@@ -351,15 +320,47 @@ public class NBTManager {
 
         }
 
-        public static void setLogic (Entity entity, String type, String name, boolean value, boolean should_sync) {
+        public static void setLogic (Entity entity, String category, String name, boolean value, boolean should_sync) {
 
-            merge(entity, PutInTag.fromLogic(type, name, value), should_sync);
+            if (getLogic(entity, category, name) == value) {
+
+                return;
+
+            }
+
+            merge(entity, PutInTag.fromLogic(category, name, value), should_sync);
 
         }
 
-        public static double getNumber (Entity entity, String type, String name) {
+        public static String getText (Entity entity, String category, String name) {
 
-            CompoundTag tag = getAll(entity).getCompound(type);
+            CompoundTag tag = getAll(entity).getCompound(category);
+
+            /*
+            (1.20.1) (1.21.1)
+            return tag.getString(name);
+            (1.21.8)
+            return tag.getString(name).get();
+            */
+            return tag.getString(name);
+
+        }
+
+        public static void setText (Entity entity, String category, String name, String value, boolean should_sync) {
+
+            if (getText(entity, category, name).equals(value) == true) {
+
+                return;
+
+            }
+
+            merge(entity, PutInTag.fromText(category, name, value), should_sync);
+
+        }
+
+        public static double getNumber (Entity entity, String category, String name) {
+
+            CompoundTag tag = getAll(entity).getCompound(category);
 
             /*
             (1.20.1) (1.21.1)
@@ -371,34 +372,40 @@ public class NBTManager {
 
         }
 
-        public static void setNumber (Entity entity, String type, String name, double value, boolean should_sync) {
+        public static void setNumber (Entity entity, String category, String name, double value, boolean should_sync) {
 
-            merge(entity, PutInTag.fromNumber(type, name, value), should_sync);
+            if (getNumber(entity, category, name) == value) {
+
+                return;
+
+            }
+
+            merge(entity, PutInTag.fromNumber(category, name, value), should_sync);
 
         }
 
-        public static void addNumber (Entity entity, String type, String name, double value, boolean should_sync) {
+        public static void addNumber (Entity entity, String category, String name, double value, boolean should_sync) {
 
-            value = getNumber(entity, type, name) + value;
-            setNumber(entity, type, name, value, should_sync);
+            value = getNumber(entity, category, name) + value;
+            setNumber(entity, category, name, value, should_sync);
 
         }
 
-        public static ListTag getList (Entity entity, String type, String name) {
+        public static ListTag getList (Entity entity, String category, String name) {
 
             /*
             (1.20.1) (1.21.1)
-            return getAll(entity).getCompound(type).getList(name, Tag.TAG_STRING);
+            return getAll(entity).getCompound(category).getList(name, Tag.TAG_STRING);
             (1.21.8)
-            return getAll(entity).getCompound(type).getList(name).get();
+            return getAll(entity).getCompound(category).getList(name).get();
             */
-            return getAll(entity).getCompound(type).getList(name, Tag.TAG_STRING);
+            return getAll(entity).getCompound(category).getList(name, Tag.TAG_STRING);
 
         }
 
-        public static List<String> getListAsList (Entity entity, String type, String name) {
+        public static List<String> getListAsList (Entity entity, String category, String name) {
 
-            ListTag list = getList(entity, type, name);
+            ListTag list = getList(entity, category, name);
             List<String> convert = new ArrayList<>();
 
             for (int number = 0; number < list.size(); number++) {
@@ -417,13 +424,19 @@ public class NBTManager {
 
         }
 
-        public static void setList (Entity entity, String type, String name, ListTag value, boolean should_sync) {
+        public static void setList (Entity entity, String category, String name, ListTag value, boolean should_sync) {
 
-            merge(entity, PutInTag.fromList(type, name, value), should_sync);
+            if (getList(entity, category, name) == value) {
+
+                return;
+
+            }
+
+            merge(entity, PutInTag.fromList(category, name, value), should_sync);
 
         }
 
-        public static void setListAlternate (Entity entity, String type, String name, List<String> value, boolean should_sync) {
+        public static void setListAlternate (Entity entity, String category, String name, List<String> value, boolean should_sync) {
 
             ListTag list = new ListTag();
 
@@ -433,30 +446,30 @@ public class NBTManager {
 
             }
 
-            setList(entity, type, name, list, should_sync);
+            setList(entity, category, name, list, should_sync);
 
         }
 
-        public static void addList (Entity entity, String type, String name, ListTag value, boolean should_sync) {
+        public static void addList (Entity entity, String category, String name, ListTag value, boolean should_sync) {
 
-            ListTag list = getList(entity, type, name);
+            ListTag list = getList(entity, category, name);
             list.add(value);
 
-            merge(entity, PutInTag.fromList(type, name, list), should_sync);
+            merge(entity, PutInTag.fromList(category, name, list), should_sync);
 
         }
 
-        public static void addListAlternate (Entity entity, String type, String name, String value, boolean should_sync) {
+        public static void addListAlternate (Entity entity, String category, String name, String value, boolean should_sync) {
 
             ListTag list = new ListTag();
             list.add(StringTag.valueOf(value));
-            addList(entity, type, name, list, should_sync);
+            addList(entity, category, name, list, should_sync);
 
         }
 
-        public static void addListMultiple (Entity entity, String type, String name, List<String> value, boolean should_sync) {
+        public static void addListMultiple (Entity entity, String category, String name, List<String> value, boolean should_sync) {
 
-            ListTag list = getList(entity, type, name);
+            ListTag list = getList(entity, category, name);
 
             for (String scan : value) {
 
@@ -464,7 +477,7 @@ public class NBTManager {
 
             }
 
-            merge(entity, PutInTag.fromList(type, name, list), should_sync);
+            merge(entity, PutInTag.fromList(category, name, list), should_sync);
 
         }
 
@@ -472,7 +485,7 @@ public class NBTManager {
 
     public static class Tile {
 
-        public static boolean getLogic (ServerLevel level_server, BlockPos pos, String type, String name) {
+        public static boolean getLogic (ServerLevel level_server, BlockPos pos, String category, String name) {
 
             return new Object() {
 
@@ -484,9 +497,9 @@ public class NBTManager {
 
                         CompoundTag tag = entity.getPersistentData().getCompound(Core.mod_id);
 
-                        if (type.isEmpty() == false) {
+                        if (category.isEmpty() == false) {
 
-                            tag = tag.getCompound(type);
+                            tag = tag.getCompound(category);
 
                         }
 
@@ -508,7 +521,7 @@ public class NBTManager {
 
         }
 
-        public static String getText (ServerLevel level_server, BlockPos pos, String type, String name) {
+        public static String getText (ServerLevel level_server, BlockPos pos, String category, String name) {
 
             return new Object() {
 
@@ -520,9 +533,9 @@ public class NBTManager {
 
                         CompoundTag tag = entity.getPersistentData().getCompound(Core.mod_id);
 
-                        if (type.isEmpty() == false) {
+                        if (category.isEmpty() == false) {
 
-                            tag = tag.getCompound(type);
+                            tag = tag.getCompound(category);
 
                         }
 
@@ -544,7 +557,7 @@ public class NBTManager {
 
         }
 
-        public static double getNumber (ServerLevel level_server, BlockPos pos, String type, String name) {
+        public static double getNumber (ServerLevel level_server, BlockPos pos, String category, String name) {
 
             return new Object() {
 
@@ -556,9 +569,9 @@ public class NBTManager {
 
                         CompoundTag tag = entity.getPersistentData().getCompound(Core.mod_id);
 
-                        if (type.isEmpty() == false) {
+                        if (category.isEmpty() == false) {
 
-                            tag = tag.getCompound(type);
+                            tag = tag.getCompound(category);
 
                         }
 
@@ -580,14 +593,14 @@ public class NBTManager {
 
         }
         
-        private static void set (ServerLevel level_server, BlockPos pos, BlockEntity entity_block, String type, CompoundTag tag_value) {
+        private static void set (ServerLevel level_server, BlockPos pos, BlockEntity entity_block, String category, CompoundTag tag_value) {
 
             CompoundTag tag = new CompoundTag();
 
-            if (type.isEmpty() == false) {
+            if (category.isEmpty() == false) {
 
                 CompoundTag tag_type = new CompoundTag();
-                tag_type.put(type, tag_value);
+                tag_type.put(category, tag_value);
                 tag.put(Core.mod_id, tag_type);
 
             } else {
@@ -602,7 +615,7 @@ public class NBTManager {
             
         }
 
-        public static void setLogic (ServerLevel level_server, BlockPos pos, String type, String name, boolean value) {
+        public static void setLogic (ServerLevel level_server, BlockPos pos, String category, String name, boolean value) {
 
             BlockEntity entity_block = level_server.getBlockEntity(pos);
 
@@ -610,13 +623,13 @@ public class NBTManager {
 
                 CompoundTag tag = new CompoundTag();
                 tag.putBoolean(name, value);
-                set(level_server, pos, entity_block, type, tag);
+                set(level_server, pos, entity_block, category, tag);
 
             }
 
         }
 
-        public static void setText (ServerLevel level_server, BlockPos pos, String type, String name, String value) {
+        public static void setText (ServerLevel level_server, BlockPos pos, String category, String name, String value) {
 
             BlockEntity entity_block = level_server.getBlockEntity(pos);
 
@@ -624,13 +637,13 @@ public class NBTManager {
 
                 CompoundTag tag = new CompoundTag();
                 tag.putString(name, value);
-                set(level_server, pos, entity_block, type, tag);
+                set(level_server, pos, entity_block, category, tag);
 
             }
 
         }
 
-        public static void setNumber (ServerLevel level_server, BlockPos pos, String type, String name, double value) {
+        public static void setNumber (ServerLevel level_server, BlockPos pos, String category, String name, double value) {
 
             BlockEntity entity_block = level_server.getBlockEntity(pos);
 
@@ -638,16 +651,16 @@ public class NBTManager {
 
                 CompoundTag tag = new CompoundTag();
                 tag.putDouble(name, value);
-                set(level_server, pos, entity_block, type, tag);
+                set(level_server, pos, entity_block, category, tag);
 
             }
 
         }
 
-        public static void addNumber (ServerLevel level_server, BlockPos pos, String type, String name, double value) {
+        public static void addNumber (ServerLevel level_server, BlockPos pos, String category, String name, double value) {
 
-            value = getNumber(level_server, pos, type, name) + value;
-            setNumber(level_server, pos, type, name, value);
+            value = getNumber(level_server, pos, category, name) + value;
+            setNumber(level_server, pos, category, name, value);
 
         }
 
@@ -669,74 +682,95 @@ public class NBTManager {
 
         private static void merge (ItemStack item, CompoundTag tag) {
 
+            CompoundTag tag_convert = new CompoundTag();
+            tag_convert.put(Core.mod_id, tag);
+
             /*
             (1.20.1)
             item.getOrCreateTag().merge(tag);
             (1.21.1)
             CustomData.update(DataComponents.CUSTOM_DATA, item, original -> original.merge(tag));
             */
-            CustomData.update(DataComponents.CUSTOM_DATA, item, original -> original.merge(tag));
+            CustomData.update(DataComponents.CUSTOM_DATA, item, original -> original.merge(tag_convert));
 
-            ScreenDrawing.refresh_server = true;
+            GUIManager.server_refresh = true;
 
         }
 
-        public static boolean getLogic (ItemStack item, String type, String name) {
+        public static boolean getLogic (ItemStack item, String category, String name) {
 
-            CompoundTag tag = getAll(item).getCompound(type);
+            CompoundTag tag = getAll(item).getCompound(category);
             return tag.getBoolean(name);
 
         }
 
-        public static void setLogic (ItemStack item, String type, String name, boolean value) {
+        public static void setLogic (ItemStack item, String category, String name, boolean value) {
 
-            merge(item, PutInTag.fromLogic(type, name, value));
+            if (getLogic(item, category, name) == value) {
+
+                return;
+
+            }
+
+            merge(item, PutInTag.fromLogic(category, name, value));
 
         }
 
-        public static String getText (ItemStack item, String type, String name) {
+        public static String getText (ItemStack item, String category, String name) {
 
-            CompoundTag tag = getAll(item).getCompound(type);
+            CompoundTag tag = getAll(item).getCompound(category);
             return tag.getString(name);
 
         }
 
-        public static void setText (ItemStack item, String type, String name, String value) {
+        public static void setText (ItemStack item, String category, String name, String value) {
 
-            merge(item, PutInTag.fromText(type, name, value));
+            if (getText(item, category, name).equals(value) == true) {
+
+                return;
+
+            }
+
+            merge(item, PutInTag.fromText(category, name, value));
 
         }
 
-        public static double getNumber (ItemStack item, String type, String name) {
+        public static double getNumber (ItemStack item, String category, String name) {
 
-            CompoundTag tag = getAll(item).getCompound(type);
+            CompoundTag tag = getAll(item).getCompound(category);
             return tag.getDouble(name);
 
         }
 
-        public static void setNumber (ItemStack item, String type, String name, double value) {
+        public static void setNumber (ItemStack item, String category, String name, double value) {
 
-            merge(item, PutInTag.fromNumber(type, name, value));
+            if (getNumber(item, category, name) == value) {
+
+                return;
+
+            }
+
+            merge(item, PutInTag.fromNumber(category, name, value));
 
         }
 
-        public static void addNumber (ItemStack item, String type, String name, double value) {
+        public static void addNumber (ItemStack item, String category, String name, double value) {
 
-            value = getNumber(item, type, name) + value;
-            setNumber(item, type, name, value);
+            value = getNumber(item, category, name) + value;
+            setNumber(item, category, name, value);
 
         }
 
-        public static ListTag getList (ItemStack item, String type, String name) {
+        public static ListTag getList (ItemStack item, String category, String name) {
 
-            CompoundTag tag = getAll(item).getCompound(type);
+            CompoundTag tag = getAll(item).getCompound(category);
             return tag.getList(name, Tag.TAG_STRING);
 
         }
 
-        public static List<String> getListAsList (ItemStack item, String type, String name) {
+        public static List<String> getListAsList (ItemStack item, String category, String name) {
 
-            ListTag list = getList(item, type, name);
+            ListTag list = getList(item, category, name);
             List<String> convert = new ArrayList<>();
 
             for (int number = 0; number < list.size(); number++) {
@@ -755,13 +789,19 @@ public class NBTManager {
 
         }
 
-        public static void setList (ItemStack item, String type, String name, ListTag value) {
+        public static void setList (ItemStack item, String category, String name, ListTag value) {
 
-            merge(item, PutInTag.fromList(type, name, value));
+            if (getList(item, category, name) == value) {
+
+                return;
+
+            }
+
+            merge(item, PutInTag.fromList(category, name, value));
 
         }
 
-        public static void setListAlternate (ItemStack item, String type, String name, List<String> value) {
+        public static void setListAlternate (ItemStack item, String category, String name, List<String> value) {
 
             ListTag list = new ListTag();
 
@@ -771,30 +811,30 @@ public class NBTManager {
 
             }
 
-            setList(item, type, name, list);
+            setList(item, category, name, list);
 
         }
 
-        public static void addList (ItemStack item, String type, String name, ListTag value) {
+        public static void addList (ItemStack item, String category, String name, ListTag value) {
 
-            ListTag list = getList(item, type, name);
+            ListTag list = getList(item, category, name);
             list.add(value);
 
-            merge(item, PutInTag.fromList(type, name, list));
+            merge(item, PutInTag.fromList(category, name, list));
 
         }
 
-        public static void addListAlternate (ItemStack item, String type, String name, String value) {
+        public static void addListAlternate (ItemStack item, String category, String name, String value) {
 
             ListTag list = new ListTag();
             list.add(StringTag.valueOf(value));
-            addList(item, type, name, list);
+            addList(item, category, name, list);
 
         }
 
-        public static void addListMultiple (ItemStack item, String type, String name, List<String> value) {
+        public static void addListMultiple (ItemStack item, String category, String name, List<String> value) {
 
-            ListTag list = getList(item, type, name);
+            ListTag list = getList(item, category, name);
 
             for (String scan : value) {
 
@@ -802,7 +842,7 @@ public class NBTManager {
 
             }
 
-            merge(item, PutInTag.fromList(type, name, list));
+            merge(item, PutInTag.fromList(category, name, list));
 
         }
 

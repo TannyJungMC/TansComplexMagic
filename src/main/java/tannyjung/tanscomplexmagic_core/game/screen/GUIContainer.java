@@ -13,6 +13,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
+import tannyjung.tanscomplexmagic_core.game.EventCenter;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -44,7 +45,7 @@ public class GUIContainer extends AbstractContainerMenu {
     };
 
     public GUIContainer(int id, Inventory inv, FriendlyByteBuf extraData) {
-        super(GUIScreen.gui.get(), id);
+        super(GUIManager.gui.get(), id);
         this.player = inv.player;
         this.world = inv.player.level();
         this.internal = new ItemStackHandler(0);

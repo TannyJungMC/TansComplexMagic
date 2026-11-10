@@ -7,49 +7,34 @@ import tannyjung.tanscomplexmagic_core.outside.TimeUtils;
 
 public class Mana {
 
-    public static void update (ServerPlayer player_server) {
+    public static int[] get (Player player) {
 
-        int mana = (int) NBTManager.Mob.getNumber(player_server, "main", "mana");
+        String timestamp = NBTManager.Mob.getText(player, "main", "timestamp_mana");
 
-        if (mana == 150) {
+        if (timestamp.equals("0") == true) {
 
-            return;
-
-        }
-
-        long remain = TimeUtils.getRemain(NBTManager.Mob.getText(player_server, "main", "timestamp_mana"));
-        int mana_charge = 0;
-
-        if (remain == 0) {
-
-            setFull(player_server);
-
-        } else {
-
-            long test = TimeUtils.combineTime(0, 150, 0) - TimeUtils.getRemain(NBTManager.Mob.getText(player_server, "main", "timestamp_mana"));
-            mana = Math.toIntExact(test / 60);
-            mana_charge = Math.toIntExact(test % 60);
-            NBTManager.Mob.setNumber(player_server, "main", "mana", mana, true);
-            NBTManager.Mob.setNumber(player_server, "main", "mana_charge", mana_charge, true);
+            return new int[]{150, 0};
 
         }
+
+        long test = TimeUtils.combineTime(0, 150, 0) - TimeUtils.getRemain(timestamp);
+        return new int[]{Math.toIntExact(test / 60), Math.toIntExact(test % 60)};
 
     }
 
     public static boolean spend (ServerPlayer player_server, int amount) {
 
-        int mana = (int) NBTManager.Mob.getNumber(player_server, "main", "mana");
+        int[] mana = get(player_server);
 
-        if (mana < amount) {
+        if (mana[0] < amount) {
 
             return false;
 
         }
 
-        NBTManager.Mob.addNumber(player_server, "main", "mana", -amount, true);
         String timestamp_mana = "";
 
-        if (mana == 150) {
+        if (mana[0] == 150) {
 
             timestamp_mana = TimeUtils.getTimestampCurrent();
 
@@ -66,8 +51,6 @@ public class Mana {
 
     public static void setFull (ServerPlayer player_server) {
 
-        NBTManager.Mob.setNumber(player_server, "main", "mana", 150, true);
-        NBTManager.Mob.setNumber(player_server, "main", "mana_charge", 0, true);
         NBTManager.Mob.setText(player_server, "main", "timestamp_mana", TimeUtils.getTimestampCurrent(), true);
 
     }

@@ -8,23 +8,78 @@ public class TimeUtils {
 
     private static boolean reset_timestamps = false;
 
+    public static String convertSecondToReadable (long seconds) {
+
+        if (seconds == 0) {
+
+            return "0s";
+
+        }
+
+        String convert_day = "";
+
+        if (seconds >= 86400) {
+
+            convert_day = ((seconds / 86400) % 86400) + "d ";
+
+        }
+
+        String convert_hour = "";
+
+        if (seconds >= 3600) {
+
+            convert_hour = (((seconds / 3600) % 3600) % 24) + "h ";
+
+        }
+
+        String convert_minute = "";
+
+        if (seconds >= 60) {
+
+            convert_minute = ((seconds / 60) % 60) + "m ";
+
+        }
+
+        String convert_second = (seconds % 60) + "s";
+        return convert_day + convert_hour + convert_minute + convert_second;
+
+    }
+
     public static long combineTime (int hour, int minute, int second) {
 
         return second + (minute * 60L) + (hour * 3600L);
 
     }
 
-    public static long getRemain (String timestamp) {
+    public static boolean isPassed (String timestamp) {
 
         if (reset_timestamps == true) {
+
+            return true;
+
+        }
+
+        return getRemain(timestamp) == 0;
+
+    }
+
+    public static long getInterval (String timestamp) {
+
+        if (timestamp.isEmpty() == true || timestamp.equals("0") == true) {
 
             return 0;
 
         }
 
-        if (timestamp.isEmpty() == true) {
+        return Math.abs(Long.parseLong(getTimestampCurrent()) - Long.parseLong(timestamp));
 
-            timestamp = "0";
+    }
+
+    public static long getRemain (String timestamp) {
+
+        if (timestamp.isEmpty() == true || timestamp.equals("0") == true) {
+
+            return 0;
 
         }
 
@@ -37,39 +92,6 @@ public class TimeUtils {
         }
 
         return remain;
-
-    }
-
-    public static String getRemainReadable (String timestamp) {
-
-        long remain = getRemain(timestamp);
-        String remain_day = "";
-
-        if (remain > 86400) {
-
-            remain_day = ((remain / 86400) % 86400) + "d ";
-
-        }
-
-        String remain_hour = "";
-
-        if (remain > 3600) {
-
-            remain_hour = (((remain / 3600) % 3600) % 24) + "h ";
-
-        }
-
-        String remain_minute = "";
-
-        if (remain > 60) {
-
-            remain_minute = ((remain / 60) % 60) + "m ";
-
-        }
-
-        String remain_second = (remain % 60) + "s";
-
-        return remain_day + remain_hour + remain_minute + remain_second;
 
     }
 
@@ -115,7 +137,7 @@ public class TimeUtils {
 
     }
 
-    public static void resetTimestamps () {
+    public static void resetTimestampEvery () {
 
         reset_timestamps = true;
 
