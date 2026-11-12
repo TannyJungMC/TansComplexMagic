@@ -4771,20 +4771,6 @@
       }
     },
     {
-      "name": "Spell1GUI",
-      "type": "gui",
-      "compiles": true,
-      "locked_code": false,
-      "registry_name": "spell_1_gui",
-      "metadata": {
-        "files": [
-          "src/main/java/tannyjung/tanscomplexmagic/world/inventory/Spell1GUIMenu.java",
-          "src/main/java/tannyjung/tanscomplexmagic/client/gui/Spell1GUIScreen.java"
-        ]
-      },
-      "path": "~/.../Spell1"
-    },
-    {
       "name": "FontConvertThin",
       "type": "procedure",
       "compiles": true,
@@ -9377,11 +9363,6 @@
       "item.tanscomplexmagic.anchor": "Anchor",
       "item.tanscomplexmagic.knight_sword": "Knight\u0027s Sword",
       "item.tanscomplexmagic.forgotten_sword": "Forgotten Sword",
-      "gui.tanscomplexmagic.spell_1_gui.button_close": "Close",
-      "gui.tanscomplexmagic.spell_1_gui.button_empty1": "\u003e",
-      "gui.tanscomplexmagic.spell_1_gui.kjn": "",
-      "gui.tanscomplexmagic.spell_1_gui.label_pause": "Pause",
-      "gui.tanscomplexmagic.spell_1_gui.button_empty": "",
       "gui.tanscomplexmagic.gui_index.label_from_creator": "From Creator",
       "gui.tanscomplexmagic.gui_index.label_registration": "User Registration",
       "gui.tanscomplexmagic.gui_index.label_001": "001",
@@ -9419,9 +9400,6 @@
   },
   "metadata": {
     "files": [
-      "src/main/java/tannyjung/tanscomplexmagic/network/MenuStateUpdateMessage.java",
-      "src/main/java/tannyjung/tanscomplexmagic/init/TanscomplexmagicModScreens.java",
-      "src/main/java/tannyjung/tanscomplexmagic/init/TanscomplexmagicModMenus.java",
       "src/main/java/tannyjung/tanscomplexmagic/init/TanscomplexmagicModParticles.java",
       "src/main/java/tannyjung/tanscomplexmagic/init/TanscomplexmagicModParticleTypes.java",
       "src/main/java/tannyjung/tanscomplexmagic/init/TanscomplexmagicModBlocks.java",

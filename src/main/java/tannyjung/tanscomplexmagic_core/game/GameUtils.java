@@ -178,7 +178,7 @@ public class GameUtils {
 		double distance = 0;
 		double percent = 0;
 		double volume_min = 0;
-		double volume_max = max_distance / 12.0;
+		double volume_max = max_distance / 16.0;
 
 		for (ServerPlayer player_server : level_server.players()) {
 

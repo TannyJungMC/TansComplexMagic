@@ -8,9 +8,9 @@ version="1.0.0"
 displayName="Tan's Complex Magic"
 displayURL="https://legacy.curseforge.com/members/tannyjung/projects"
 logoFile="logo.png"
-credits="Created with MCreator"
+credits="Created with MCreator and IntelliJ"
 authors="TannyJung"
-description="MAGIC!"
+description="Collection of my magic systems"
 
 # Start of user code block mod configuration
 # End of user code block mod configuration

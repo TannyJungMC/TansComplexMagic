@@ -77,19 +77,15 @@ public class Spell1 {
 
                 } else {
 
-                    if (radius <= 10) {
-
-                        tick = 10;
-
-                    } else if (radius <= 20) {
+                    if (radius < 20) {
 
                         tick = 5;
 
-                    } else if (radius <= 50) {
+                    } else if (radius < 50) {
 
                         tick = 4;
 
-                    } else if (radius <= 100) {
+                    } else if (radius < 100) {
 
                         tick = 3;
 
@@ -127,7 +123,7 @@ public class Spell1 {
 
                         radius = radius + add;
                         NBTManager.Mob.setNumber(player_server, "spell1", "radius", radius, true);
-                        GameUtils.playSound(level_server, player_server.position(), pitch, 10, "minecraft:block.note_block.hat");
+                        GameUtils.playSound(level_server, player_server.position(), pitch, 20, "minecraft:block.note_block.hat");
 
                     }
 
@@ -158,11 +154,28 @@ public class Spell1 {
 
     private static void updateCenter (ServerPlayer player_server, Entity entity_center) {
 
-        double rotation = entity_center.getYRot() - (((1.0 - (NBTManager.Mob.getNumber(player_server, "spell1", "radius") / 200.0)) * 0.1) + 0.025);
+        double rotation = entity_center.getYRot();
+        double add = ((1.0 - (NBTManager.Mob.getNumber(player_server, "spell1", "radius") / 200.0)) * 0.1) + 0.025;
 
-        if (rotation >= 360) {
+        if (NBTManager.Mob.getLogic(player_server, "spell1", "is_reverse_rotation") == true) {
 
-            rotation = rotation - 360;
+            rotation = rotation - add;
+
+            if (rotation < 0) {
+
+                rotation = rotation + 360;
+
+            }
+
+        } else {
+
+            rotation = rotation + add;
+
+            if (rotation >= 360) {
+
+                rotation = rotation - 360;
+
+            }
 
         }
 
@@ -309,7 +322,7 @@ public class Spell1 {
         private static void removeSpecific (ServerLevel level_server, ServerPlayer player_server, Entity entity_card, int card_number, double radius) {
 
             NBTManager.Mob.setText(player_server, "spell1", "card_status" + card_number, "", true);
-            NBTManager.Mob.setNumber(player_server, "spell1", "number_of_targets_detected" + card_number, 0, true);
+            NBTManager.Mob.setNumber(player_server, "spell1", "number_of_detected_targets" + card_number, 0, true);
             NBTManager.Mob.setNumber(player_server, "spell1", "remaining_duration" + card_number, 0, true);
 
             GameUtils.spawnParticle(level_server, entity_card.position(), 0, 0, 0, 0, 1, "minecraft:flash");
@@ -544,7 +557,7 @@ public class Spell1 {
 
                 }
 
-                NBTManager.Mob.setNumber(player_server, "spell1", "number_of_targets_detected" + number, target_sort.length, true);
+                NBTManager.Mob.setNumber(player_server, "spell1", "number_of_detected_targets" + number, target_sort.length, true);
                 NBTManager.Mob.setNumber(player_server, "spell1", "remaining_duration" + number, remaining_duration, true);
 
             }
@@ -567,7 +580,7 @@ public class Spell1 {
 
                 } else {
 
-                    height = radius / 4.5;
+                    height = radius / 3.0;
 
                 }
 
@@ -582,8 +595,6 @@ public class Spell1 {
                     height = radius - (radius / 3.0);
 
                 }
-
-                height = height + 0.25;
 
             }
 
@@ -645,7 +656,7 @@ public class Spell1 {
                     {
 
                         double degree = 1.0 - (radius / 200.0);
-                        degree = (degree * 1.25) + 0.25;
+                        degree = (degree * 1.5) + 0.5;
 
                         if (is_high_power_mode == true) {
 
@@ -1536,6 +1547,12 @@ public class Spell1 {
         private static void give9 (ServerLevel level_server, Entity entity, boolean is_negative, boolean is_high_power_mode) {
 
             if (is_negative == false) {
+
+                if (entity.isSprinting() == false) {
+
+                    return;
+
+                }
 
                 if (EffectManager.hasDuration(level_server, entity, "minecraft:speed", 40) == false) {
 

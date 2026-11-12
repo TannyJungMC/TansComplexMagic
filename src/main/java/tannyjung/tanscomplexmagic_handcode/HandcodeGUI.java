@@ -30,7 +30,32 @@ public class HandcodeGUI {
             generateBackground();
 
             ScreenDrawing.Position.set(ScreenDrawing.Anchor.Type.CENTER, 8 * -22 + 0, 8 * -12 + 0);
-            ScreenDrawing.ComponentWidget.Board.drawEntity("Ally List", Utils.Tag.getAlly(ScreenDrawing.player_local), "   Manage list of your ally. Some spell systems can interact with this list, some can skip negative actions on them.");
+            ScreenDrawing.ComponentOverlay.drawTextBasic(1, "Text Display");
+            ScreenDrawing.Position.addZ(8);
+            ScreenDrawing.ComponentOverlay.drawTextParagraph(160, "   A book additional feature. Show some text inside the box at bottom-left of the book.");
+            ScreenDrawing.Position.addZ(8);
+            ScreenDrawing.ComponentOverlay.drawTextParagraph(160, "   There are 4 types for display. You can swap between types by click at the icon at left side of display box. Here is list of all available modes.");
+            ScreenDrawing.Position.addZ(8);
+            ScreenDrawing.ComponentOverlay.drawTextParagraphBulletedList(160, "None (Gray) : Shows nothing. Just a blank space for your eyes to rest.");
+            ScreenDrawing.ComponentOverlay.drawTextParagraphBulletedList(160, "Mana Summary (Yellow) : Shows your current mana, charge, and remaining time until full.");
+            ScreenDrawing.ComponentOverlay.drawTextParagraphBulletedList(160, "Information (Green) : Shows some info that might be useful");
+            ScreenDrawing.ComponentOverlay.drawTextParagraphBulletedList(160, "Trigger (Red) : Shows some info and make a sound when it detects something. Sound will be produced only when the book is on your left or right hand, or when it is placed.");
+
+            ScreenDrawing.Position.set(ScreenDrawing.Anchor.Type.CENTER, 8 * 2 + 0, 8 * -12 + 0);
+            ScreenDrawing.ComponentWidget.Radio.drawBasic("Information Mode", "book", "text_display_information_mode", new String[]{"Current Game Time", "Distance to World Spawn", "Distance to Custom Compass Position", "Distance to Selected Ally"});
+            ScreenDrawing.Position.addZ(8);
+            ScreenDrawing.ComponentWidget.Radio.drawBasic("Trigger Mode", "book", "text_display_trigger_mode", new String[]{"Nearby Monster (20 Blocks)", "Nearby Monster (50 Blocks)", "Nearby Monster (100 Blocks)", "Insomnia Danger Zone", "Light Level 0", "Mana Full"});
+            ScreenDrawing.Position.addZ(8);
+            ScreenDrawing.ComponentWidget.Radio.drawBasic("Trigger Sound", "book", "text_display_trigger_sound", new String[]{"Chime", "Xylophone", "Snare", "Bit", "Bass"});
+
+        });
+
+        GUIManager.add(() -> {
+
+            generateBackground();
+
+            ScreenDrawing.Position.set(ScreenDrawing.Anchor.Type.CENTER, 8 * -22 + 0, 8 * -12 + 0);
+            ScreenDrawing.ComponentWidget.Board.drawEntity("Ally List", Utils.Tag.getAlly(ScreenDrawing.player_local), "   Manage list of your ally. Some spell systems can interact with this list. Some can skip negative actions on them, and some can do actions directly to them.");
 
         });
 
@@ -40,10 +65,10 @@ public class HandcodeGUI {
             GUIManager.add(() -> generateWikiCard(1, "Courage and Fear", "drawing_spell1_eyes", new String[]{"   The 1st sign of zodiac. Aries is the ram full of courage. The legend is quite complicated, some is the golden ram sent by gods to save two children. After all, the ram becomes a symbol of courage and sacrifice.","   There is low information to tell what is the true power of this sign. Astral magicians said it can give some of courage to people to do something they are scared to do. Some of them discovered it can reduce their fear of height, or even make them not afraid to do illegal acts.", "After my tests, I can bring one of its power into the card. The power to see in the dark, as I am scared of darkness."}, new String[]{"   The card has ability to give people part of his courage to gains fear of darkness. On the other hand, flipping the card will breaks their wall of mind. Give them the test of Aries to facing the fear of darkness.", "   At the end, I would say that this card should be used in a good way. Not to hurt, oppress, or bully others. Hurting people with magic is also Illegal to the laws of magic."}));
             GUIManager.add(() -> generateWikiCard(2, "Hardiness and Worthlessness", "", new String[]{"   The 2nd sign of zodiac. Taurus is the big strong bull. The legend is that Zeus turned himself into the strong white bull to win the heart of the princess Europa, then carrying her across the sea.", "   Even the history is about love and relationship, but the power of Taurus sign is one of strongest power in the zodiacs. The sign gives power of body protection that can protect the user from almost all physical damages, as though this is the bless of Zeus for the princess Europa.", "   Note that the sign does not giving people body strength, only body protection. Some magicians called it \"Iron Skin\"."}, new String[]{"   The card has ability to share part of Taurus protection to people and other creatures. Can absorbs almost all of incoming damages. While flipping the card not giving them vulnerability, but instead they will receive the feeling of drunken, as if heartbroken.", "   However, this sign seems to use a lot of mana than others, just like how powerful it is."}));
             GUIManager.add(() -> generateWikiCard(3, "Hopeful and Hopeless", "", new String[]{"   The 3rd sign of zodiac. Gemini is the twins. Some history tell that they is Pollux and Castor. One has the bloodline of god, so he is an immortal. But other one is a mortal, since he is human. After Castor died, Pollux begged his father to give Castor immortality.", "   Gemini sign can make people feel of motivation, increasing their strength by no reason. Some astral magicians said that this sign is one of dangerous signs if use it incorrectly. Even it has the power to give people motivation, but can also give the feeling of discouraged and hopeless to some people."}, new String[]{"   The card has ability to give people feeling of bond, motivation, and energy. If flipping, it will make them feel tired and sometime hopeless."}));
-            GUIManager.add(() -> generateWikiCard(4, "Luck and Unluck", "drawing_spell1_creature_attraction", new String[]{"   The 4th sign of zodiac. Cancer is the crab. Some history tells that he crushed under the foot of Heracles. Moved by his loyalty, Hera brings him placed in the sky and becomes the Cancer constellation.", "   Many astral magicians said that Cancer is one of weakest signs in the zodiac, with the power of animal attraction. However after my some experiments, I discovered that it might be one of the most powerful sign. While making the card, I found out it is not animal attraction, but luck. Sometimes I am very lucky, sometimes nearly die in accidents. Animals come toward you, because luck changes their destination."}, new String[]{"   The card has ability to control luck. Head up card gives good luck, head down card gives bad luck. While bad luck is opposite of good luck, it does not attract animals, but something from the darkness.", "   I would not recommend to use this power of luck, unless it is necessary. Be careful, the result of luck is unstable. Luck may change to unluck, or just no affect to targets."}));
+            GUIManager.add(() -> generateWikiCard(4, "Luck and Unluck", "drawing_spell1_creature_attraction", new String[]{"   The 4th sign of zodiac. Cancer is the crab. Some history tells that he crushed under the foot of Heracles. Moved by his loyalty, Hera brings him placed in the sky and becomes the Cancer constellation.", "   Many astral magicians said that Cancer is one of weakest signs in the zodiac, with the power of animal attraction. However after my some experiments, I discovered that it might be one of the most powerful sign. While making the card, I found out the true power of it \"Luck\". Sometimes I am very lucky, sometimes nearly die in accidents. Animals come toward you, because luck changes their destination."}, new String[]{"   The card has ability to control luck. Head up card gives good luck, head down card gives bad luck. While bad luck is opposite of good luck, it does not attract animals, but something from the darkness.", "   I would not recommend to use this power of luck, unless it is necessary. Be careful, the result of luck is unstable. Luck may change to unluck, or just no affect to targets."}));
             GUIManager.add(() -> generateWikiCard(5, "", "", new String[]{"",""}, new String[]{""}));
             GUIManager.add(() -> generateWikiCard(6, "", "", new String[]{"",""}, new String[]{""}));
-            GUIManager.add(() -> generateWikiCard(7, "Fairness and Unfairness", "drawing_spell1_scales_of_justice", new String[]{"   The 7th sign of zodiac. The scales of justice. The only sign in the zodiac that represented as an object.", "   Libra does not have much information. No one know the true power of it. Some astral magicians discovered that it can detect liars perfectly, some discovered it can change some reality. So they mark this sign as still in dangerous to use, because of not enough information.", "   I bring one of its popular powers into the card. Astral magicians named it \"Fair Fight\", they use it in arenas. It cleanses buffs and debuffs from all fighters in the area."}, new String[]{"   However, big note for the use of Fair Fight. It seems that Libra somehow control over it. While it is in active, other zodiac cards will not work. This seems to be another mysterious power of Libra.", "   Another power I bring into flipped card \"Effect Sharing\". The card will share part of buffs and debuffs from the user to targets. But seems to only work with effects in the type of status, instant effects can not be shared."}));
+            GUIManager.add(() -> generateWikiCard(7, "Fairness and Unfairness", "drawing_spell1_scales_of_justice", new String[]{"   The 7th sign of zodiac. The scales of justice. The only sign in the zodiac that represented as an object.", "   Libra does not have much information. No one know the true power of it. Some astral magicians discovered that it can detect liars perfectly, some discovered it can change some reality. So they mark this sign as can be dangerous.", "   I bring one of its popular powers into the card. Astral magicians named it \"Fair Fight\". It cleanses buffs and debuffs from all fighters in the arena, to prevent cheating."}, new String[]{"   However, big note for the use of Fair Fight. It seems that Libra somehow control over it. While it is in active, other zodiac cards will not work properly. This seems to be another mysterious power of Libra.", "   Another power I bring into flipped card \"Effect Sharing\". The card will share part of buffs and debuffs from the user to targets. But seems to only work with effects in the type of status, instant effects can not be shared."}));
             GUIManager.add(() -> generateWikiCard(8, "", "", new String[]{"",""}, new String[]{""}));
             GUIManager.add(() -> generateWikiCard(9, "", "", new String[]{"",""}, new String[]{""}));
             GUIManager.add(() -> generateWikiCard(10, "", "", new String[]{"",""}, new String[]{""}));
@@ -112,10 +137,12 @@ public class HandcodeGUI {
                 ScreenDrawing.ComponentWidget.Switch.drawText("spell1", "is_pause_all", "Pause All Cards");
                 ScreenDrawing.Position.addZ(2);
                 ScreenDrawing.ComponentWidget.Switch.drawText("spell1", "is_overlay_enable", "Show Overlay While Active");
+                ScreenDrawing.Position.addZ(2);
+                ScreenDrawing.ComponentWidget.Switch.drawText("spell1", "is_reverse_rotation", "Reverse Rotation");
                 ScreenDrawing.Position.addZ(8);
                 ScreenDrawing.ComponentWidget.Slider.drawText(160, 1, 200, 1, "spell1", "radius", "Radius");
                 ScreenDrawing.Position.addZ(4);
-                ScreenDrawing.ComponentWidget.Slider.drawText(160, 5, 200, 5, "spell1", "radius_touch_ground", "Radius Touch Ground");
+                ScreenDrawing.ComponentWidget.Slider.drawText(160, 0, 200, 1, "spell1", "radius_touch_ground", "Radius Touch Ground");
 
                 ScreenDrawing.Position.set(ScreenDrawing.Anchor.Type.CENTER, 8 * -22 + 0, 8 * 6 + 5);
 
@@ -232,8 +259,8 @@ public class HandcodeGUI {
         // Page Number
         {
 
-            StringBuilder page_left = new StringBuilder().append(id);
-            StringBuilder page_right = new StringBuilder().append(id + 1);
+            StringBuilder page_left = new StringBuilder().append((id * 2) - 1);
+            StringBuilder page_right = new StringBuilder().append(id * 2);
 
             while (page_left.length() < 3) {
 
@@ -304,35 +331,36 @@ public class HandcodeGUI {
 
         }
 
-        // Log
+        // Text Display
         {
 
             ScreenDrawing.Position.set(ScreenDrawing.Anchor.Type.CENTER, 8 * -22 + 0, 8 * 13 + 8);
-            ScreenDrawing.ComponentOverlay.drawTextBasic(0.48, NBTManager.Mob.getText(ScreenDrawing.player_local, "book", "log_text"));
+            ScreenDrawing.ComponentOverlay.drawTextBasic(0.48, NBTManager.Mob.getText(ScreenDrawing.player_local, "book", "text_display_text"));
 
-            int log = 0;
+            String type = NBTManager.Mob.getText(ScreenDrawing.player_local, "book", "text_display_type");
+            int text_display = 0;
 
-            if (NBTManager.Mob.getText(ScreenDrawing.player_local, "book", "log").equals("mana") == true) {
+            if (type.equals("mana") == true) {
 
-                log = 1;
+                text_display = 1;
 
-            } else if (NBTManager.Mob.getText(ScreenDrawing.player_local, "book", "log").equals("action") == true) {
+            } else if (type.equals("information") == true) {
 
-                log = 2;
+                text_display = 2;
 
-            } else if (NBTManager.Mob.getText(ScreenDrawing.player_local, "book", "log").equals("warning") == true) {
+            } else if (type.equals("trigger") == true) {
 
-                log = 3;
+                text_display = 3;
 
             }
 
             ScreenDrawing.Position.set(ScreenDrawing.Anchor.Type.CENTER, 8 * -23 - 4, 8 * 13 + 6);
-            ScreenDrawing.ComponentOverlay.drawImageSplit(28, 7, true, 4, log, "tanscomplexmagic:textures/screens/book/log_type.png");
+            ScreenDrawing.ComponentOverlay.drawImageSplit(28, 7, true, 4, text_display, "tanscomplexmagic:textures/screens/book/text_display_type.png");
             ScreenDrawing.Position.set(ScreenDrawing.Anchor.Type.CENTER, 8 * -23 - 4, 8 * 13 + 6);
 
-            ScreenDrawing.ComponentWidget.ButtonImage.draw(14, 7, true, true, false, "tanscomplexmagic:textures/screens/book/log_type_set.png", () -> {
+            ScreenDrawing.ComponentWidget.ButtonImage.draw(14, 7, true, true, false, "tanscomplexmagic:textures/screens/book/text_display_type_set.png", () -> {
 
-                NetworkManager.runServer("gui", "book_log", new CompoundTag());
+                NetworkManager.runServer("gui", "book_text_display", new CompoundTag());
 
             });
 
@@ -345,30 +373,30 @@ public class HandcodeGUI {
 
             ScreenDrawing.ComponentWidget.ButtonImage.draw(24, 16, false, true, false, "tanscomplexmagic:textures/screens/book/bookmark_home.png", () -> {
 
-                NetworkManager.runServer("gui", "book_bookmark_home", new CompoundTag());
+                NetworkManager.runServer("gui", "book_bookmark_" + "home", new CompoundTag());
 
             });
-            ScreenDrawing.Position.addZ(2);
+            ScreenDrawing.Position.addZ(3);
 
             ScreenDrawing.ComponentWidget.ButtonImage.draw(24, 16, false, true, false, "tanscomplexmagic:textures/screens/book/bookmark_ally_list.png", () -> {
 
-                NetworkManager.runServer("gui", "book_bookmark_ally_list_manager", new CompoundTag());
+                NetworkManager.runServer("gui", "book_bookmark_" + "ally_list", new CompoundTag());
 
             });
 
-            ScreenDrawing.Position.addZ(2);
+            ScreenDrawing.Position.addZ(3);
 
             ScreenDrawing.ComponentWidget.ButtonImage.draw(24, 16, false, true, false, "tanscomplexmagic:textures/screens/book/bookmark_basic_spells.png", () -> {
 
-                NetworkManager.runServer("gui", "book_bookmark_basic_spell", new CompoundTag());
+                NetworkManager.runServer("gui", "book_bookmark_" + "basic_spell", new CompoundTag());
 
             });
 
-            ScreenDrawing.Position.addZ(2);
+            ScreenDrawing.Position.addZ(3);
 
             ScreenDrawing.ComponentWidget.ButtonImage.draw(24, 16, false, true, false, "tanscomplexmagic:textures/screens/book/bookmark_spell_control.png", () -> {
 
-                NetworkManager.runServer("gui", "book_bookmark_spell1_settings", new CompoundTag());
+                NetworkManager.runServer("gui", "book_bookmark_" + "spell1_settings", new CompoundTag());
 
             });
 
@@ -377,55 +405,28 @@ public class HandcodeGUI {
 
                 ScreenDrawing.Position.addZ(16);
 
-                ScreenDrawing.ComponentWidget.ButtonImage.draw(24, 16, false, true, false, "tanscomplexmagic:textures/screens/book/bookmark_custom.png", () -> {
+                for (int number = 1; number <= 3; number++) {
 
-                    NetworkManager.runServer("gui", "book_bookmark_custom1", new CompoundTag());
+                    int number_final = number;
 
-                });
+                    ScreenDrawing.ComponentWidget.ButtonImage.draw(24, 16, false, true, false, "tanscomplexmagic:textures/screens/book/bookmark_custom.png", () -> {
 
-                ScreenDrawing.Position.setMarkX();
-                ScreenDrawing.Position.add(19, 2);
+                        NetworkManager.runServer("gui", "book_bookmark_custom" + number_final, new CompoundTag());
 
-                ScreenDrawing.ComponentWidget.ButtonImage.draw(8, 4, true, true, false, "tanscomplexmagic:textures/screens/book/bookmark_custom_set.png", () -> {
+                    });
 
-                    NetworkManager.runServer("gui", "book_bookmark_custom_set1", new CompoundTag());
+                    ScreenDrawing.Position.setMarkX();
+                    ScreenDrawing.Position.add(19, 2);
+                    ScreenDrawing.ComponentWidget.ButtonImage.draw(8, 4, true, true, false, "tanscomplexmagic:textures/screens/book/bookmark_custom_set.png", () -> {
 
-                });
+                        NetworkManager.runServer("gui", "book_bookmark_custom_set" + number_final, new CompoundTag());
 
-                ScreenDrawing.Position.returnMarkX();
-                ScreenDrawing.Position.addZ(2);
+                    });
 
-                ScreenDrawing.ComponentWidget.ButtonImage.draw(24, 16, false, true, false, "tanscomplexmagic:textures/screens/book/bookmark_custom.png", () -> {
+                    ScreenDrawing.Position.returnMarkX();
+                    ScreenDrawing.Position.addZ(2);
 
-                    NetworkManager.runServer("gui", "book_bookmark_custom2", new CompoundTag());
-
-                });
-
-                ScreenDrawing.Position.setMarkX();
-                ScreenDrawing.Position.add(19, 2);
-
-                ScreenDrawing.ComponentWidget.ButtonImage.draw(8, 4, true, true, false, "tanscomplexmagic:textures/screens/book/bookmark_custom_set.png", () -> {
-
-                    NetworkManager.runServer("gui", "book_bookmark_custom_set2", new CompoundTag());
-
-                });
-
-                ScreenDrawing.Position.returnMarkX();
-                ScreenDrawing.Position.addZ(2);
-
-                ScreenDrawing.ComponentWidget.ButtonImage.draw(24, 16, false, true, false, "tanscomplexmagic:textures/screens/book/bookmark_custom.png", () -> {
-
-                    NetworkManager.runServer("gui", "book_bookmark_custom3", new CompoundTag());
-
-                });
-
-                ScreenDrawing.Position.add(19, 2);
-
-                ScreenDrawing.ComponentWidget.ButtonImage.draw(8, 4, true, true, false, "tanscomplexmagic:textures/screens/book/bookmark_custom_set.png", () -> {
-
-                    NetworkManager.runServer("gui", "book_bookmark_custom_set3", new CompoundTag());
-
-                });
+                }
 
             }
 
@@ -435,10 +436,10 @@ public class HandcodeGUI {
         {
 
             int[] mana = Mana.get(ScreenDrawing.player_local);
-            ScreenDrawing.Position.set(ScreenDrawing.Anchor.Type.CENTER, 8 * 24 + 3, 8 * -14 + 4);
-            ScreenDrawing.ComponentOverlay.drawImageSplit(151, 150, true, 151, mana[0], "tanscomplexmagic:textures/screens/book/mana_bar.png");
             ScreenDrawing.Position.set(ScreenDrawing.Anchor.Type.CENTER, 8 * 24 + 3, 8 * 5 + 6);
             ScreenDrawing.ComponentOverlay.drawImageSplit(61, 60, true, 61, mana[1], "tanscomplexmagic:textures/screens/book/mana_bar_charge.png");
+            ScreenDrawing.Position.set(ScreenDrawing.Anchor.Type.CENTER, 8 * 24 + 3, 8 * -14 + 4);
+            ScreenDrawing.ComponentOverlay.drawImageSplit(151, 150, true, 151, mana[0], "tanscomplexmagic:textures/screens/book/mana_bar.png");
 
         }
 
@@ -449,7 +450,7 @@ public class HandcodeGUI {
         generateBackground();
 
         ScreenDrawing.Position.set(ScreenDrawing.Anchor.Type.CENTER, 8 * -22 + 0, 8 * -12 + 0);
-        ScreenDrawing.ComponentOverlay.drawImageBasic(20, 36, "tanscomplexmagic:textures/screens/background.png");
+        ScreenDrawing.ComponentOverlay.drawImageBasic(20, 36, "tanscomplexmagic:textures/screens/background_black.png");
         ScreenDrawing.Position.add(2, 2);
         ScreenDrawing.ComponentOverlay.drawImageBasic(32, 32, "tanscomplexmagic:textures/block/zodiac_card" + number + ".png");
         ScreenDrawing.Position.set(ScreenDrawing.Anchor.Type.CENTER, 8 * -18 + 0, 8 * -10 - 3);
@@ -502,7 +503,7 @@ public class HandcodeGUI {
         ScreenDrawing.Position.set(ScreenDrawing.Anchor.Type.CENTER, posX, 8 * -12 + 0);
         ScreenDrawing.ComponentOverlay.drawTextBasic(1, "Card Settings : " + name);
         ScreenDrawing.Position.addZ(8);
-        ScreenDrawing.ComponentOverlay.drawTextBasic( ScreenDrawing.DEFAULT_FONT_SCALE, "Detected Targets : " + (int) NBTManager.Mob.getNumber(ScreenDrawing.player_local, "spell1", "number_of_targets_detected" + number));
+        ScreenDrawing.ComponentOverlay.drawTextBasic( ScreenDrawing.DEFAULT_FONT_SCALE, "Detected Targets : " + (int) NBTManager.Mob.getNumber(ScreenDrawing.player_local, "spell1", "number_of_detected_targets" + number));
         ScreenDrawing.Position.addZ(4);
         ScreenDrawing.ComponentOverlay.drawTextBasic(ScreenDrawing.DEFAULT_FONT_SCALE, "Remaining Duration : " + TimeUtils.convertSecondToReadable((long) NBTManager.Mob.getNumber(ScreenDrawing.player_local, "spell1", "remaining_duration" + number)));
         ScreenDrawing.Position.addZ(8);
@@ -524,7 +525,9 @@ public class HandcodeGUI {
             ScreenDrawing.Position.addZ(8);
             ScreenDrawing.ComponentOverlay.drawTextBasic(ScreenDrawing.DEFAULT_FONT_SCALE, "Targets");
             ScreenDrawing.Position.addZ(4);
-            ScreenDrawing.ComponentWidget.Switch.drawText("spell1", "is_card_target_user" + number, "User");
+
+            boolean is_libra_effect_sharing = number == 7 && NBTManager.Mob.getLogic(ScreenDrawing.player_local, "spell1", "is_card_negative7") == true;
+            ScreenDrawing.ComponentWidget.Switch.drawTextLockable(true, is_libra_effect_sharing, "spell1", "is_card_target_user" + number, "User");
             ScreenDrawing.Position.addZ(2);
             ScreenDrawing.ComponentWidget.Switch.drawText("spell1", "is_card_target_ally_player" + number, "Ally Player");
             ScreenDrawing.Position.addZ(2);
@@ -564,27 +567,60 @@ public class HandcodeGUI {
             ScreenDrawing.Position.setZ(26);
             ScreenDrawing.ComponentWidget.Slider.drawTextWithSuffix(160, 0, NBTManager.Mob.getNumber(ScreenDrawing.player_local, "spell1", "card_duration_max_positive" + number), 1, "spell1", "card_duration_positive" + number, "Positive Duration", empowered_positive);
             ScreenDrawing.Position.addZ(2);
+            ScreenDrawing.Position.setMark();
 
-            ScreenDrawing.ComponentWidget.ButtonNormal.drawTextLockable(160, true, mana < 1, "+" + duration_per_mana_positive + " / 1 Mana", "+" + duration_per_mana_positive + " / 1 Mana", () -> {
+            ScreenDrawing.ComponentWidget.ButtonNormal.drawTextLockable(80, true, mana < 1, "+" + duration_per_mana_positive + " / 1 Mana", "+" + duration_per_mana_positive + " / 1 Mana", () -> {
 
                 CompoundTag tag = new CompoundTag();
                 tag.putInt("number", number);
                 tag.putString("positive_negative", "positive");
                 tag.putInt("duration_per_mana", duration_per_mana_positive);
+                tag.putInt("mana_cost", 1);
                 NetworkManager.runServer("gui", "spell1_buy_duration", tag);
 
             });
 
+            ScreenDrawing.Position.returnMark();
+            ScreenDrawing.Position.addX(80);
+
+            ScreenDrawing.ComponentWidget.ButtonNormal.drawTextLockable(80, true, mana < 10, "+" + duration_per_mana_positive * 10 + " / 10 Mana", "+" + duration_per_mana_positive * 10 + " / 10 Mana", () -> {
+
+                CompoundTag tag = new CompoundTag();
+                tag.putInt("number", number);
+                tag.putString("positive_negative", "positive");
+                tag.putInt("duration_per_mana", duration_per_mana_positive);
+                tag.putInt("mana_cost", 10);
+                NetworkManager.runServer("gui", "spell1_buy_duration", tag);
+
+            });
+
+            ScreenDrawing.Position.returnMarkX();
             ScreenDrawing.Position.addZ(8);
             ScreenDrawing.ComponentWidget.Slider.drawTextWithSuffix(160, 0, NBTManager.Mob.getNumber(ScreenDrawing.player_local, "spell1", "card_duration_max_negative" + number), 1, "spell1", "card_duration_negative" + number, "Negative Duration", empowered_negative);
             ScreenDrawing.Position.addZ(2);
+            ScreenDrawing.Position.setMark();
 
-            ScreenDrawing.ComponentWidget.ButtonNormal.drawTextLockable(160, true, mana < 1, "+" + duration_per_mana_negative + " / 1 Mana)", "+" + duration_per_mana_negative + " / 1 Mana", () -> {
+            ScreenDrawing.ComponentWidget.ButtonNormal.drawTextLockable(80, true, mana < 1, "+" + duration_per_mana_negative + " / 1 Mana", "+" + duration_per_mana_negative + " / 1 Mana", () -> {
 
                 CompoundTag tag = new CompoundTag();
                 tag.putInt("number", number);
                 tag.putString("positive_negative", "negative");
                 tag.putInt("duration_per_mana", duration_per_mana_positive);
+                tag.putInt("mana_cost", 1);
+                NetworkManager.runServer("gui", "spell1_buy_duration", tag);
+
+            });
+
+            ScreenDrawing.Position.returnMark();
+            ScreenDrawing.Position.addX(80);
+
+            ScreenDrawing.ComponentWidget.ButtonNormal.drawTextLockable(80, true, mana < 10, "+" + duration_per_mana_negative * 10 + " / 10 Mana", "+" + duration_per_mana_negative * 10 + " / 10 Mana", () -> {
+
+                CompoundTag tag = new CompoundTag();
+                tag.putInt("number", number);
+                tag.putString("positive_negative", "negative");
+                tag.putInt("duration_per_mana", duration_per_mana_positive);
+                tag.putInt("mana_cost", 10);
                 NetworkManager.runServer("gui", "spell1_buy_duration", tag);
 
             });

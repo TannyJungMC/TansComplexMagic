@@ -87,19 +87,19 @@ public class NetworkBuiltInServer {
 
                         if (name.equals("board_entity_add") == true) {
 
-                            GUIManager.BoardListEntity.add(player_server, nbt_name);
+                            GUIManager.Board.addEntity(player_server, nbt_name);
 
                         } else if (name.equals("board_entity_clear") == true) {
 
-                            GUIManager.BoardListEntity.clear(player_server, nbt_name);
+                            GUIManager.Board.clearEntity(player_server, nbt_name);
 
                         } else if (name.equals("board_entity_remove") == true) {
 
-                            GUIManager.BoardListEntity.remove(level_server, player_server, nbt_name);
+                            GUIManager.Board.removeEntity(level_server, player_server, nbt_name);
 
                         }
 
-                        GUIManager.BoardListEntity.refresh(level_server, player_server, nbt_name);
+                        GUIManager.Board.refreshEntity(level_server, player_server, nbt_name);
 
                     }
 

@@ -18,7 +18,7 @@ public class NetworkBuiltInClient {
 
                 if (name.equals("refresh") == true) {
 
-                    ScreenDrawing.refresh = true;
+                    ScreenDrawing.setRefreshQueue();
 
                 }
 

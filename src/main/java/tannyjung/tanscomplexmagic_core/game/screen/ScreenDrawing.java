@@ -9,8 +9,6 @@ import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.player.Player;
 import tannyjung.tanscomplexmagic_core.Core;
 import tannyjung.tanscomplexmagic_core.game.NBTManager;
 import tannyjung.tanscomplexmagic_core.outside.NetworkManager;
@@ -28,7 +26,13 @@ public class ScreenDrawing {
     public static GUIScreen screen = null;
     public static GuiGraphics graphic = null;
     public static LocalPlayer player_local = null;
-    public static boolean refresh = false;
+    private static boolean refresh = false;
+
+    public static void setRefreshQueue () {
+
+        refresh = true;
+
+    }
 
     public static void refresh () {
 
@@ -320,6 +324,17 @@ public class ScreenDrawing {
                 Position.addZ(8);
 
             }
+
+        }
+
+        public static void drawTextParagraphBulletedList (int length_per_line, String text) {
+
+            int posX = Position.posX;
+            int posZ = Position.posZ;
+            drawTextBasic(DEFAULT_FONT_SCALE, "-");
+            Position.set(Anchor.type, posX + 8, posZ);
+            drawTextParagraph(length_per_line - 8, text);
+            Position.setX(posX);
 
         }
 
@@ -1278,7 +1293,7 @@ public class ScreenDrawing {
                             }
 
                             Position.addZ(4);
-                            ComponentOverlay.drawTextBasic(DEFAULT_FONT_SCALE, "§8" + number + " " + scan);
+                            ComponentOverlay.drawTextBasic(DEFAULT_FONT_SCALE, "§8" + (number + 1) + " " + scan);
 
                         }
 
@@ -1314,18 +1329,18 @@ public class ScreenDrawing {
 
             }
 
-            public static void drawEntity (String title, String name, String description) {
+            public static void drawEntity (String title, String tag, String description) {
 
                 int posX = ScreenDrawing.Position.posX;
                 int posZ = ScreenDrawing.Position.posZ;
                 ScreenDrawing.Position.addX(192);
-                drawBasic(160, 150, "entity_" + name);
+                drawBasic(160, 150, "entity_" + tag);
 
                 // Ingredient
                 {
 
                     CompoundTag extra = new CompoundTag();
-                    extra.putString("nbt_name", name);
+                    extra.putString("nbt_name", tag);
 
                     int temporary_number = 0;
 
@@ -1342,16 +1357,16 @@ public class ScreenDrawing {
                     ScreenDrawing.Position.addZ(8);
                     ScreenDrawing.ComponentOverlay.drawTextParagraph(160, description);
 
-                    ScreenDrawing.Position.setZ(posZ + 80);
-                    ScreenDrawing.ComponentWidget.TextBox.drawText(160, "gui", "board_entity_" + name + "_id", "Entity ID and Name");
-                    ScreenDrawing.Position.addZ(2);
-                    ScreenDrawing.ComponentWidget.TextBox.drawBasic(160, "gui", "board_entity_" + name + "_name");
+                    ScreenDrawing.Position.setZ(posZ + 69);
+                    ScreenDrawing.ComponentWidget.TextBox.drawText(160, "gui", "board_entity_" + tag + "_id", "Entity ID");
+                    ScreenDrawing.Position.addZ(4);
+                    ScreenDrawing.ComponentWidget.TextBox.drawText(160, "gui", "board_entity_" + tag + "_name", "Entity Name");
                     ScreenDrawing.Position.addZ(8);
-                    ScreenDrawing.ComponentWidget.Slider.drawText(160, 5, 200, 10, "gui", "board_entity_" + name + "_radius", "Area Radius");
+                    ScreenDrawing.ComponentWidget.Slider.drawText(160, 5, 200, 10, "gui", "board_entity_" + tag + "_radius", "Area Radius");
 
                     ScreenDrawing.Position.addZ(8);
                     posZ = ScreenDrawing.Position.posZ;
-                    ScreenDrawing.ComponentWidget.Radio.drawBasic("Removal Mode", "gui", "board_entity_" + name + "_remove_mode", new String[]{"Area", "Overall", "Selection"});
+                    ScreenDrawing.ComponentWidget.Radio.drawBasic("Removal Mode", "gui", "board_entity_" + tag + "_remove_mode", new String[]{"Area", "Overall", "Selection"});
                     ScreenDrawing.Position.setZ(posZ);
                     ScreenDrawing.Position.add(80, 22);
                     posZ = ScreenDrawing.Position.posZ;

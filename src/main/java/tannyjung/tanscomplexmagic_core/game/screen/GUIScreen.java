@@ -34,7 +34,7 @@ public class GUIScreen extends AbstractContainerScreen<GUIContainer> {
         ScreenDrawing.graphic = null;
         ScreenDrawing.player_local = null;
 
-        ScreenDrawing.refresh = true;
+        ScreenDrawing.setRefreshQueue();
         NetworkManager.runServerCore("gui", "when_close", new CompoundTag());
 
     }
@@ -143,7 +143,7 @@ public class GUIScreen extends AbstractContainerScreen<GUIContainer> {
         super.init();
         GUIManager.client_current_id = 0;
 
-        ScreenDrawing.refresh = true;
+        ScreenDrawing.setRefreshQueue();
         ScreenDrawing.refresh();
 
     }

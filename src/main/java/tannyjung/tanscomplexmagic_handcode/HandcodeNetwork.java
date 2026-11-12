@@ -44,20 +44,14 @@ public class HandcodeNetwork {
                                 // Open Placed User Book
                                 {
 
-                                    if (NBTManager.Mob.getLogic(player_server, "main", "is_placed_user_book") == true) {
+                                    if (NBTManager.Mob.getLogic(player_server, "main", "is_placed_book") == true) {
 
                                         Vec3 vec3 = EntityManager.getPosRayForward(player_server, 1, false);
+                                        Entity entity = EntityManager.Population.getEverywhereOneStatic(level_server, "", "", Utils.Tag.convertSystemSpecific(player_server, new String[]{"placed_book"}));
 
-                                        for (Entity entity : EntityManager.Population.getArea(level_server, vec3, 0.75, "", "", Utils.Tag.convertSystemSpecific(player_server, new String[]{"placed_book"}))) {
-
-                                            if (DisplayManager.getItemID(entity).equals("tanscomplexmagic:user_book_open") == false) {
-
-                                                continue;
-
-                                            }
+                                        if (entity != null && vec3.distanceTo(entity.position()) < 0.75 && DisplayManager.getItemID(entity).equals("tanscomplexmagic:user_book_open") == true) {
 
                                             Book.open(level_server, player_server);
-                                            return;
 
                                         }
 
@@ -106,11 +100,11 @@ public class HandcodeNetwork {
 
                                     NBTManager.Mob.setLogic(player_server, "spell1", "is_active", true, true);
                                     Spell1.activate(level_server, player_server);
-                                    GameUtils.playSound(level_server, player_server.position(), 1.5, 10, "minecraft:block.note_block.chime");
+                                    GameUtils.playSound(level_server, player_server.position(), 1.5, 20, "minecraft:block.note_block.chime");
 
                                     Core.DelayedWork.createBasic(3, () -> {
 
-                                        GameUtils.playSound(level_server, player_server.position(), 2, 10, "minecraft:block.note_block.chime");
+                                        GameUtils.playSound(level_server, player_server.position(), 2, 20, "minecraft:block.note_block.chime");
 
                                     });
 
@@ -155,7 +149,7 @@ public class HandcodeNetwork {
 
                                 }
 
-                                GameUtils.playSound(level_server, player_server.position(), pitch, 10, "minecraft:block.note_block.bell");
+                                GameUtils.playSound(level_server, player_server.position(), pitch, 20, "minecraft:block.note_block.bell");
 
                             }
 
@@ -200,7 +194,7 @@ public class HandcodeNetwork {
 
                             {
 
-                                GameUtils.playSound((ServerLevel) player_server.level(), player_server.position(), 1.0, 10, "minecraft:item.book.page_turn");
+                                GameUtils.playSound((ServerLevel) player_server.level(), player_server.position(), 1.0, 20, "minecraft:item.book.page_turn");
                                 GUIManager.close(player_server);
 
                             }
@@ -217,14 +211,14 @@ public class HandcodeNetwork {
 
                             {
 
-                                NBTManager.Mob.setNumber(player_server, "book", "compassX", player_server.getX(), true);
-                                NBTManager.Mob.setNumber(player_server, "book", "compassZ", player_server.getZ(), true);
+                                NBTManager.Mob.setNumber(player_server, "book", "compassX", Math.floor(player_server.getX()) + 0.5, true);
+                                NBTManager.Mob.setNumber(player_server, "book", "compassZ", Math.floor(player_server.getZ()) + 0.5, true);
 
                             }
 
-                        } else if (name.equals("book_log") == true) {
+                        } else if (name.equals("book_text_display") == true) {
 
-                            Book.Log.setType(player_server);
+                            Book.TextDisplay.setType(level_server, player_server);
 
                         } else if (name.startsWith("book_bookmark_") == true) {
 
@@ -236,15 +230,22 @@ public class HandcodeNetwork {
 
                                         if (name.startsWith("book_bookmark_custom_set") == true) {
 
-                                            int number = Integer.parseInt(name.substring("book_bookmark_custom_set".length()));
-                                            NBTManager.Mob.setText(player_server, "main", "bookmark" + number, NBTManager.Mob.getText(player_server, "gui", "id"), false);
+                                            {
+
+                                                int number = Integer.parseInt(name.substring("book_bookmark_custom_set".length()));
+                                                NBTManager.Mob.setNumber(player_server, "book", "bookmark" + number, NBTManager.Mob.getNumber(player_server, "gui", "id"), true);
+
+                                            }
 
                                         } else {
 
-                                            int number = Integer.parseInt(name.substring("book_bookmark_custom".length()));
-                                            String page = NBTManager.Mob.getText(player_server, "main", "bookmark" + number);
-                                            NBTManager.Mob.setText(player_server, "gui", "id", page, false);
-                                            Book.open(level_server, player_server);
+                                            {
+
+                                                int number = Integer.parseInt(name.substring("book_bookmark_custom".length()));
+                                                NBTManager.Mob.setNumber(player_server, "book", "page", NBTManager.Mob.getNumber(player_server, "book", "bookmark" + number), false);
+                                                Book.open(level_server, player_server);
+
+                                            }
 
                                         }
 
@@ -252,9 +253,33 @@ public class HandcodeNetwork {
 
                                 } else {
 
-                                    String page = name.substring("book_bookmark_".length());
-                                    NBTManager.Mob.setText(player_server, "gui", "id", page, false);
-                                    Book.open(level_server, player_server);
+                                    {
+
+                                        String mark_name = name.substring("book_bookmark_".length());
+                                        int page = 0;
+
+                                        if (mark_name.equals("home") == true) {
+
+                                            page = 1;
+
+                                        } else if (mark_name.equals("ally_list") == true) {
+
+                                            page = 2;
+
+                                        } else if (mark_name.equals("basic_spell") == true) {
+
+                                            page = 1;
+
+                                        } else if (mark_name.equals("spell1_settings") == true) {
+
+                                            page = 18;
+
+                                        }
+
+                                        NBTManager.Mob.setNumber(player_server, "book", "page", page, false);
+                                        Book.open(level_server, player_server);
+
+                                    }
 
                                 }
 
@@ -329,10 +354,11 @@ public class HandcodeNetwork {
                                 int number = extra.getInt("number");
                                 String positive_negative = extra.getString("positive_negative");
                                 int duration_per_mana = extra.getInt("duration_per_mana");
+                                int mana_cost = extra.getInt("mana_cost");
 
-                                if (Mana.spend(player_server, 1) == true) {
+                                if (Mana.spend(player_server, mana_cost) == true) {
 
-                                    NBTManager.Mob.addNumber(player_server, "spell1", "card_duration_max_" + positive_negative + number, duration_per_mana, true);
+                                    NBTManager.Mob.addNumber(player_server, "spell1", "card_duration_max_" + positive_negative + number, duration_per_mana * mana_cost, true);
 
                                 }
 

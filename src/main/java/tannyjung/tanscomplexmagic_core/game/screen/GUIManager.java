@@ -234,18 +234,49 @@ public class GUIManager {
 
     }
 
-    public static class BoardListEntity {
+    public static class Board {
 
-        public static void refresh (ServerLevel level_server, ServerPlayer player_server, String name) {
+        private static String getSelect (List<String> list, int select) {
 
-            for (Entity scan : EntityManager.Population.getEverywhereUpdatable(level_server, "", "", new String[]{name})) {
+            if (list.isEmpty() == true) {
 
-                scan.removeTag(name);
+                return "";
 
             }
 
-            List<String> list_id = NBT.getList(player_server, "gui", "board_entity_" + name + "_list_id");
-            List<String> list_name = NBT.getList(player_server, "gui", "board_entity_" + name + "_list_name");
+            if (list.size() <= select) {
+
+                return "";
+
+            }
+
+            return list.get(select);
+
+        }
+
+        public static String getBasicSelect (ServerPlayer player_server, String name) {
+
+            return getSelect(NBT.getList(player_server, "gui", "board_" + name), (int) NBT.getNumber(player_server, "gui", "board_" + name + "_select"));
+
+        }
+
+        public static Entity getEntitySelect (ServerLevel level_server, ServerPlayer player_server, String tag) {
+
+            String select = getSelect(NBT.getList(player_server, "gui", "board_entity_" + tag + "_list_uuid"), (int) NBT.getNumber(player_server, "gui", "board_entity_" + tag + "_select"));
+            return EntityManager.getByUUID(level_server, select);
+
+        }
+
+        public static void refreshEntity (ServerLevel level_server, ServerPlayer player_server, String tag) {
+
+            for (Entity scan : EntityManager.Population.getEverywhereUpdatable(level_server, "", "", new String[]{tag})) {
+
+                scan.removeTag(tag);
+
+            }
+
+            List<String> list_id = NBT.getList(player_server, "gui", "board_entity_" + tag + "_list_id");
+            List<String> list_name = NBT.getList(player_server, "gui", "board_entity_" + tag + "_list_name");
             List<String> list = new ArrayList<>();
             Entity entity = null;
             String entity_name = "";
@@ -253,7 +284,7 @@ public class GUIManager {
             String entity_status = "";
             int number = 0;
 
-            for (String scan : NBT.getList(player_server, "gui", "board_entity_" + name + "_list_uuid")) {
+            for (String scan : NBT.getList(player_server, "gui", "board_entity_" + tag + "_list_uuid")) {
 
                 entity = EntityManager.getByUUID(level_server, scan);
                 entity_name = list_name.get(number);
@@ -269,7 +300,7 @@ public class GUIManager {
 
                         entity_name_color = "§a";
                         entity_status = " (Online)";
-                        entity.addTag(name);
+                        entity.addTag(tag);
 
                     }
 
@@ -294,7 +325,7 @@ public class GUIManager {
 
                         }
 
-                        entity.addTag(name);
+                        entity.addTag(tag);
 
                     }
 
@@ -305,17 +336,17 @@ public class GUIManager {
 
             }
 
-            NBT.setList(player_server, "gui", "board_entity_" + name, list);
+            NBT.setList(player_server, "gui", "board_entity_" + tag, list);
 
         }
 
-        public static void add (ServerPlayer player_server, String name) {
+        public static void addEntity (ServerPlayer player_server, String tag) {
 
-            String target_id = NBT.getText(player_server, "gui", "board_entity_" + name + "_id");
-            String target_name = NBT.getText(player_server, "gui", "board_entity_" + name + "_name");
-            int radius = (int) NBT.getNumber(player_server, "gui", "board_entity_" + name + "_radius");
+            String target_id = NBT.getText(player_server, "gui", "board_entity_" + tag + "_id");
+            String target_name = NBT.getText(player_server, "gui", "board_entity_" + tag + "_name");
+            int radius = (int) NBT.getNumber(player_server, "gui", "board_entity_" + tag + "_radius");
 
-            List<String> list_uuid_original = NBT.getList(player_server, "gui", "board_entity_" + name + "_list_uuid");
+            List<String> list_uuid_original = NBT.getList(player_server, "gui", "board_entity_" + tag + "_list_uuid");
             List<String> list_uuid = new ArrayList<>();
             List<String> list_id = new ArrayList<>();
             List<String> list_name = new ArrayList<>();
@@ -337,42 +368,42 @@ public class GUIManager {
 
             }
 
-            NBT.addListMultiple(player_server, "gui", "board_entity_" + name + "_list_uuid", list_uuid);
-            NBT.addListMultiple(player_server, "gui", "board_entity_" + name + "_list_id", list_id);
-            NBT.addListMultiple(player_server, "gui", "board_entity_" + name + "_list_name", list_name);
+            NBT.addListMultiple(player_server, "gui", "board_entity_" + tag + "_list_uuid", list_uuid);
+            NBT.addListMultiple(player_server, "gui", "board_entity_" + tag + "_list_id", list_id);
+            NBT.addListMultiple(player_server, "gui", "board_entity_" + tag + "_list_name", list_name);
 
         }
 
-        public static void clear (ServerPlayer player_server, String name) {
+        public static void clearEntity (ServerPlayer player_server, String tag) {
 
-            NBT.setList(player_server, "gui", "board_entity_" + name + "_list_uuid", new ArrayList<>());
-            NBT.setList(player_server, "gui", "board_entity_" + name + "_list_id", new ArrayList<>());
-            NBT.setList(player_server, "gui", "board_entity_" + name + "_list_name", new ArrayList<>());
-            NBT.setList(player_server, "gui", "board_entity_" + name + "_list_name_custom", new ArrayList<>());
+            NBT.setList(player_server, "gui", "board_entity_" + tag + "_list_uuid", new ArrayList<>());
+            NBT.setList(player_server, "gui", "board_entity_" + tag + "_list_id", new ArrayList<>());
+            NBT.setList(player_server, "gui", "board_entity_" + tag + "_list_name", new ArrayList<>());
+            NBT.setList(player_server, "gui", "board_entity_" + tag + "_list_name_custom", new ArrayList<>());
 
         }
 
-        public static void remove (ServerLevel level_server, ServerPlayer player_server, String name) {
+        public static void removeEntity (ServerLevel level_server, ServerPlayer player_server, String tag) {
 
-            String mode = NBT.getText(player_server, "gui", "board_entity_" + name + "_remove_mode");
+            String mode = NBT.getText(player_server, "gui", "board_entity_" + tag + "_remove_mode");
 
             if (mode.equals("Area") == true) {
 
-                removeScan(level_server, player_server, name, false);
+                removeEntityScan(level_server, player_server, tag, false);
 
             } else if (mode.equals("Overall") == true) {
 
-                removeScan(level_server, player_server, name, true);
+                removeEntityScan(level_server, player_server, tag, true);
 
             } else if (mode.equals("Selection") == true) {
 
-                removeSelected(player_server, name);
+                removeEntitySelect(player_server, tag);
 
             }
 
         }
 
-        private static void removeScan (ServerLevel level_server, ServerPlayer player_server, String tag, boolean is_mode_overall) {
+        private static void removeEntityScan (ServerLevel level_server, ServerPlayer player_server, String tag, boolean is_mode_overall) {
 
             String target_id = NBT.getText(player_server, "gui", "board_entity_" + tag + "_id");
             String target_name = NBT.getText(player_server, "gui", "board_entity_" + tag + "_name");
@@ -451,19 +482,27 @@ public class GUIManager {
 
         }
 
-        private static void removeSelected (ServerPlayer player_server, String name) {
+        private static void removeEntitySelect (ServerPlayer player_server, String tag) {
 
-            int select = (int) NBT.getNumber(player_server, "gui", "board_entity_" + name + "_select");
+            List<String> list_uuid = NBT.getList(player_server, "gui", "board_entity_" + tag + "_list_uuid");
 
-            List<String> list_uuid = NBT.getList(player_server, "gui", "board_entity_" + name + "_list_uuid");
-            List<String> list_id = NBT.getList(player_server, "gui", "board_entity_" + name + "_list_id");
-            List<String> list_name = NBT.getList(player_server, "gui", "board_entity_" + name + "_list_name");
+            if (list_uuid.isEmpty() == true) {
+
+                return;
+
+            }
+
+            List<String> list_id = NBT.getList(player_server, "gui", "board_entity_" + tag + "_list_id");
+            List<String> list_name = NBT.getList(player_server, "gui", "board_entity_" + tag + "_list_name");
+
+            int select = (int) NBT.getNumber(player_server, "gui", "board_entity_" + tag + "_select");
             list_uuid.remove(select);
             list_id.remove(select);
             list_name.remove(select);
-            NBT.setList(player_server, "gui", "board_entity_" + name + "_list_uuid", list_uuid);
-            NBT.setList(player_server, "gui", "board_entity_" + name + "_list_id", list_id);
-            NBT.setList(player_server, "gui", "board_entity_" + name + "_list_name", list_name);
+
+            NBT.setList(player_server, "gui", "board_entity_" + tag + "_list_uuid", list_uuid);
+            NBT.setList(player_server, "gui", "board_entity_" + tag + "_list_id", list_id);
+            NBT.setList(player_server, "gui", "board_entity_" + tag + "_list_name", list_name);
 
         }
 

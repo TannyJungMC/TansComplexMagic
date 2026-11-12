@@ -108,13 +108,13 @@ public class HandcodeOverlay {
                         ScreenDrawing.Position.addZ(2);
                         String target_duration = "";
 
-                        if (NBTManager.Mob.getText(ScreenDrawing.player_local, "spell1", "card_status" + number).equals("effect") == false || NBTManager.Mob.getNumber(ScreenDrawing.player_local, "spell1", "number_of_targets_detected" + number) == 0) {
+                        if (NBTManager.Mob.getText(ScreenDrawing.player_local, "spell1", "card_status" + number).equals("effect") == false || NBTManager.Mob.getNumber(ScreenDrawing.player_local, "spell1", "number_of_detected_targets" + number) == 0) {
 
                             target_duration = "0";
 
                         } else {
 
-                            target_duration = (int) NBTManager.Mob.getNumber(ScreenDrawing.player_local, "spell1", "number_of_targets_detected" + number) + " - " + TimeUtils.convertSecondToReadable((long) NBTManager.Mob.getNumber(ScreenDrawing.player_local, "spell1", "remaining_duration" + number));
+                            target_duration = (int) NBTManager.Mob.getNumber(ScreenDrawing.player_local, "spell1", "number_of_detected_targets" + number) + " - " + TimeUtils.convertSecondToReadable((long) NBTManager.Mob.getNumber(ScreenDrawing.player_local, "spell1", "remaining_duration" + number));
 
                         }
 

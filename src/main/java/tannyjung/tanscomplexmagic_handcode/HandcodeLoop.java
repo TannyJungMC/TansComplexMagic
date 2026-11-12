@@ -34,7 +34,7 @@ public class HandcodeLoop {
 
         for (ServerPlayer player_server : EntityManager.Population.filterPlayerServer(EntityManager.Population.getEverywhereStatic(level_server, "minecraft:player", "", new String[]{}))) {
 
-            Book.Log.update(player_server);
+            Book.TextDisplay.update(level_server, player_server);
             BasicSpells.loopSecond(level_server, player_server);
             Spell1.loopSecond(level_server, player_server);
 

@@ -7,17 +7,19 @@ import tannyjung.tanscomplexmagic_core.outside.TimeUtils;
 
 public class Mana {
 
+    public static final int CAPACITY_MAX = 150;
+
     public static int[] get (Player player) {
 
         String timestamp = NBTManager.Mob.getText(player, "main", "timestamp_mana");
 
         if (timestamp.equals("0") == true) {
 
-            return new int[]{150, 0};
+            return new int[]{CAPACITY_MAX, 0};
 
         }
 
-        long test = TimeUtils.combineTime(0, 150, 0) - TimeUtils.getRemain(timestamp);
+        long test = TimeUtils.combineTime(0, CAPACITY_MAX, 0) - TimeUtils.getRemain(timestamp);
         return new int[]{Math.toIntExact(test / 60), Math.toIntExact(test % 60)};
 
     }
@@ -34,7 +36,7 @@ public class Mana {
 
         String timestamp_mana = "";
 
-        if (mana[0] == 150) {
+        if (mana[0] == CAPACITY_MAX) {
 
             timestamp_mana = TimeUtils.getTimestampCurrent();
 

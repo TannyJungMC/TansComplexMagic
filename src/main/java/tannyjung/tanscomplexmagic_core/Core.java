@@ -218,7 +218,6 @@ public class Core {
 
             }
 
-            FileManager.writeTXT(path_folder_config + "/debug_log.txt", "This place for log history. You may need to turn on developer mode to see them here.\n", false);
             NetworkManager.Debug.restart();
 
             Handcode.organizeCustomPack();

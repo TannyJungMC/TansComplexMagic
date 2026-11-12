@@ -121,7 +121,7 @@ public record NetworkManager (boolean is_core, String category, String name, Com
 
             }
 
-            int size = new FriendlyByteBuf(Unpooled.buffer()).writeNbt(data.extra).readableBytes();
+            int size = new FriendlyByteBuf(Unpooled.buffer()).writeUtf(data.category).writeUtf(data.name).writeNbt(data.extra).readableBytes();
             String client_server = "";
 
             if (is_client == true) {

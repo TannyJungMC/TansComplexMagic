@@ -4,16 +4,22 @@ import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.stats.Stats;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
 import tannyjung.tanscomplexmagic.init.TanscomplexmagicModItems;
 import tannyjung.tanscomplexmagic_core.Core;
 import tannyjung.tanscomplexmagic_core.game.*;
 import tannyjung.tanscomplexmagic_core.game.screen.GUIManager;
+import tannyjung.tanscomplexmagic_core.game.screen.ScreenDrawing;
 import tannyjung.tanscomplexmagic_core.outside.TimeUtils;
+
+import java.util.List;
 
 public class Book {
 
@@ -35,7 +41,7 @@ public class Book {
             if (is_main_key_active == true) {
 
                 player_server.setItemSlot(EquipmentSlot.MAINHAND, TanscomplexmagicModItems.USER_BOOK.toStack());
-                GameUtils.playSound(level_server, player_server.position(), (Math.random() * 0.5) + 0.5, 10, "minecraft:block.wood.break");
+                GameUtils.playSound(level_server, player_server.position(), (Math.random() * 0.5) + 0.5, 20, "minecraft:block.wood.break");
 
             } else {
 
@@ -69,23 +75,23 @@ public class Book {
 
     public static void open (ServerLevel level_server, ServerPlayer player_server) {
 
-        int page = (int) NBTManager.Mob.getNumber(player_server, "main", "page");
+        int page = (int) NBTManager.Mob.getNumber(player_server, "book", "page");
 
         if (page == 0) {
 
             page = 1;
-            NBTManager.Mob.setNumber(player_server, "main", "page", page, false);
+            NBTManager.Mob.setNumber(player_server, "book", "page", page, false);
 
         }
 
         GUIManager.open(player_server, "entity", page);
-        GameUtils.playSound(level_server, player_server.position(), (Math.random() * 0.5) + 0.5, 10, "minecraft:item.book.page_turn");
+        GameUtils.playSound(level_server, player_server.position(), (Math.random() * 0.5) + 0.5, 20, "minecraft:item.book.page_turn");
 
     }
 
     public static void pageTurn (ServerLevel level_server, ServerPlayer player_server, boolean is_next) {
 
-        int page = (int) NBTManager.Mob.getNumber(player_server, "main", "page");
+        int page = (int) NBTManager.Mob.getNumber(player_server, "book", "page");
 
         if (is_next == true) {
 
@@ -103,17 +109,17 @@ public class Book {
 
         }
 
-        NBTManager.Mob.setNumber(player_server, "main", "page", page, false);
+        NBTManager.Mob.setNumber(player_server, "book", "page", page, false);
         GUIManager.open(player_server, "entity", page);
-        GameUtils.playSound(level_server, player_server.position(), (Math.random() * 0.5) + 0.5, 10, "minecraft:item.book.page_turn");
+        GameUtils.playSound(level_server, player_server.position(), (Math.random() * 0.5) + 0.5, 20, "minecraft:item.book.page_turn");
 
     }
 
     private static void place (ServerLevel level_server, ServerPlayer player_server, Vec3 vec3) {
 
-        if (NBTManager.Mob.getLogic(player_server, "main", "is_placed_user_book") == false) {
+        if (NBTManager.Mob.getLogic(player_server, "main", "is_placed_book") == false) {
 
-            NBTManager.Mob.setLogic(player_server, "main", "is_placed_user_book", true, false);
+            NBTManager.Mob.setLogic(player_server, "main", "is_placed_book", true, false);
 
         } else {
 
@@ -137,7 +143,7 @@ public class Book {
 
         ItemManager.removeFromBody(player_server, TanscomplexmagicModItems.USER_BOOK.asItem());
         ItemManager.removeFromBody(player_server, TanscomplexmagicModItems.USER_BOOK_OPEN.asItem());
-        NBTManager.Mob.setLogic(player_server, "main", "is_placed_user_book", false, false);
+        NBTManager.Mob.setLogic(player_server, "main", "is_placed_book", false, false);
         GameUtils.playSound(level_server, player_server.position(), (Math.random() * 0.5) + 0.5, 50, "minecraft:block.bell.use");
 
         Core.DelayedWork.createBasic(20, () -> {
@@ -182,7 +188,7 @@ public class Book {
 
                 int delay = (int) NBTManager.Mob.getNumber(entity, "main", "delay_open");
 
-                if (delay > 0) {
+                if (delay > 1) {
 
                     NBTManager.Mob.setNumber(entity, "main", "delay_open", delay - 1, false);
 
@@ -190,7 +196,7 @@ public class Book {
 
                     NBTManager.Mob.setLogic(entity, "main", "is_open", true, false);
                     DisplayManager.setItemID(entity, "tanscomplexmagic:user_book_open");
-                    GameUtils.playSound(level_server, entity.position(), (Math.random() * 0.5) + 0.5, 10, "minecraft:item.book.page_turn");
+                    GameUtils.playSound(level_server, entity.position(), (Math.random() * 0.5) + 0.5, 20, "minecraft:item.book.page_turn");
 
                 }
 
@@ -207,7 +213,7 @@ public class Book {
                 DisplayManager.setItemID(entity, "tanscomplexmagic:user_book");
                 entity.setXRot(0);
                 entity.setYRot((float) (Math.random() * 360));
-                GameUtils.playSound(level_server, entity.position(), (Math.random() * 0.5) + 0.5, 10, "minecraft:block.wood.break");
+                GameUtils.playSound(level_server, entity.position(), (Math.random() * 0.5) + 0.5, 20, "minecraft:block.wood.break");
 
             }
 
@@ -253,49 +259,11 @@ public class Book {
 
     }
 
-    public static class Log {
+    public static class TextDisplay {
 
-        public static void update (ServerPlayer player_server) {
+        public static void setType (ServerLevel level_server, ServerPlayer player_server) {
 
-            if (GUIManager.server_player_watching.isEmpty() == true) {
-
-                return;
-
-            }
-
-            String type = NBTManager.Mob.getText(player_server, "book", "log");
-            String text = "";
-
-            if (type.equals("mana") == true) {
-
-                int[] mana = Mana.get(player_server);
-                String time = "";
-
-                if (mana[0] != 150) {
-
-                    time = " - Full in " + TimeUtils.convertSecondToReadable(TimeUtils.getRemain(NBTManager.Mob.getText(player_server, "main", "timestamp_mana")));
-
-                }
-
-                text = "§eMana " + mana[0] + "/150 Charge " + mana[1] + "/60" + time;
-
-            } else if (type.equals("action") == true) {
-
-                text = "§a23 - Set new custom compass location";
-
-            } else if (type.equals("warning") == true) {
-
-                text = "§c17 - Detected enemy in radius of buoy \"Beach 11\"";
-
-            }
-
-            NBTManager.Mob.setText(player_server, "book", "log_text", text, true);
-
-        }
-
-        public static void setType (ServerPlayer player_server) {
-
-            String type = NBTManager.Mob.getText(player_server, "book", "log");
+            String type = NBTManager.Mob.getText(player_server, "book", "text_display_type");
 
             if (type.isEmpty() == true) {
 
@@ -303,11 +271,11 @@ public class Book {
 
             } else if (type.equals("mana") == true) {
 
-                type = "action";
+                type = "information";
 
-            } else if (type.equals("action") == true) {
+            } else if (type.equals("information") == true) {
 
-                type = "warning";
+                type = "trigger";
 
             } else {
 
@@ -315,16 +283,280 @@ public class Book {
 
             }
 
-            NBTManager.Mob.setText(player_server, "book", "log", type, true);
-            update(player_server);
+            NBTManager.Mob.setText(player_server, "book", "text_display_type", type, true);
+            update(level_server, player_server);
 
         }
 
-    }
+        public static void update (ServerLevel level_server, ServerPlayer player_server) {
 
-    public static class Assistant {
+            String type = NBTManager.Mob.getText(player_server, "book", "text_display_type");
+            String text = "";
 
+            if (type.equals("trigger") == true) {
 
+                text = updateTrigger(level_server, player_server);
+
+                if (GUIManager.server_player_watching.isEmpty() == true) {
+
+                    return;
+
+                }
+
+            } else {
+
+                if (GUIManager.server_player_watching.isEmpty() == true) {
+
+                    return;
+
+                }
+
+                if (type.equals("mana") == true) {
+
+                    {
+
+                        int[] mana = Mana.get(player_server);
+                        String time = "";
+
+                        if (mana[0] == Mana.CAPACITY_MAX) {
+
+                            time = "Full";
+
+                        } else {
+
+                            time = "Will be full in " + TimeUtils.convertSecondToReadable(TimeUtils.getRemain(NBTManager.Mob.getText(player_server, "main", "timestamp_mana")));
+
+                        }
+
+                        text = "§eMana " + mana[0] + "/" + Mana.CAPACITY_MAX + " Charge " + mana[1] + "/60 - " + time;
+
+                    }
+
+                } else if (type.equals("information") == true) {
+
+                    text = updateInformation(level_server, player_server);
+
+                }
+
+            }
+
+            NBTManager.Mob.setText(player_server, "book", "text_display_text", text, true);
+
+        }
+
+        public static String updateInformation (ServerLevel level_server, ServerPlayer player_server) {
+
+            String mode = NBTManager.Mob.getText(player_server, "book", "text_display_information_mode");
+            String text = "";
+
+            if (mode.equals("Current Game Time") == true) {
+
+                {
+
+                    long hour = (((level_server.getDayTime() % 24000) / 1000) + 6) % 24;
+                    long minute = (long) Math.floor(((level_server.getDayTime() % 1000) / 1000.0) * 60.0);
+                    String time = String.valueOf(minute);
+
+                    if (time.length() == 1) {
+
+                        time = "0" + time;
+
+                    }
+
+                    time = hour + ":" + time;
+
+                    if (time.length() == 4) {
+
+                        time = "0" + time;
+
+                    }
+
+                    text = "Current game time is " + time + " of day " + level_server.getGameTime() / 24000;
+
+                }
+
+            } else if (mode.equals("Distance to World Spawn") == true) {
+
+                text = "You are " + (int) player_server.position().distanceTo(GameUtils.Space.getWorldSpawnPos(level_server).getCenter()) + " block(s) away from world spawn";
+
+            } else if (mode.equals("Distance to Custom Compass Position") == true) {
+
+                {
+
+                    int compassX = (int) NBTManager.Mob.getNumber(player_server, "book", "compassX");
+                    int compassZ = (int) NBTManager.Mob.getNumber(player_server, "book", "compassZ");
+                    text = "You are " + (int) player_server.position().distanceTo(new Vec3(compassX, player_server.getY(), compassZ)) + " block(s) away from custom compass position";
+
+                }
+
+            } else if (mode.equals("Distance to Selected Ally") == true) {
+
+                {
+
+                    Entity entity = GUIManager.Board.getEntitySelect(level_server, player_server, Utils.Tag.getAlly(player_server));
+
+                    if (entity == null) {
+
+                        text = "Can not get distance to selected ally, because not detected.";
+
+                    } else {
+
+                        text = "You are " + (int) player_server.position().distanceTo(entity.position()) + " block(s) away from selected ally";
+
+                    }
+
+                }
+
+            }
+
+            return "§a" + text;
+
+        }
+
+        public static String updateTrigger (ServerLevel level_server, ServerPlayer player_server) {
+
+            String mode = NBTManager.Mob.getText(player_server, "book", "text_display_trigger_mode");
+            String text = "";
+            boolean should_make_sound = false;
+            Vec3 vec3 = null;
+            
+            if (NBTManager.Mob.getLogic(player_server, "main", "is_placed_book") == true) {
+
+                Entity entity = EntityManager.Population.getEverywhereOneStatic(level_server, "", "", Utils.Tag.convertSystemSpecific(player_server, new String[]{"placed_book"}));
+
+                if (entity != null) {
+
+                    vec3 = entity.position();
+
+                }
+
+            } else {
+
+                for (ItemStack item : player_server.getHandSlots()) {
+
+                    if (item.getItem() == TanscomplexmagicModItems.USER_BOOK.asItem() || item.getItem() == TanscomplexmagicModItems.USER_BOOK_OPEN.asItem()) {
+
+                        vec3 = player_server.position();
+                        break;
+
+                    }
+
+                }
+
+            }
+
+            if (vec3 == null) {
+
+                return "";
+
+            }
+            
+            if (mode.startsWith("Nearby Monster (") == true) {
+
+                {
+
+                    int distance = Integer.parseInt(mode.substring("Nearby Monster (".length(), mode.length() - " Blocks)".length()));
+                    List<Entity> list = EntityManager.Population.getArea(level_server, vec3, distance, "", "", new String[]{});
+
+                    if (list.isEmpty() == false) {
+
+                        for (Entity scan : EntityManager.Population.sort(list, vec3, false, 0)) {
+
+                            if (scan instanceof Monster == false) {
+
+                                continue;
+
+                            }
+
+                            text = "Detected \"" + scan.getName().getString() + "\" at " + (int) vec3.distanceTo(scan.position()) + " block(s) away";
+                            should_make_sound = true;
+                            break;
+
+                        }
+
+                    }
+
+                    if (text.isEmpty() == true) {
+
+                        text = "No monsters detected within " + distance + " blocks";
+
+                    }
+
+                }
+
+            } else if (mode.equals("Insomnia Danger Zone") == true) {
+
+                {
+
+                    int day = player_server.getStats().getValue(Stats.CUSTOM.get(Stats.TIME_SINCE_REST)) / 24000;
+
+                    if (day == 0) {
+
+                        text = "You have enough sleep for today";
+
+                    } else {
+
+                        text = "You have not slept for " + day + " day(s). ";
+
+                        if (day < 6) {
+
+                            text = text + "Try to sleep when have the chance.";
+
+                        } else {
+
+                            text = text + "This is dangerous!";
+                            should_make_sound = true;
+
+                        }
+
+                    }
+
+                }
+
+            } else if (mode.equals("Light Level 0") == true) {
+
+                {
+
+                    int level = level_server.getBrightness(LightLayer.BLOCK, BlockPos.containing(vec3));
+                    text = "Light level of this position is " + level;
+
+                    if (level == 0) {
+
+                        should_make_sound = true;
+
+                    }
+
+                }
+
+            } else if (mode.equals("Mana Full") == true) {
+
+                {
+
+                    if (Mana.get(player_server)[0] == Mana.CAPACITY_MAX) {
+
+                        text = "Mana is full";
+                        should_make_sound = true;
+
+                    } else {
+
+                        text = "Mana will be full in " + TimeUtils.convertSecondToReadable(TimeUtils.getRemain(NBTManager.Mob.getText(player_server, "main", "timestamp_mana")));
+
+                    }
+
+                }
+
+            }
+
+            if (should_make_sound == true) {
+
+                String sound = NBTManager.Mob.getText(player_server, "book", "text_display_trigger_sound");
+                GameUtils.playSound(level_server, vec3, 0.75, 20, "minecraft:block.note_block." + sound.toLowerCase());
+
+            }
+
+            return "§c" + text;
+
+        }
 
     }
 
