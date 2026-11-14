@@ -9,7 +9,7 @@ public class DisplayManager {
 
     public static Entity summonText (ServerLevel level_server, Vec3 vec3, double size, String[] tags, String data) {
 
-        Entity entity = EntityManager.summon(level_server, vec3, false, "minecraft:text_display", "Display Text", tags, "{billboard:vertical,alignment:\"center\",see_through:true,brightness:{block:15, sky:15},text_opacity:0,line_width:1000,transformation:{left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],translation:[0f,0f,0f],scale:[" + size + "f," + size + "f," + size + "f]},text:'" + GameUtils.Data.createText(data) + "'}");
+        Entity entity = EntityManager.summonSystem(level_server, vec3, false, "minecraft:text_display", "Display Text", tags, "{billboard:vertical,alignment:\"center\",see_through:true,brightness:{block:15, sky:15},text_opacity:0,line_width:1000,transformation:{left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],translation:[0f,0f,0f],scale:[" + size + "f," + size + "f," + size + "f]},text:'" + GameUtils.Data.createText(data) + "'}");
 
         if (entity != null) {
 
@@ -27,7 +27,7 @@ public class DisplayManager {
 
         Core.DelayedWork.createBasic(200, () -> {
 
-            for (Entity scan : EntityManager.Population.getArea(level_server, vec3, 1, "minecraft:text_display", "", new String[]{Core.mod_id_big + "-display_text"})) {
+            for (Entity scan : EntityManager.Population.getAreaAny(level_server, vec3, 1, "minecraft:text_display", "", new String[]{Core.mod_id_big + "-display_text"})) {
 
                 scan.discard();
 
@@ -52,7 +52,7 @@ public class DisplayManager {
 
         }
 
-        Entity entity = EntityManager.summon(level_server, vec3, false, "minecraft:item_display", name, tags, "{" + builder + "}");
+        Entity entity = EntityManager.summonSystem(level_server, vec3, false, "minecraft:item_display", name, tags, "{" + builder + "}");
         NBTManager.Mob.setText(entity, "main", "display_id", id, false);
         return entity;
 

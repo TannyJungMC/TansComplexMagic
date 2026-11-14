@@ -5,6 +5,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -18,7 +19,7 @@ import java.util.*;
 
 public class EntityManager {
 
-    public static Entity summon (ServerLevel level_server, Vec3 vec3, boolean is_always_show_name, String id, String name, String[] tags, String custom) {
+    private static Entity summon (ServerLevel level_server, Vec3 vec3, boolean is_always_show_name, String id, String name, String[] tags, String custom, boolean is_system) {
 
         EntityType<?> type = level_server.registryAccess().registryOrThrow(Registries.ENTITY_TYPE).get(ResourceLocation.parse(id));
 
@@ -36,6 +37,13 @@ public class EntityManager {
 
         }
 
+        if (is_system == true) {
+
+            entity.addTag("TANNYJUNG");
+            entity.addTag(Core.mod_id_big);
+
+        }
+
         if (custom.isEmpty() == false) {
 
             entity.load(NBTManager.convertJSONToTag(custom));
@@ -49,8 +57,6 @@ public class EntityManager {
         }
 
         entity.setCustomName(Component.literal(name));
-        entity.addTag("TANNYJUNG");
-        entity.addTag(Core.mod_id_big);
 
         for (String get : tags) {
 
@@ -64,13 +70,37 @@ public class EntityManager {
 
     }
 
-    public static void summonWorldGen (ServerLevel level_server, Vec3 vec3, String id, String name, String[] tags, String custom) {
+    public static Entity summonSystem (ServerLevel level_server, Vec3 vec3, boolean is_always_show_name, String id, String name, String[] tags, String custom) {
+
+        return summon(level_server, vec3, is_always_show_name, id, name, tags, custom, true);
+
+    }
+
+    public static Entity summonNonSystem (ServerLevel level_server, Vec3 vec3, boolean is_always_show_name, String id, String name, String[] tags, String custom) {
+
+        return summon(level_server, vec3, is_always_show_name, id, name, tags, custom, false);
+
+    }
+
+    private static void summonWorldGen (ServerLevel level_server, Vec3 vec3, String id, String name, String[] tags, String custom, boolean is_system) {
 
         level_server.getServer().execute(() -> {
 
-            summon(level_server, vec3, false, id, name, tags, custom);
+            summon(level_server, vec3, false, id, name, tags, custom, is_system);
 
         });
+
+    }
+
+    public static void summonWorldGenSystem (ServerLevel level_server, Vec3 vec3, String id, String name, String[] tags, String custom) {
+
+        summonWorldGen(level_server, vec3, id, name, tags, custom, true);
+
+    }
+
+    public static void summonWorldGenNonSystem (ServerLevel level_server, Vec3 vec3, String id, String name, String[] tags, String custom) {
+
+        summonWorldGen(level_server, vec3, id, name, tags, custom, false);
 
     }
 
@@ -115,7 +145,7 @@ public class EntityManager {
 
         Vec3 vec3_horizontal = vec3_forward.cross(vec3_vertical).normalize();
         Vec3 vec3_vertical_adjust = vec3_horizontal.cross(vec3_forward).normalize();
-        return entity.position().add(vec3_horizontal.scale(offsetX)).add(vec3_vertical_adjust.scale(offsetY)).add(vec3_forward.scale(offsetZ));
+        return entity.getEyePosition().add(vec3_horizontal.scale(offsetX)).add(vec3_vertical_adjust.scale(offsetY)).add(vec3_forward.scale(offsetZ));
     }
 
     public static Vec3 getPosLookReverse (Entity entity, Vec3 vec3, double offsetX, double offsetY, double offsetZ) {
@@ -127,17 +157,17 @@ public class EntityManager {
 
     }
 
-    public static Vec3 getPosRay (Entity entity, Vec3 vec3, boolean is_feet_position) {
+    public static Vec3 getPosRay (Entity entity, Vec3 vec3, boolean is_eye_position) {
 
         Vec3 vec3_from = null;
         
-        if (is_feet_position == true) {
+        if (is_eye_position == true) {
 
-            vec3_from = entity.position();
+            vec3_from = entity.getEyePosition();
             
         } else {
 
-            vec3_from = entity.getEyePosition();
+            vec3_from = entity.position();
             
         }
         
@@ -145,46 +175,46 @@ public class EntityManager {
 
     }
 
-    public static Vec3 getPosRayWithDistance (Entity entity, Vec3 vec3, double distance, boolean is_feet_position) {
+    public static Vec3 getPosRayWithDistance (Entity entity, Vec3 vec3, double distance, boolean is_eye_position) {
 
         Vec3 vec3_base = null;
 
-        if (is_feet_position == true) {
+        if (is_eye_position == true) {
 
-            vec3_base = entity.getPosition(1f);
+            vec3_base = entity.getEyePosition(1f);
 
         } else {
 
-            vec3_base = entity.getEyePosition(1f);
+            vec3_base = entity.getPosition(1f);
 
         }
 
         vec3 = vec3.subtract(vec3_base).normalize();
-        return getPosRay(entity, vec3_base.add(vec3.scale(distance)), is_feet_position);
+        return getPosRay(entity, vec3_base.add(vec3.scale(distance)), is_eye_position);
 
     }
 
-    public static Vec3 getPosRayForward (Entity entity, double distance, boolean is_feet_position) {
+    public static Vec3 getPosRayForward (Entity entity, double distance, boolean is_eye_position) {
 
         Vec3 vec3 = null;
 
-        if (is_feet_position == true) {
-
-            vec3 = entity.getPosition(1f);
-
-        } else {
+        if (is_eye_position == true) {
 
             vec3 = entity.getEyePosition(1f);
 
+        } else {
+
+            vec3 = entity.getPosition(1f);
+
         }
 
-        return getPosRay(entity, vec3.add(entity.getViewVector(1f).scale(distance)), is_feet_position);
+        return getPosRay(entity, vec3.add(entity.getViewVector(1f).scale(distance)), is_eye_position);
 
     }
 
-    public static boolean testPosRayNoBlocking (Entity entity, Vec3 vec3, boolean is_feet_position) {
+    public static boolean testPosRayNoBlocking (Entity entity, Vec3 vec3, boolean is_eye_position) {
 
-        return getPosRay(entity, vec3, is_feet_position).distanceTo(vec3) < 0.1;
+        return getPosRay(entity, vec3, is_eye_position).distanceTo(vec3) < 0.1;
 
     }
 
@@ -218,7 +248,7 @@ public class EntityManager {
 
         if (entity instanceof Mob mob) {
 
-            Entity entity_summon = summon((ServerLevel) entity.level(), entity.position(), false, "minecraft:chicken", "", new String[]{}, "");
+            Entity entity_summon = summon((ServerLevel) entity.level(), entity.position(), false, "minecraft:chicken", "", new String[]{}, "", true);
 
             if (entity_summon == null) {
 
@@ -240,6 +270,12 @@ public class EntityManager {
             mob.getNavigation().moveTo(vec3.x, vec3.y, vec3.z, speed);
 
         }
+
+    }
+
+    public static void damage (Entity entity_victim, Entity entity_attacker, int amount) {
+
+        entity_victim.hurt(new DamageSource(entity_victim.damageSources().generic().typeHolder(), entity_attacker), amount);
 
     }
 
@@ -492,11 +528,17 @@ public class EntityManager {
 
         }
 
-        public static List<Entity> getArea (ServerLevel level_server, Vec3 vec3, double radius, String id, String name, String[] tags) {
+        private static List<Entity> getArea (ServerLevel level_server, Vec3 vec3, double radius, String id, String name, String[] tags, boolean is_only_living) {
 
             Request request = new Request(id, name, List.of(tags));
 
             return level_server.getEntitiesOfClass(Entity.class, new AABB(vec3, vec3).inflate(radius), entity -> {
+
+                if (is_only_living == true && entity instanceof LivingEntity == false) {
+
+                    return false;
+
+                }
 
                 if (entity.position().distanceTo(vec3) > radius) {
 
@@ -510,7 +552,25 @@ public class EntityManager {
 
         }
 
+        public static List<Entity> getAreaAny (ServerLevel level_server, Vec3 vec3, double radius, String id, String name, String[] tags) {
+
+            return getArea(level_server, vec3, radius, id, name, tags, false);
+
+        }
+
+        public static List<Entity> getAreaOnlyLiving (ServerLevel level_server, Vec3 vec3, double radius, String id, String name, String[] tags) {
+
+            return getArea(level_server, vec3, radius, id, name, tags, true);
+
+        }
+
         public static Entity[] sort (List<Entity> entities, Vec3 vec3_center, boolean is_farthest, int count_limit) {
+
+            if (entities.isEmpty() == true) {
+
+                return new Entity[]{};
+
+            }
 
             List<Entity> list = entities.stream().sorted(Comparator.comparingDouble(entity -> entity.position().distanceTo(vec3_center))).toList();
 
@@ -560,24 +620,6 @@ public class EntityManager {
             for (Entity entity : entities) {
 
                 if (entity instanceof ServerPlayer test) {
-
-                    list.add(test);
-
-                }
-
-            }
-
-            return list;
-
-        }
-
-        public static List<Entity> filterLivingEntity (List<Entity> entities) {
-
-            List<Entity> list = new ArrayList<>();
-
-            for (Entity entity : entities) {
-
-                if (entity instanceof LivingEntity test) {
 
                     list.add(test);
 

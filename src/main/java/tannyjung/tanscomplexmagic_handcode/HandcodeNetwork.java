@@ -6,15 +6,11 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.phys.Vec3;
 import tannyjung.tanscomplexmagic.init.TanscomplexmagicModItems;
 import tannyjung.tanscomplexmagic_core.Core;
 import tannyjung.tanscomplexmagic_core.game.*;
 import tannyjung.tanscomplexmagic_core.game.screen.GUIManager;
-import tannyjung.tanscomplexmagic_handcode.systems.Book;
-import tannyjung.tanscomplexmagic_handcode.systems.Mana;
-import tannyjung.tanscomplexmagic_handcode.systems.Spell1;
-import tannyjung.tanscomplexmagic_handcode.systems.Utils;
+import tannyjung.tanscomplexmagic_handcode.systems.*;
 
 public class HandcodeNetwork {
 
@@ -41,17 +37,20 @@ public class HandcodeNetwork {
 
                                 }
 
-                                // Open Placed User Book
+                                // Open Flying User Book
                                 {
 
-                                    if (NBTManager.Mob.getLogic(player_server, "main", "is_placed_book") == true) {
+                                    if (NBTManager.Mob.getLogic(player_server, "main", "is_book_flying") == true) {
 
-                                        Vec3 vec3 = EntityManager.getPosRayForward(player_server, 1, false);
-                                        Entity entity = EntityManager.Population.getEverywhereOneStatic(level_server, "", "", Utils.Tag.convertSystemSpecific(player_server, new String[]{"placed_book"}));
+                                        Entity entity_book = EntityManager.Population.getEverywhereOneStatic(level_server, "", "", Utils.Tag.convertSystemSpecific(player_server, new String[]{"flying_user_book"}));
 
-                                        if (entity != null && vec3.distanceTo(entity.position()) < 0.75 && DisplayManager.getItemID(entity).equals("tanscomplexmagic:user_book_open") == true) {
+                                        if (entity_book != null) {
 
-                                            Book.open(level_server, player_server);
+                                            if (Book.Fly.isUserLookAt(player_server, entity_book) && Book.Fly.isModelOpen(entity_book) == true) {
+
+                                                Book.open(level_server, player_server);
+
+                                            }
 
                                         }
 
@@ -66,7 +65,7 @@ public class HandcodeNetwork {
 
                                     if (NBTManager.Mob.getNumber(player_server, "main", "main_key_spam") == 2) {
 
-                                        Book.pickup(level_server, player_server);
+                                        Book.Fly.pickup(level_server, player_server);
 
                                     }
 
@@ -186,7 +185,11 @@ public class HandcodeNetwork {
 
             {
 
-                if (name.startsWith("book_") == true) {
+                if (name.equals("get_user") == true) {
+
+                    player_server.addTag(Utils.Tag.getUser(player_server));
+
+                } else if (name.startsWith("book_") == true) {
 
                     {
 
@@ -194,7 +197,7 @@ public class HandcodeNetwork {
 
                             {
 
-                                GameUtils.playSound((ServerLevel) player_server.level(), player_server.position(), 1.0, 20, "minecraft:item.book.page_turn");
+                                GameUtils.playSound((ServerLevel) player_server.level(), player_server.position(), (Math.random() * 0.5) + 0.25, 20, "minecraft:item.book.page_turn");
                                 GUIManager.close(player_server);
 
                             }
@@ -289,6 +292,32 @@ public class HandcodeNetwork {
 
                     }
 
+                } else if (name.startsWith("basic_spell") == true) {
+
+                    {
+
+                        if (name.equals("basic_spell_restart") == true) {
+
+                            BasicSpells.restart(level_server, player_server);
+
+                        } else if (name.equals("basic_spell1_buy") == true) {
+
+                            {
+
+                                int mana = extra.getInt("mana");
+
+                                if (Mana.spend(player_server, mana) == true) {
+
+                                    NBTManager.Mob.addNumber(player_server, "basic_spell1", "ammo_max", mana * 10, true);
+
+                                }
+
+                            }
+
+                        }
+
+                    }
+
                 } else if (name.startsWith("spell1_") == true) {
 
                     {
@@ -347,18 +376,18 @@ public class HandcodeNetwork {
 
                             }
 
-                        } else if (name.equals("spell1_buy_duration") == true) {
+                        } else if (name.equals("spell1_buy") == true) {
 
                             {
 
                                 int number = extra.getInt("number");
                                 String positive_negative = extra.getString("positive_negative");
                                 int duration_per_mana = extra.getInt("duration_per_mana");
-                                int mana_cost = extra.getInt("mana_cost");
+                                int mana = extra.getInt("mana");
 
-                                if (Mana.spend(player_server, mana_cost) == true) {
+                                if (Mana.spend(player_server, mana) == true) {
 
-                                    NBTManager.Mob.addNumber(player_server, "spell1", "card_duration_max_" + positive_negative + number, duration_per_mana * mana_cost, true);
+                                    NBTManager.Mob.addNumber(player_server, "spell1", "card_duration_max_" + positive_negative + number, duration_per_mana * mana, true);
 
                                 }
 

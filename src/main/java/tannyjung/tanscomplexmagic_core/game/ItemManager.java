@@ -57,13 +57,9 @@ public class ItemManager {
 
     }
 
-    public static void setCooldown (Entity entity, ItemStack item, int tick) {
+    public static void setCooldown (ServerPlayer player_server, ItemStack item, int tick) {
 
-        if (entity instanceof ServerPlayer player_server) {
-
-            player_server.getCooldowns().addCooldown(item.getItem(), tick);
-
-        }
+        player_server.getCooldowns().addCooldown(item.getItem(), tick);
 
     }
 

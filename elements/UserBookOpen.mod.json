@@ -49,7 +49,7 @@
       "name": "UserBookWhenRightClick"
     },
     "onRightClickedOnBlock": {
-      "name": "UserBookWhenRightClick"
+      "name": "UserBookWhenRightClickAtBlock"
     },
     "enableRanged": false,
     "shootConstantly": false,

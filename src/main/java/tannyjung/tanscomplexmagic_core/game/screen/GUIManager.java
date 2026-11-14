@@ -352,7 +352,7 @@ public class GUIManager {
             List<String> list_name = new ArrayList<>();
             String uuid = "";
 
-            for (Entity entity : EntityManager.Population.sort(EntityManager.Population.getArea(player_server.serverLevel(), player_server.position(), radius, target_id, target_name, new String[]{"!" + Core.mod_id_big}), player_server.position(), false, 0)) {
+            for (Entity entity : EntityManager.Population.sort(EntityManager.Population.getAreaAny(player_server.serverLevel(), player_server.position(), radius, target_id, target_name, new String[]{"!" + Core.mod_id_big}), player_server.position(), false, 0)) {
 
                 uuid = entity.getStringUUID();
 

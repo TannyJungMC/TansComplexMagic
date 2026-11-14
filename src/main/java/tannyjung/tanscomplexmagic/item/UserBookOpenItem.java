@@ -1,6 +1,7 @@
 package tannyjung.tanscomplexmagic.item;
 
 import tannyjung.tanscomplexmagic.procedures.UserBookWhenRightClickProcedure;
+import tannyjung.tanscomplexmagic.procedures.UserBookWhenRightClickAtBlockProcedure;
 
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.api.distmarker.Dist;
@@ -48,7 +49,7 @@ public class UserBookOpenItem extends Item {
 	@Override
 	public InteractionResult useOn(UseOnContext context) {
 		super.useOn(context);
-		UserBookWhenRightClickProcedure.execute(context.getLevel(), context.getClickedPos().getX(), context.getClickedPos().getY(), context.getClickedPos().getZ(), context.getPlayer());
+		UserBookWhenRightClickAtBlockProcedure.execute(context.getLevel(), context.getClickedPos().getX(), context.getClickedPos().getY(), context.getClickedPos().getZ(), context.getPlayer());
 		return InteractionResult.SUCCESS;
 	}
 }

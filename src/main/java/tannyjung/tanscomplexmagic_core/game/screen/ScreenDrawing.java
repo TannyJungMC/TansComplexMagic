@@ -1148,7 +1148,7 @@ public class ScreenDrawing {
 
             private static final Set<String> set = new HashSet<>();
 
-            private static void draw (boolean is_active, boolean is_lock, String text, String nbt_category, String nbt_name, String[] nbt_values) {
+            private static void draw (boolean is_active, boolean is_lock, String text, String nbt_category, String nbt_name, String[] nbt_values, Runnable runnable) {
 
                 int posX = Position.posX;
                 int posZ = Position.posZ;
@@ -1201,6 +1201,12 @@ public class ScreenDrawing {
                         extra.putString("nbt_value", scan_final);
                         NetworkManager.runServerCore("gui", "radio", extra);
 
+                        if (runnable != null) {
+
+                            runnable.run();
+
+                        }
+
                     });
 
                     // Ingredient
@@ -1237,7 +1243,13 @@ public class ScreenDrawing {
 
             public static void drawBasicLockable (boolean is_active, boolean is_lock, String text, String nbt_category, String nbt_name, String[] nbt_values) {
 
-                draw(is_active, is_lock, text, nbt_category, nbt_name, nbt_values);
+                draw(is_active, is_lock, text, nbt_category, nbt_name, nbt_values, null);
+
+            }
+
+            public static void drawTrigger (String text, String nbt_category, String nbt_name, String[] nbt_values, Runnable runnable) {
+
+                draw(true, false, text, nbt_category, nbt_name, nbt_values, runnable);
 
             }
 

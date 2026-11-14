@@ -6,9 +6,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.entity.monster.Monster;
+import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.phys.Vec3;
 import tannyjung.tanscomplexmagic_core.game.*;
 import tannyjung.tanscomplexmagic_core.outside.TimeUtils;
@@ -19,17 +18,35 @@ public class Spell1 {
 
     public static void activate (ServerLevel level_server, ServerPlayer player_server) {
 
-        BlockPos pos = BlockPos.containing(EntityManager.getPosRayForward(player_server, 200, false));
+        BlockPos pos = null;
 
-        if (BlockManager.isPassable(level_server, pos) == false || BlockManager.isPassable(level_server, pos.below()) == true) {
+        if (NBTManager.Mob.getLogic(player_server, "main", "is_main_key_active") == true) {
 
-            pos = player_server.blockPosition();
+            Entity entity_book = Book.Fly.get(level_server, player_server);
+
+            if (entity_book != null) {
+
+                pos = entity_book.blockPosition().below();
+
+            }
+
+        }
+
+        if (pos == null) {
+
+            pos = BlockPos.containing(EntityManager.getPosRayForward(player_server, 200, true));
+
+            if (BlockManager.isPassable(level_server, pos) == false || BlockManager.isPassable(level_server, pos.below()) == true) {
+
+                pos = player_server.blockPosition();
+
+            }
 
         }
 
         GameUtils.spawnParticle(level_server, pos.getCenter().add(0, -0.5, 0), 0, 0, 0, 1, 10, "minecraft:instant_effect");
 
-        Entity entity_center = EntityManager.summon(level_server, pos.getCenter().add(0, -0.5, 0), false, "minecraft:marker", "Zodiac Center", Utils.Tag.convertSystemSpecific(player_server, new String[]{"spell1", "spell1_center"}), "");
+        Entity entity_center = EntityManager.summonSystem(level_server, pos.getCenter().add(0, -0.5, 0), false, "minecraft:marker", "Zodiac Center", Utils.Tag.convertSystemSpecific(player_server, new String[]{"spell1", "spell1_center"}), "");
 
         if (entity_center == null) {
 
@@ -373,7 +390,7 @@ public class Spell1 {
             // Get Targets
             {
 
-                List<Entity> list = EntityManager.Population.filterLivingEntity(EntityManager.Population.getArea(level_server, entity_center.position(), radius, "", "", new String[]{}));
+                List<Entity> list = EntityManager.Population.getAreaOnlyLiving(level_server, entity_center.position(), radius, "", "", new String[]{});
                 targets.put("user", new ArrayList<>());
 
                 if (list.contains(player_server) == true) {
@@ -656,7 +673,7 @@ public class Spell1 {
                     {
 
                         double degree = 1.0 - (radius / 200.0);
-                        degree = (degree * 1.5) + 0.5;
+                        degree = (degree * 0.5) + 0.5;
 
                         if (is_high_power_mode == true) {
 
@@ -1065,7 +1082,7 @@ public class Spell1 {
 
                             if (entity instanceof ServerPlayer == true) {
 
-                                for (Entity scan : EntityManager.Population.getArea(level_server, entity.position(), 100, "", "", new String[]{})) {
+                                for (Entity scan : EntityManager.Population.getAreaAny(level_server, entity.position(), 100, "", "", new String[]{})) {
 
                                     if (Math.random() >= 0.5) {
 
@@ -1100,7 +1117,7 @@ public class Spell1 {
 
                             if (entity instanceof ServerPlayer == true) {
 
-                                for (Entity scan : EntityManager.Population.getArea(level_server, entity.position(), 100, "", "", new String[]{})) {
+                                for (Entity scan : EntityManager.Population.getAreaAny(level_server, entity.position(), 100, "", "", new String[]{})) {
 
                                     if (Math.random() >= 0.5) {
 
@@ -1108,7 +1125,7 @@ public class Spell1 {
 
                                     }
 
-                                    if (scan instanceof Monster == true) {
+                                    if (scan instanceof Enemy == true) {
 
                                         if (EntityManager.getTarget(scan) != null) {
 
@@ -1167,7 +1184,7 @@ public class Spell1 {
 
                             if (entity instanceof ServerPlayer == true) {
 
-                                for (Entity scan : EntityManager.Population.getArea(level_server, entity.position(), 100, "", "", new String[]{})) {
+                                for (Entity scan : EntityManager.Population.getAreaAny(level_server, entity.position(), 100, "", "", new String[]{})) {
 
                                     if (Math.random() >= 0.5) {
 
@@ -1202,7 +1219,7 @@ public class Spell1 {
 
                             if (entity instanceof ServerPlayer == true) {
 
-                                for (Entity scan : EntityManager.Population.getArea(level_server, entity.position(), 100, "", "", new String[]{})) {
+                                for (Entity scan : EntityManager.Population.getAreaAny(level_server, entity.position(), 100, "", "", new String[]{})) {
 
                                     if (Math.random() >= 0.5) {
 
@@ -1210,7 +1227,7 @@ public class Spell1 {
 
                                     }
 
-                                    if (scan instanceof Monster == true) {
+                                    if (scan instanceof Enemy == true) {
 
                                         if (EntityManager.getTarget(scan) != null) {
 
@@ -1237,7 +1254,7 @@ public class Spell1 {
 
                             if (level_server.isRainingAt(entity.blockPosition()) == true) {
 
-                                EntityManager.summon(level_server, entity.position(), false, "minecraft:lightning_bolt", "Lightning Bolt", new String[]{}, "");
+                                EntityManager.summonNonSystem(level_server, entity.position(), false, "minecraft:lightning_bolt", "Lightning Bolt", new String[]{}, "");
 
                             }
 
@@ -1319,20 +1336,10 @@ public class Spell1 {
 
                         if (entity instanceof ServerPlayer == true) {
 
-                            for (Entity scan : EntityManager.Population.getArea(level_server, entity.position(), 20, "", "", new String[]{})) {
+                            for (Entity scan : EntityManager.Population.getAreaOnlyLiving(level_server, entity.position(), 20, "", "", new String[]{})) {
 
-                                if (Math.random() >= event_chance) {
-
-                                    continue;
-
-                                }
-
-                                if (scan instanceof LivingEntity entity_living) {
-
-                                    EntityManager.clearTarget(entity_living);
-                                    EntityManager.go(entity_living, EntityManager.getPosLookReverse(entity_living, entity.position(), 0, 0, -20), 1.5);
-
-                                }
+                                EntityManager.clearTarget(scan);
+                                EntityManager.go(scan, EntityManager.getPosLookReverse(scan, entity.position(), 0, 0, -20), 1.5);
 
                             }
 
@@ -1367,7 +1374,7 @@ public class Spell1 {
                         // Mob Blind
                         {
 
-                            for (Entity scan : EntityManager.Population.getArea(level_server, entity.position(), 20, "", "", new String[]{})) {
+                            for (Entity scan : EntityManager.Population.getAreaOnlyLiving(level_server, entity.position(), 20, "", "", new String[]{})) {
 
                                 if (EntityManager.getTarget(scan) == entity) {
 
@@ -1497,7 +1504,7 @@ public class Spell1 {
                         // Fire Skin
                         {
 
-                            for (Entity scan : EntityManager.Population.getArea(level_server, entity.position(), 10, "", "", new String[]{})) {
+                            for (Entity scan : EntityManager.Population.getAreaOnlyLiving(level_server, entity.position(), 10, "", "", new String[]{})) {
 
                                 if (EntityManager.getTarget(scan) == entity) {
 

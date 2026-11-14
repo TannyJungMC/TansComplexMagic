@@ -495,7 +495,7 @@ public class TXTFunction {
                 }
 
                 String command_final = command.replace("'", "*").replace("\"", "$");
-                EntityManager.summonWorldGen(level_server, pos.getCenter(), "marker", "Delayed Command", new String[]{Core.mod_id_big + "-delayed_command"}, "{NeoForgeData:{" + Core.mod_id + ":{core:{command:\"" + command_final + "\"}}}}");
+                EntityManager.summonWorldGenSystem(level_server, pos.getCenter(), "marker", "Delayed Command", new String[]{Core.mod_id_big + "-delayed_command"}, "{NeoForgeData:{" + Core.mod_id + ":{core:{command:\"" + command_final + "\"}}}}");
                 
             }
 

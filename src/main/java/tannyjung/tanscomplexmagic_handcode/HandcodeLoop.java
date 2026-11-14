@@ -2,7 +2,6 @@ package tannyjung.tanscomplexmagic_handcode;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.Entity;
 import tannyjung.tanscomplexmagic_core.game.EntityManager;
 import tannyjung.tanscomplexmagic_handcode.systems.*;
 
@@ -12,18 +11,8 @@ public class HandcodeLoop {
 
         for (ServerPlayer player_server : EntityManager.Population.filterPlayerServer(EntityManager.Population.getEverywhereStatic(level_server, "minecraft:player", "", new String[]{}))) {
 
-            // Placed User Book
-            {
-
-                for (Entity entity : EntityManager.Population.getEverywhereStatic(level_server, "", "", Utils.Tag.convertSystemSpecific(player_server, new String[]{"placed_book"}))) {
-
-                    Book.updatePlacedBook(level_server, player_server, entity);
-
-                }
-
-            }
-
-            BasicSpells.loopTick(level_server, player_server);
+            Book.Fly.updateTick(level_server, player_server);
+            BasicSpells.updateTick(level_server, player_server);
             Spell1.loopTick(level_server, player_server);
 
         }
@@ -35,7 +24,7 @@ public class HandcodeLoop {
         for (ServerPlayer player_server : EntityManager.Population.filterPlayerServer(EntityManager.Population.getEverywhereStatic(level_server, "minecraft:player", "", new String[]{}))) {
 
             Book.TextDisplay.update(level_server, player_server);
-            BasicSpells.loopSecond(level_server, player_server);
+            BasicSpells.updateSecond(level_server, player_server);
             Spell1.loopSecond(level_server, player_server);
 
         }
