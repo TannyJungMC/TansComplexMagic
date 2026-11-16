@@ -158,16 +158,16 @@ public class BlockManager {
 
     }
 
-    public static void set (LevelAccessor level_accessor, BlockPos pos, BlockState block, boolean is_world_gen) {
+    private static void place (ServerLevel level_server, BlockPos pos, BlockState block, boolean is_world_gen) {
 
         // World Height Limit
         {
 
-            if (GameUtils.Space.getBuildHeight(level_accessor, false) > pos.getY()) {
+            if (GameUtils.Space.getBuildHeight(level_server, false) > pos.getY()) {
 
                 return;
 
-            } else if (GameUtils.Space.getBuildHeight(level_accessor, true) < pos.getY()) {
+            } else if (GameUtils.Space.getBuildHeight(level_server, true) < pos.getY()) {
 
                 return;
 
@@ -178,7 +178,7 @@ public class BlockManager {
         // Waterlogged
         {
 
-            if (level_accessor.isWaterAt(pos) == true) {
+            if (level_server.isWaterAt(pos) == true) {
 
                 block = setPropertyLogic(block, "waterlogged", true);
 
@@ -194,20 +194,32 @@ public class BlockManager {
 
         }
 
-        level_accessor.setBlock(pos, block, type);
+        level_server.setBlock(pos, block, type);
 
     }
 
-    public static void remove (LevelAccessor level_accessor, ServerLevel level_server, BlockPos pos, boolean is_world_gen) {
+    public static void placeNormal (ServerLevel level_server, BlockPos pos, BlockState block) {
+
+        place(level_server, pos, block, false);
+
+    }
+
+    public static void placeWorldGen (ServerLevel level_server, BlockPos pos, BlockState block) {
+
+        place(level_server, pos, block, true);
+
+    }
+
+    private static void remove (ServerLevel level_server, BlockPos pos, boolean is_world_gen) {
 
         // World Height Limit
         {
 
-            if (GameUtils.Space.getBuildHeight(level_accessor, false) > pos.getY()) {
+            if (GameUtils.Space.getBuildHeight(level_server, false) > pos.getY()) {
 
                 return;
 
-            } else if (GameUtils.Space.getBuildHeight(level_accessor, true) < pos.getY()) {
+            } else if (GameUtils.Space.getBuildHeight(level_server, true) < pos.getY()) {
 
                 return;
 
@@ -217,7 +229,7 @@ public class BlockManager {
 
         BlockState block = null;
 
-        if (level_accessor.isWaterAt(pos) == true) {
+        if (level_server.isWaterAt(pos) == true) {
 
             block = Blocks.WATER.defaultBlockState();
 
@@ -227,7 +239,15 @@ public class BlockManager {
 
         }
 
-        set(level_accessor, pos, block, is_world_gen);
+        int type = 0;
+
+        if (is_world_gen == false) {
+
+            type = 2;
+
+        }
+
+        level_server.setBlock(pos, block, type);
 
         if (is_world_gen == false) {
 
@@ -237,10 +257,22 @@ public class BlockManager {
 
     }
 
-    public static void removeDrop (LevelAccessor level_accessor, ServerLevel level_server, BlockPos pos) {
+    public static void removeNormal (ServerLevel level_server, BlockPos pos) {
 
-        ItemManager.spawn(level_server, pos.getCenter(), level_accessor.getBlockState(pos).getBlock().asItem().getDefaultInstance());
-        remove(level_accessor, level_server, pos, false);
+        remove(level_server, pos, false);
+
+    }
+
+    public static void removeWorldGen (ServerLevel level_server, BlockPos pos) {
+
+        remove(level_server, pos, true);
+
+    }
+
+    public static void removeDrop (ServerLevel level_server, BlockPos pos) {
+
+        ItemManager.spawn(level_server, pos.getCenter(), level_server.getBlockState(pos).getBlock().asItem().getDefaultInstance());
+        remove(level_server, pos, false);
 
     }
 

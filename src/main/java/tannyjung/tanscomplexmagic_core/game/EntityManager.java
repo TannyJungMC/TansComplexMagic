@@ -12,6 +12,8 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import tannyjung.tanscomplexmagic_core.Core;
 
@@ -170,8 +172,18 @@ public class EntityManager {
             vec3_from = entity.position();
             
         }
-        
-        return entity.level().clip(new ClipContext(vec3_from, vec3, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, entity)).getLocation();
+
+        BlockHitResult result = entity.level().clip(new ClipContext(vec3_from, vec3, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, entity));
+        Vec3 vec3_convert = result.getLocation();
+
+        if (result.getType() == HitResult.Type.BLOCK) {
+
+            Vec3 normal = Vec3.atLowerCornerOf(result.getDirection().getNormal());
+            vec3_convert = vec3_convert.add(normal.scale(0.01));
+
+        }
+
+        return vec3_convert;
 
     }
 

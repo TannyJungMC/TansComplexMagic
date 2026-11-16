@@ -1,6 +1,7 @@
 package tannyjung.tanscomplexmagic_core.game.world_gen;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Blocks;
@@ -12,6 +13,8 @@ import tannyjung.tanscomplexmagic_core.game.BlockManager;
 
 public class FeatureAreaDirt extends Feature <NoneFeatureConfiguration> {
 
+    private static final int RADIUS = 16;
+
     public FeatureAreaDirt () {
 
         super(NoneFeatureConfiguration.CODEC);
@@ -21,26 +24,21 @@ public class FeatureAreaDirt extends Feature <NoneFeatureConfiguration> {
     @Override
     public boolean place (FeaturePlaceContext <NoneFeatureConfiguration> context) {
 
-        LevelAccessor level_accessor = context.level();
+        ServerLevel level_server = context.level().getLevel();
         BlockPos center_pos = context.origin();
-        int startX = -16;
-        int startY = -16;
-        int startZ = -16;
-        int endX = 16;
-        int endY = 16;
-        int endZ = 16;
-        double area_sphere = 16 * 16;
+        RandomSource random = RandomSource.create(level_server.getSeed() ^ ((center_pos.getX() * 341873128712L) + (center_pos.getZ() * 132897987541L)));
+
+        double area_sphere = RADIUS * RADIUS;
         double area_test = 0;
         BlockState previous_block = null;
         BlockPos pos = null;
         BlockState block = null;
-        RandomSource random = RandomSource.create(level_accessor.getServer().overworld().getSeed() ^ ((center_pos.getX() * 341873128712L) + (center_pos.getZ() * 132897987541L)));
 
-        for (int scanX = startX; scanX <= endX; scanX++) {
+        for (int scanX = -RADIUS; scanX <= RADIUS; scanX++) {
 
-            for (int scanY = startY; scanY <= endY; scanY++) {
+            for (int scanY = -RADIUS; scanY <= RADIUS; scanY++) {
 
-                for (int scanZ = startZ; scanZ <= endZ; scanZ++) {
+                for (int scanZ = -RADIUS; scanZ <= RADIUS; scanZ++) {
 
                     area_test = (scanX * scanX) + (scanY * scanY) + (scanZ * scanZ);
 
@@ -49,12 +47,12 @@ public class FeatureAreaDirt extends Feature <NoneFeatureConfiguration> {
                         if (random.nextDouble() < 1.0 - (area_test / area_sphere)) {
 
                             pos = new BlockPos(center_pos.getX() + scanX, center_pos.getY() + scanY, center_pos.getZ() + scanZ);
-                            previous_block = level_accessor.getBlockState(pos);
+                            previous_block = level_server.getBlockState(pos);
 
                             if (BlockManager.test(previous_block, "#minecraft:dirt / #minecraft:sand / #minecraft:base_stone_overworld") == true) {
 
                                 block = Blocks.COARSE_DIRT.defaultBlockState();
-                                BlockManager.set(level_accessor, pos, block, false);
+                                BlockManager.placeNormal(level_server, pos, block);
 
                             }
 
@@ -67,7 +65,6 @@ public class FeatureAreaDirt extends Feature <NoneFeatureConfiguration> {
             }
 
         }
-
 
         return true;
 

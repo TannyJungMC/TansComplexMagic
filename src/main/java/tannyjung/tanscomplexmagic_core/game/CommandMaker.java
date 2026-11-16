@@ -272,11 +272,10 @@ public class CommandMaker {
 
                 private static void txt_function (CommandContext<CommandSourceStack> data) {
 
-                    LevelAccessor level_accessor = data.getSource().getLevel();
                     ServerLevel level_server = data.getSource().getLevel();
                     BlockPos pos = new BlockPos((int) Math.floor(data.getSource().getPosition().x()), (int) Math.floor(data.getSource().getPosition().y()), (int) Math.floor(data.getSource().getPosition().z()));
                     String variable_text = Argument.getText(data);
-                    TXTFunction.run(level_accessor, level_server, pos, variable_text, true);
+                    TXTFunction.run(level_server, pos, variable_text, true);
 
                 }
 

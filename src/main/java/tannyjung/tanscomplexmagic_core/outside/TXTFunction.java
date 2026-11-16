@@ -21,7 +21,7 @@ public class TXTFunction {
 
     public static int count_delayed_command = 0;
 
-	public static void run (LevelAccessor level_accessor, ServerLevel level_server, BlockPos pos, String path, boolean randomly) {
+	public static void run (ServerLevel level_server, BlockPos pos, String path, boolean randomly) {
 
         boolean chunk_loaded = level_server.isPositionEntityTicking(pos) == true;
         RandomSource random = null;
@@ -238,7 +238,7 @@ public class TXTFunction {
 
                                                                 pos_convert = pos.offset(offset_posX, offset_posY, offset_posZ);
 
-                                                                if (GameUtils.Environment.test(GameUtils.Environment.getAt(level_accessor, pos_convert), variable_text) == true) {
+                                                                if (GameUtils.Environment.test(GameUtils.Environment.getAt(level_server, pos_convert), variable_text) == true) {
 
                                                                     continue;
 
@@ -269,9 +269,9 @@ public class TXTFunction {
 
                                                                 pos_convert = pos.offset(offset_posX, offset_posY, offset_posZ);
 
-                                                                if (GameUtils.Space.testChunkStatus(level_accessor, new ChunkPos(pos_convert), ChunkStatus.SURFACE) == true) {
+                                                                if (GameUtils.Space.testChunkStatus(level_server, new ChunkPos(pos_convert), ChunkStatus.SURFACE) == true) {
 
-                                                                    if (BlockManager.test(level_accessor.getBlockState(pos_convert), variable_text) == true) {
+                                                                    if (BlockManager.test(level_server.getBlockState(pos_convert), variable_text) == true) {
 
                                                                         continue;
 
@@ -314,7 +314,7 @@ public class TXTFunction {
                                                                     maxY = Integer.parseInt(min_max[4]);
                                                                     maxZ = Integer.parseInt(min_max[5]);
 
-                                                                    block = BlockManager.fromText(level_accessor, split[3]);
+                                                                    block = BlockManager.fromText(level_server, split[3]);
                                                                     variable_text = split[4];
 
                                                                 } catch (Exception ignored) {
@@ -335,13 +335,13 @@ public class TXTFunction {
 
                                                                                     pos_convert = pos.offset(offset_posX + testX, offset_posY + testY, offset_posZ + testZ);
 
-                                                                                    if (BlockManager.test(level_accessor.getBlockState(pos_convert), variable_text) == false) {
+                                                                                    if (BlockManager.test(level_server.getBlockState(pos_convert), variable_text) == false) {
 
                                                                                         continue;
 
                                                                                     }
 
-                                                                                    BlockManager.set(level_accessor, pos_convert, block, false);
+                                                                                    BlockManager.placeNormal(level_server, pos_convert, block);
 
                                                                                 }
 
@@ -380,7 +380,7 @@ public class TXTFunction {
                                                                 if (random.nextDouble() < chance) {
 
                                                                     pos_convert = pos.offset(offset_posX, offset_posY, offset_posZ);
-                                                                    GameUtils.Space.placeFeature(level_accessor, pos_convert, variable_text);
+                                                                    GameUtils.Space.placeFeature(level_server, pos_convert, variable_text);
 
                                                                 }
 
@@ -411,7 +411,7 @@ public class TXTFunction {
                                                                 if (random.nextDouble() < chance) {
 
                                                                     pos_convert = pos.offset(offset_posX, offset_posY, offset_posZ);
-                                                                    TXTFunction.run(level_accessor, level_server, pos_convert, variable_text, false);
+                                                                    TXTFunction.run(level_server, pos_convert, variable_text, false);
 
                                                                 }
 
@@ -439,7 +439,7 @@ public class TXTFunction {
 
                                                                         String variable_text_final = variable_text;
 
-                                                                        level_accessor.getServer().execute(() -> {
+                                                                        level_server.getServer().execute(() -> {
 
                                                                             GameUtils.runCommand(level_server, pos.getCenter(), variable_text_final);
 

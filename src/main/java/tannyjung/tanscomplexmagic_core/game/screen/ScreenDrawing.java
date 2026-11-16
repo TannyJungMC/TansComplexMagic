@@ -21,7 +21,7 @@ import java.util.*;
 
 public class ScreenDrawing {
 
-    public static final double DEFAULT_FONT_SCALE = 0.67;
+    public static final double NORMAL_FONT_SCALE = 0.67;
 
     public static GUIScreen screen = null;
     public static GuiGraphics graphic = null;
@@ -301,7 +301,7 @@ public class ScreenDrawing {
             for (String word : text.split(" ")) {
 
                 word = word + " ";
-                width = (int) (Minecraft.getInstance().font.width(word) * DEFAULT_FONT_SCALE);
+                width = (int) (Minecraft.getInstance().font.width(word) * NORMAL_FONT_SCALE);
 
                 if (width_all + width < length_per_line) {
 
@@ -320,7 +320,7 @@ public class ScreenDrawing {
 
             for (Map.Entry<Integer, StringBuilder> entry : paragraph.entrySet()) {
 
-                Storage.addText(DEFAULT_FONT_SCALE, false, entry.getValue().toString());
+                Storage.addText(NORMAL_FONT_SCALE, false, entry.getValue().toString());
                 Position.addZ(8);
 
             }
@@ -331,7 +331,7 @@ public class ScreenDrawing {
 
             int posX = Position.posX;
             int posZ = Position.posZ;
-            drawTextBasic(DEFAULT_FONT_SCALE, "-");
+            drawTextBasic(NORMAL_FONT_SCALE, "-");
             Position.set(Anchor.type, posX + 8, posZ);
             drawTextParagraph(length_per_line - 8, text);
             Position.setX(posX);
@@ -663,7 +663,7 @@ public class ScreenDrawing {
                     int posX = Position.posX;
                     int posZ = Position.posZ;
                     Position.add(length / 2, -5);
-                    ComponentOverlay.drawTextCenteredShadow(false, DEFAULT_FONT_SCALE, text);
+                    ComponentOverlay.drawTextCenteredShadow(false, NORMAL_FONT_SCALE, text);
                     Position.set(Anchor.type, posX, posZ);
 
                 }
@@ -813,7 +813,7 @@ public class ScreenDrawing {
                     if (is_lock == true) {
 
                         Position.add(9 + (box.getWidth() / 2), 15);
-                        ComponentOverlay.drawTextCenteredBasic(false, DEFAULT_FONT_SCALE, text_lock);
+                        ComponentOverlay.drawTextCenteredBasic(false, NORMAL_FONT_SCALE, text_lock);
 
                     }
 
@@ -846,7 +846,7 @@ public class ScreenDrawing {
                 // Ingredient
                 {
 
-                    ComponentOverlay.drawTextBasic(DEFAULT_FONT_SCALE, text);
+                    ComponentOverlay.drawTextBasic(NORMAL_FONT_SCALE, text);
 
                 }
 
@@ -1043,7 +1043,7 @@ public class ScreenDrawing {
                     }
 
                     builder.append(" ").append(suffix);
-                    ComponentOverlay.drawTextBasic(DEFAULT_FONT_SCALE, builder.toString());
+                    ComponentOverlay.drawTextBasic(NORMAL_FONT_SCALE, builder.toString());
 
                 }
 
@@ -1133,7 +1133,7 @@ public class ScreenDrawing {
                         int posX = Position.posX;
                         int posZ = Position.posZ;
                         Position.add(16, -2);
-                        ComponentOverlay.drawTextCenteredBasic(true, DEFAULT_FONT_SCALE, text);
+                        ComponentOverlay.drawTextCenteredBasic(true, NORMAL_FONT_SCALE, text);
                         Position.set(Anchor.type, posX, posZ);
 
                     }
@@ -1178,7 +1178,7 @@ public class ScreenDrawing {
                 // Ingredient
                 {
 
-                    ComponentOverlay.drawTextBasic(DEFAULT_FONT_SCALE, text);
+                    ComponentOverlay.drawTextBasic(NORMAL_FONT_SCALE, text);
 
                 }
 
@@ -1225,7 +1225,7 @@ public class ScreenDrawing {
                         scanX = Position.posX;
                         scanZ = Position.posZ;
                         Position.add(10, -2);
-                        ComponentOverlay.drawTextCenteredBasic(true, DEFAULT_FONT_SCALE, scan);
+                        ComponentOverlay.drawTextCenteredBasic(true, NORMAL_FONT_SCALE, scan);
 
                     }
 
@@ -1268,7 +1268,7 @@ public class ScreenDrawing {
                 if (list.isEmpty() == true) {
 
                     Position.add(sizeX / 2, sizeZ / 2);
-                    ComponentOverlay.drawTextCenteredBasic(false, DEFAULT_FONT_SCALE, "§fEmpty List");
+                    ComponentOverlay.drawTextCenteredBasic(false, NORMAL_FONT_SCALE, "§fEmpty List");
 
                 } else {
 
@@ -1305,7 +1305,7 @@ public class ScreenDrawing {
                             }
 
                             Position.addZ(4);
-                            ComponentOverlay.drawTextBasic(DEFAULT_FONT_SCALE, "§8" + (number + 1) + " " + scan);
+                            ComponentOverlay.drawTextBasic(NORMAL_FONT_SCALE, "§8" + (number + 1) + " " + scan);
 
                         }
 

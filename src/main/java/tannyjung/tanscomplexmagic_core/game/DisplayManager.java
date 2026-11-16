@@ -42,7 +42,7 @@ public class DisplayManager {
     public static Entity summonItem (ServerLevel level_server, Vec3 vec3, int rotate_horizontal, int rotate_vertical, double scale, boolean is_luminous, String name, String[] tags, String id) {
 
         StringBuilder builder = new StringBuilder();
-        builder.append("item:{id:\"").append(id).append("\",Count:1b},teleport_duration:10");
+        builder.append("item:{id:\"").append(id).append("\",Count:1b},teleport_duration:5");
         builder.append(",Rotation:[").append(rotate_horizontal).append("f,").append(rotate_vertical).append("f]");
         builder.append(",transformation:{left_rotation:[0.0f,0.0f,0.0f,1.0f],right_rotation:[0.0f,0.0f,0.0f,1.0f],translation:[0.0f,0.0f,0.0f],scale:[").append(scale).append("f,").append(scale).append("f,").append(scale).append("f]}");
 

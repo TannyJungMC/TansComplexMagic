@@ -38,7 +38,7 @@ public class HandcodeGUI {
             ScreenDrawing.Position.set(ScreenDrawing.Anchor.Type.CENTER, 8 * -22 + 0, 8 * -12 + 0);
             ScreenDrawing.ComponentOverlay.drawTextBasic(1, "Text Display");
             ScreenDrawing.Position.addZ(8);
-            ScreenDrawing.ComponentOverlay.drawTextParagraph(160, "   A book additional feature. Show some text inside the box at bottom-left of the book. There are 4 types for display. You can swap between types by click at the icon at left side of display box. Here is list of all available modes.");
+            ScreenDrawing.ComponentOverlay.drawTextParagraph(160, "   A book additional feature. Show some text inside the box at bottom-left of the book. There are 4 types for display. You can swap between types by click at the icon at left side of display box. Here is list of all available types.");
             ScreenDrawing.Position.addZ(8);
             ScreenDrawing.ComponentOverlay.drawTextParagraphBulletedList(160, "None (Gray) : Shows nothing. Just a blank space for your eyes to rest.");
             ScreenDrawing.ComponentOverlay.drawTextParagraphBulletedList(160, "Mana Summary (Yellow) : Shows your current mana, charge, and remaining time until full.");
@@ -48,7 +48,7 @@ public class HandcodeGUI {
             ScreenDrawing.Position.set(ScreenDrawing.Anchor.Type.CENTER, 8 * 2 + 0, 8 * -12 + 0);
             ScreenDrawing.ComponentWidget.Radio.drawBasic("Information Mode", "book", "text_display_information_mode", new String[]{"Current Game Time", "Distance to World Spawn", "Distance to Custom Compass Position", "Distance to Selected Ally"});
             ScreenDrawing.Position.addZ(8);
-            ScreenDrawing.ComponentWidget.Radio.drawBasic("Trigger Mode", "book", "text_display_trigger_mode", new String[]{"Spell Alert", "Mana Full", "Light Level 0", "Insomnia Danger Zone", "Nearby Monster (20 Blocks)", "Nearby Monster (50 Blocks)", "Nearby Monster (100 Blocks)"});
+            ScreenDrawing.ComponentWidget.Radio.drawBasic("Trigger Mode", "book", "text_display_trigger_mode", new String[]{"Spell Alert", "Mana Full", "Light Level 0", "Insomnia Danger Zone", "Nearby Enemy Non-Player (20 Blocks)", "Nearby Enemy Non-Player (50 Blocks)", "Nearby Enemy Non-Player (100 Blocks)"});
             ScreenDrawing.Position.addZ(8);
             ScreenDrawing.ComponentWidget.Radio.drawBasic("Trigger Sound", "book", "text_display_trigger_sound", new String[]{"Bit", "Chime", "Hat", "Didgeridoo"});
 
@@ -88,9 +88,10 @@ public class HandcodeGUI {
             GUIManager.add(() -> {
 
                 generateBackground();
+                int mana = Mana.get(ScreenDrawing.player_local)[0];
 
                 ScreenDrawing.Position.set(ScreenDrawing.Anchor.Type.CENTER, 8 * -22 + 0, 8 * -12 + 0);
-                ScreenDrawing.ComponentWidget.Radio.drawTrigger("Select Spell", "main", "basic_spell", new String[]{"None", "Territory Guardian", "Wall of Vines"}, () -> {
+                ScreenDrawing.ComponentWidget.Radio.drawTrigger("Select Spell", "main", "basic_spell", new String[]{"None", "Territory Guardian", "Shooting Star", "Wall of Vines"}, () -> {
 
                     NetworkManager.runServer("gui", "basic_spell_restart", new CompoundTag());
 
@@ -99,16 +100,15 @@ public class HandcodeGUI {
                 ScreenDrawing.Position.set(ScreenDrawing.Anchor.Type.CENTER, 8 * 2 + 0, 8 * -12 + 0);
                 ScreenDrawing.ComponentOverlay.drawTextBasic(1, "Territory Guardian Settings");
                 ScreenDrawing.Position.addZ(8);
-                ScreenDrawing.ComponentWidget.Radio.drawBasic("Target", "basic_spell1", "target", new String[]{"Enemy Monster", "Enemy Player", "Enemy Non-Player"});
+                ScreenDrawing.ComponentWidget.Radio.drawBasic("Target", "basic_spell1", "target", new String[]{"Enemy Non-Player", "Enemy Player"});
                 ScreenDrawing.Position.addZ(8);
-                ScreenDrawing.ComponentWidget.Slider.drawText(160, 10, 200, 10, "basic_spell1", "radius", "Radius");
-                ScreenDrawing.Position.addZ(8);
+                ScreenDrawing.ComponentWidget.Slider.drawText(160, 10, 100, 10, "basic_spell1", "radius", "Radius");
+                ScreenDrawing.Position.addZ(4);
                 ScreenDrawing.ComponentWidget.Slider.drawText(160, 0, NBTManager.Mob.getNumber(ScreenDrawing.player_local, "basic_spell1", "ammo_max"), 1, "basic_spell1", "ammo", "Ammunition");
                 ScreenDrawing.Position.addZ(2);
                 ScreenDrawing.Position.setMark();
-                int mana = Mana.get(ScreenDrawing.player_local)[0];
 
-                ScreenDrawing.ComponentWidget.ButtonNormal.drawTextLockable(80, true, mana < 1, "+10 / 1 Mana", "+10 / 1 Mana", () -> {
+                ScreenDrawing.ComponentWidget.ButtonNormal.drawTextLockable(80, true, mana < 1, "+20 / 1 Mana", "+20 / 1 Mana", () -> {
 
                     CompoundTag tag = new CompoundTag();
                     tag.putInt("mana", 1);
@@ -119,7 +119,7 @@ public class HandcodeGUI {
                 ScreenDrawing.Position.returnMark();
                 ScreenDrawing.Position.addX(80);
 
-                ScreenDrawing.ComponentWidget.ButtonNormal.drawTextLockable(80, true, mana < 10, "+100 / 10 Mana", "+100 / 10 Mana", () -> {
+                ScreenDrawing.ComponentWidget.ButtonNormal.drawTextLockable(80, true, mana < 10, "+200 / 10 Mana", "+200 / 10 Mana", () -> {
 
                     CompoundTag tag = new CompoundTag();
                     tag.putInt("mana", 10);
@@ -127,8 +127,47 @@ public class HandcodeGUI {
 
                 });
 
-                ScreenDrawing.Position.set(ScreenDrawing.Anchor.Type.CENTER, 8 * 2 + 0, 8 * 5 + 0);
-                ScreenDrawing.ComponentOverlay.drawTextBasic(1, "Wall of Vines Settings");
+                ScreenDrawing.Position.set(ScreenDrawing.Anchor.Type.CENTER, 8 * 2 + 0, 8 * 1 + 6);
+                ScreenDrawing.ComponentOverlay.drawTextBasic(1, "Shooting Star Settings");
+                ScreenDrawing.Position.addZ(8);
+
+                double capacitor = NBTManager.Mob.getNumber(ScreenDrawing.player_local, "basic_spell2", "capacitor");
+                double level = NBTManager.Mob.getNumber(ScreenDrawing.player_local, "basic_spell2", "level");
+                double remaining_time = 0;
+
+                if (capacitor >= level) {
+
+                    remaining_time = capacitor / level;
+
+                }
+
+                ScreenDrawing.ComponentOverlay.drawTextBasic(ScreenDrawing.NORMAL_FONT_SCALE, "Remaining Time : " + TimeUtils.convertSecondToReadable((long) remaining_time));
+
+                ScreenDrawing.Position.addZ(8);
+                ScreenDrawing.ComponentWidget.Slider.drawText(160, 1, 10, 1, "basic_spell2", "level", "Level");
+                ScreenDrawing.Position.addZ(4);
+                ScreenDrawing.ComponentWidget.Slider.drawText(160, 0, NBTManager.Mob.getNumber(ScreenDrawing.player_local, "basic_spell2", "capacitor_max"), 1, "basic_spell2", "capacitor", "Capacitor");
+                ScreenDrawing.Position.addZ(2);
+                ScreenDrawing.Position.setMark();
+
+                ScreenDrawing.ComponentWidget.ButtonNormal.drawTextLockable(80, true, mana < 1, "+300 / 1 Mana", "+300 / 1 Mana", () -> {
+
+                    CompoundTag tag = new CompoundTag();
+                    tag.putInt("mana", 1);
+                    NetworkManager.runServer("gui", "basic_spell2_buy", tag);
+
+                });
+
+                ScreenDrawing.Position.returnMark();
+                ScreenDrawing.Position.addX(80);
+
+                ScreenDrawing.ComponentWidget.ButtonNormal.drawTextLockable(80, true, mana < 10, "+3000 / 10 Mana", "+3000 / 10 Mana", () -> {
+
+                    CompoundTag tag = new CompoundTag();
+                    tag.putInt("mana", 10);
+                    NetworkManager.runServer("gui", "basic_spell2_buy", tag);
+
+                });
 
             });
 
@@ -158,21 +197,21 @@ public class HandcodeGUI {
                 ScreenDrawing.Position.set(ScreenDrawing.Anchor.Type.CENTER, 8 * -22 + 0, 8 * -12 + 0);
                 ScreenDrawing.ComponentOverlay.drawTextBasic(1, "Advantage of Nightfall");
                 ScreenDrawing.Position.addZ(8);
-                ScreenDrawing.ComponentOverlay.drawTextParagraph(160, "   The stars can see clearer in the night. The zodiac is the constellations, they also affected by night time as well. When the sun goes down, the zodiac cards will use lesser mana. Unlike day time, they use more mana as some of their powers was blocked by the sunlight.");
+                ScreenDrawing.ComponentOverlay.drawTextParagraph(160, "   The stars can see clearer in the night. The zodiac is the constellations, they also affected by night time as well. When the sun goes down, the zodiac cards will spend less energy from their capacitors. Unlike day time, they use more energy as some of their powers was blocked by the sunlight.");
 
                 ScreenDrawing.Position.set(ScreenDrawing.Anchor.Type.CENTER, 8 * 2 + 0, 8 * -12 + 0);
                 ScreenDrawing.ComponentOverlay.drawTextBasic(1, "Empowered Card");
                 ScreenDrawing.Position.addZ(8);
-                ScreenDrawing.ComponentOverlay.drawTextParagraph(160, "   Every time, the Earth rotates around itself. This changes some of the effects of zodiac signs. Every hour, one of zodiac cards will be empowered. Makes it generate free duration of positive or negative effect.");
+                ScreenDrawing.ComponentOverlay.drawTextParagraph(160, "   Every time, the Earth rotates around itself. This changes some of the effects of zodiac signs. Every hour, one of zodiac cards will be empowered. Makes it generates free energy into its capacitor of positive or negative effect.");
                 ScreenDrawing.Position.addZ(8);
-                ScreenDrawing.ComponentOverlay.drawTextParagraph(160, "   From my tests. Empowered card have about 5 levels. Higher level is the more of duration gain from the generation. Empower levels mostly randomly between 1 to 3, but sometimes rarely, it can get higher to 4 and 5.");
+                ScreenDrawing.ComponentOverlay.drawTextParagraph(160, "   From my tests. Empowered card have about 5 levels. Higher level is the more of capacitor recharge from the generation. Empower levels mostly randomly between 1 to 3, but sometimes rarely, it can get higher to 4 and 5.");
 
                 ScreenDrawing.Position.addZ(8);
-                ScreenDrawing.ComponentOverlay.drawTextBasic(ScreenDrawing.DEFAULT_FONT_SCALE, "Current Empower");
+                ScreenDrawing.ComponentOverlay.drawTextBasic(ScreenDrawing.NORMAL_FONT_SCALE, "Current Empower");
                 ScreenDrawing.Position.addZ(4);
-                ScreenDrawing.ComponentOverlay.drawTextBasic(ScreenDrawing.DEFAULT_FONT_SCALE, "- Sign : " + Spell1.getNameFromNumber((int) NBTManager.Mob.getNumber(ScreenDrawing.player_local, "spell1", "empowered_card")));
+                ScreenDrawing.ComponentOverlay.drawTextBasic(ScreenDrawing.NORMAL_FONT_SCALE, "- Sign : " + Spell1.getNameFromNumber((int) NBTManager.Mob.getNumber(ScreenDrawing.player_local, "spell1", "empowered_card")));
                 ScreenDrawing.Position.addZ(4);
-                ScreenDrawing.ComponentOverlay.drawTextBasic(ScreenDrawing.DEFAULT_FONT_SCALE, "- Level : " + (int) NBTManager.Mob.getNumber(ScreenDrawing.player_local, "spell1", "empowered_card_level"));
+                ScreenDrawing.ComponentOverlay.drawTextBasic(ScreenDrawing.NORMAL_FONT_SCALE, "- Level : " + (int) NBTManager.Mob.getNumber(ScreenDrawing.player_local, "spell1", "empowered_card_level"));
                 ScreenDrawing.Position.addZ(4);
                 String positive_negative = "";
 
@@ -186,9 +225,9 @@ public class HandcodeGUI {
 
                 }
 
-                ScreenDrawing.ComponentOverlay.drawTextBasic(ScreenDrawing.DEFAULT_FONT_SCALE, "- Effect Type : " + positive_negative);
+                ScreenDrawing.ComponentOverlay.drawTextBasic(ScreenDrawing.NORMAL_FONT_SCALE, "- Effect Type : " + positive_negative);
                 ScreenDrawing.Position.addZ(4);
-                ScreenDrawing.ComponentOverlay.drawTextBasic(ScreenDrawing.DEFAULT_FONT_SCALE, "- Remaining Time : " + TimeUtils.convertSecondToReadable(TimeUtils.getRemain(NBTManager.Mob.getText(ScreenDrawing.player_local, "spell1", "timestamp_next_bonus"))));
+                ScreenDrawing.ComponentOverlay.drawTextBasic(ScreenDrawing.NORMAL_FONT_SCALE, "- Remaining Time : " + TimeUtils.convertSecondToReadable(TimeUtils.getRemain(NBTManager.Mob.getText(ScreenDrawing.player_local, "spell1", "timestamp_next_bonus"))));
 
 
             });
@@ -215,9 +254,9 @@ public class HandcodeGUI {
                 ScreenDrawing.Position.addZ(2);
                 ScreenDrawing.ComponentWidget.Switch.drawText("spell1", "is_reverse_rotation", "Reverse Rotation");
                 ScreenDrawing.Position.addZ(8);
-                ScreenDrawing.ComponentWidget.Slider.drawText(160, 1, 200, 1, "spell1", "radius", "Radius");
+                ScreenDrawing.ComponentWidget.Slider.drawText(160, 1, 100, 1, "spell1", "radius", "Radius");
                 ScreenDrawing.Position.addZ(4);
-                ScreenDrawing.ComponentWidget.Slider.drawText(160, 0, 200, 1, "spell1", "radius_touch_ground", "Radius Touch Ground");
+                ScreenDrawing.ComponentWidget.Slider.drawText(160, 0, 100, 1, "spell1", "radius_touch_ground", "Radius Touch Ground");
 
                 ScreenDrawing.Position.set(ScreenDrawing.Anchor.Type.CENTER, 8 * -22 + 0, 8 * 6 + 5);
 
@@ -410,27 +449,69 @@ public class HandcodeGUI {
         {
 
             ScreenDrawing.Position.set(ScreenDrawing.Anchor.Type.CENTER, 8 * -22 + 0, 8 * 13 + 8);
-            ScreenDrawing.ComponentOverlay.drawTextBasic(0.48, NBTManager.Mob.getText(ScreenDrawing.player_local, "book", "text_display_text"));
 
+            int[] mana = Mana.get(ScreenDrawing.player_local);
             String type = NBTManager.Mob.getText(ScreenDrawing.player_local, "book", "text_display_type");
-            int text_display = 0;
+            String trigger_mode = NBTManager.Mob.getText(ScreenDrawing.player_local, "book", "text_display_trigger_mode");
+            int text_type = 0;
+            String text = "";
 
             if (type.equals("mana") == true) {
 
-                text_display = 1;
+                text_type = 1;
+                String time = "";
 
-            } else if (type.equals("information") == true) {
+                if (mana[0] == Mana.CAPACITY_MAX) {
 
-                text_display = 2;
+                    time = "Full";
 
-            } else if (type.equals("trigger") == true) {
+                } else {
 
-                text_display = 3;
+                    time = "Will be full in " + TimeUtils.convertSecondToReadable(TimeUtils.getRemain(NBTManager.Mob.getText(ScreenDrawing.player_local, "main", "timestamp_mana")));
+
+                }
+
+                text = "§eMana " + mana[0] + "/" + Mana.CAPACITY_MAX + " Charge " + mana[1] + "/60 - " + time;
+
+            } else {
+
+                if (type.equals("information") == true) {
+
+                    text_type = 2;
+
+                } else if (type.equals("trigger") == true) {
+
+                    text_type = 3;
+
+                    if (trigger_mode.equals("Mana Full") == true) {
+
+                        if (mana[0] == Mana.CAPACITY_MAX) {
+
+                            text = "Mana is full";
+
+                        } else {
+
+                            text = "Mana will be full in " + TimeUtils.convertSecondToReadable(TimeUtils.getRemain(NBTManager.Mob.getText(ScreenDrawing.player_local, "main", "timestamp_mana")));
+
+                        }
+
+                        text = "§c" + text;
+
+                    }
+
+                }
+
+                if (text.isEmpty() == true) {
+
+                    text = NBTManager.Mob.getText(ScreenDrawing.player_local, "book", "text_display_text");
+
+                }
 
             }
 
+            ScreenDrawing.ComponentOverlay.drawTextBasic(0.48, text);
             ScreenDrawing.Position.set(ScreenDrawing.Anchor.Type.CENTER, 8 * -23 - 4, 8 * 13 + 6);
-            ScreenDrawing.ComponentOverlay.drawImageSplit(28, 7, true, 4, text_display, "tanscomplexmagic:textures/screens/book/text_display_type.png");
+            ScreenDrawing.ComponentOverlay.drawImageSplit(28, 7, true, 4, text_type, "tanscomplexmagic:textures/screens/book/text_display_type.png");
             ScreenDrawing.Position.set(ScreenDrawing.Anchor.Type.CENTER, 8 * -23 - 4, 8 * 13 + 6);
 
             ScreenDrawing.ComponentWidget.ButtonImage.draw(14, 7, true, true, false, "tanscomplexmagic:textures/screens/book/text_display_type_set.png", () -> {
@@ -563,7 +644,7 @@ public class HandcodeGUI {
         ScreenDrawing.Position.set(ScreenDrawing.Anchor.Type.CENTER, 8 * -18 + 0, 8 * -10 - 3);
         ScreenDrawing.ComponentOverlay.drawTextCenteredBasic(true, 1, Spell1.getNameFromNumber(number));
         ScreenDrawing.Position.set(ScreenDrawing.Anchor.Type.CENTER, 8 * -18 + 0, 8 * -9 - 1);
-        ScreenDrawing.ComponentOverlay.drawTextCenteredBasic(true, ScreenDrawing.DEFAULT_FONT_SCALE, caption);
+        ScreenDrawing.ComponentOverlay.drawTextCenteredBasic(true, ScreenDrawing.NORMAL_FONT_SCALE, caption);
 
         ScreenDrawing.Position.set(ScreenDrawing.Anchor.Type.CENTER, 8 * -22 + 0, 8 * -6 + 0);
 
@@ -592,7 +673,7 @@ public class HandcodeGUI {
 
     }
 
-    private static void generateSpell1CardSettings (boolean is_page_right, String name, int number, int duration_per_mana_positive, int duration_per_mana_negative) {
+    private static void generateSpell1CardSettings (boolean is_page_right, String name, int number, int capacitor_per_mana_positive, int capacitor_per_mana_negative) {
 
         int posX = 0;
 
@@ -609,9 +690,9 @@ public class HandcodeGUI {
         ScreenDrawing.Position.set(ScreenDrawing.Anchor.Type.CENTER, posX, 8 * -12 + 0);
         ScreenDrawing.ComponentOverlay.drawTextBasic(1, "Card Settings : " + name);
         ScreenDrawing.Position.addZ(8);
-        ScreenDrawing.ComponentOverlay.drawTextBasic( ScreenDrawing.DEFAULT_FONT_SCALE, "Detected Targets : " + (int) NBTManager.Mob.getNumber(ScreenDrawing.player_local, "spell1", "number_of_detected_targets" + number));
+        ScreenDrawing.ComponentOverlay.drawTextBasic( ScreenDrawing.NORMAL_FONT_SCALE, "Detected Targets : " + (int) NBTManager.Mob.getNumber(ScreenDrawing.player_local, "spell1", "number_of_detected_targets" + number));
         ScreenDrawing.Position.addZ(4);
-        ScreenDrawing.ComponentOverlay.drawTextBasic(ScreenDrawing.DEFAULT_FONT_SCALE, "Remaining Duration : " + TimeUtils.convertSecondToReadable((long) NBTManager.Mob.getNumber(ScreenDrawing.player_local, "spell1", "remaining_duration" + number)));
+        ScreenDrawing.ComponentOverlay.drawTextBasic(ScreenDrawing.NORMAL_FONT_SCALE, "Remaining Duration : " + TimeUtils.convertSecondToReadable((long) NBTManager.Mob.getNumber(ScreenDrawing.player_local, "spell1", "remaining_duration" + number)));
         ScreenDrawing.Position.addZ(8);
         ScreenDrawing.Position.setMarkZ();
         ScreenDrawing.ComponentWidget.Switch.drawText("spell1", "is_card_activate" + number, "Activate Card");
@@ -629,7 +710,7 @@ public class HandcodeGUI {
         {
 
             ScreenDrawing.Position.addZ(8);
-            ScreenDrawing.ComponentOverlay.drawTextBasic(ScreenDrawing.DEFAULT_FONT_SCALE, "Targets");
+            ScreenDrawing.ComponentOverlay.drawTextBasic(ScreenDrawing.NORMAL_FONT_SCALE, "Targets");
             ScreenDrawing.Position.addZ(4);
 
             boolean is_libra_effect_sharing = number == 7 && NBTManager.Mob.getLogic(ScreenDrawing.player_local, "spell1", "is_card_negative7") == true;
@@ -647,7 +728,7 @@ public class HandcodeGUI {
 
         }
 
-        // Duration
+        // Capacitor
         {
 
             String empowered_positive = "";
@@ -671,17 +752,17 @@ public class HandcodeGUI {
             }
 
             ScreenDrawing.Position.setZ(26);
-            ScreenDrawing.ComponentWidget.Slider.drawTextWithSuffix(160, 0, NBTManager.Mob.getNumber(ScreenDrawing.player_local, "spell1", "card_duration_max_positive" + number), 1, "spell1", "card_duration_positive" + number, "Positive Duration", empowered_positive);
+            ScreenDrawing.ComponentWidget.Slider.drawTextWithSuffix(160, 0, NBTManager.Mob.getNumber(ScreenDrawing.player_local, "spell1", "card_capacitor_max_positive" + number), 1, "spell1", "card_capacitor_positive" + number, "Capacitor Positive", empowered_positive);
             ScreenDrawing.Position.addZ(2);
             ScreenDrawing.Position.setMark();
             int mana = Mana.get(ScreenDrawing.player_local)[0];
 
-            ScreenDrawing.ComponentWidget.ButtonNormal.drawTextLockable(80, true, mana < 1, "+" + duration_per_mana_positive + " / 1 Mana", "+" + duration_per_mana_positive + " / 1 Mana", () -> {
+            ScreenDrawing.ComponentWidget.ButtonNormal.drawTextLockable(80, true, mana < 1, "+" + capacitor_per_mana_positive + " / 1 Mana", "+" + capacitor_per_mana_positive + " / 1 Mana", () -> {
 
                 CompoundTag tag = new CompoundTag();
                 tag.putInt("number", number);
                 tag.putString("positive_negative", "positive");
-                tag.putInt("duration_per_mana", duration_per_mana_positive);
+                tag.putInt("capacitor_per_mana", capacitor_per_mana_positive);
                 tag.putInt("mana", 1);
                 NetworkManager.runServer("gui", "spell1_buy", tag);
 
@@ -690,45 +771,45 @@ public class HandcodeGUI {
             ScreenDrawing.Position.returnMark();
             ScreenDrawing.Position.addX(80);
 
-            ScreenDrawing.ComponentWidget.ButtonNormal.drawTextLockable(80, true, mana < 10, "+" + duration_per_mana_positive * 10 + " / 10 Mana", "+" + duration_per_mana_positive * 10 + " / 10 Mana", () -> {
+            ScreenDrawing.ComponentWidget.ButtonNormal.drawTextLockable(80, true, mana < 10, "+" + capacitor_per_mana_positive * 10 + " / 10 Mana", "+" + capacitor_per_mana_positive * 10 + " / 10 Mana", () -> {
 
                 CompoundTag tag = new CompoundTag();
                 tag.putInt("number", number);
                 tag.putString("positive_negative", "positive");
-                tag.putInt("duration_per_mana", duration_per_mana_positive);
-                tag.putInt("mana_cost", 10);
-                NetworkManager.runServer("gui", "spell1_buy_duration", tag);
+                tag.putInt("capacitor_per_mana", capacitor_per_mana_positive);
+                tag.putInt("mana", 10);
+                NetworkManager.runServer("gui", "spell1_buy", tag);
 
             });
 
             ScreenDrawing.Position.returnMarkX();
             ScreenDrawing.Position.addZ(8);
-            ScreenDrawing.ComponentWidget.Slider.drawTextWithSuffix(160, 0, NBTManager.Mob.getNumber(ScreenDrawing.player_local, "spell1", "card_duration_max_negative" + number), 1, "spell1", "card_duration_negative" + number, "Negative Duration", empowered_negative);
+            ScreenDrawing.ComponentWidget.Slider.drawTextWithSuffix(160, 0, NBTManager.Mob.getNumber(ScreenDrawing.player_local, "spell1", "card_capacitor_max_negative" + number), 1, "spell1", "card_capacitor_negative" + number, "Capacitor Negative", empowered_negative);
             ScreenDrawing.Position.addZ(2);
             ScreenDrawing.Position.setMark();
 
-            ScreenDrawing.ComponentWidget.ButtonNormal.drawTextLockable(80, true, mana < 1, "+" + duration_per_mana_negative + " / 1 Mana", "+" + duration_per_mana_negative + " / 1 Mana", () -> {
+            ScreenDrawing.ComponentWidget.ButtonNormal.drawTextLockable(80, true, mana < 1, "+" + capacitor_per_mana_negative + " / 1 Mana", "+" + capacitor_per_mana_negative + " / 1 Mana", () -> {
 
                 CompoundTag tag = new CompoundTag();
                 tag.putInt("number", number);
                 tag.putString("positive_negative", "negative");
-                tag.putInt("duration_per_mana", duration_per_mana_positive);
-                tag.putInt("mana_cost", 1);
-                NetworkManager.runServer("gui", "spell1_buy_duration", tag);
+                tag.putInt("capacitor_per_mana", capacitor_per_mana_positive);
+                tag.putInt("mana", 1);
+                NetworkManager.runServer("gui", "spell1_buy", tag);
 
             });
 
             ScreenDrawing.Position.returnMark();
             ScreenDrawing.Position.addX(80);
 
-            ScreenDrawing.ComponentWidget.ButtonNormal.drawTextLockable(80, true, mana < 10, "+" + duration_per_mana_negative * 10 + " / 10 Mana", "+" + duration_per_mana_negative * 10 + " / 10 Mana", () -> {
+            ScreenDrawing.ComponentWidget.ButtonNormal.drawTextLockable(80, true, mana < 10, "+" + capacitor_per_mana_negative * 10 + " / 10 Mana", "+" + capacitor_per_mana_negative * 10 + " / 10 Mana", () -> {
 
                 CompoundTag tag = new CompoundTag();
                 tag.putInt("number", number);
                 tag.putString("positive_negative", "negative");
-                tag.putInt("duration_per_mana", duration_per_mana_positive);
-                tag.putInt("mana_cost", 10);
-                NetworkManager.runServer("gui", "spell1_buy_duration", tag);
+                tag.putInt("capacitor_per_mana", capacitor_per_mana_positive);
+                tag.putInt("mana", 10);
+                NetworkManager.runServer("gui", "spell1_buy", tag);
 
             });
 

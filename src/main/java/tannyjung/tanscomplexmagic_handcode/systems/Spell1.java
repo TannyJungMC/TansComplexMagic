@@ -16,6 +16,8 @@ import java.util.*;
 
 public class Spell1 {
 
+    private static final int MAX_RADIUS = 100;
+
     public static void activate (ServerLevel level_server, ServerPlayer player_server) {
 
         BlockPos pos = null;
@@ -76,7 +78,7 @@ public class Spell1 {
 
         Map<Integer, Entity> cards = Card.getActive(level_server, player_server);
         updateCenter(player_server, entity_center);
-        Card.updateTick(level_server, player_server, entity_center, cards);
+        Card.loopTick(level_server, player_server, entity_center, cards);
 
         // Radius Key Control
         {
@@ -94,21 +96,21 @@ public class Spell1 {
 
                 } else {
 
-                    if (radius < 20) {
+                    if (radius >= 50) {
 
-                        tick = 5;
+                        tick = 2;
 
-                    } else if (radius < 50) {
-
-                        tick = 4;
-
-                    } else if (radius < 100) {
+                    } else if (radius >= 20) {
 
                         tick = 3;
 
+                    } else if (radius >= 10) {
+
+                        tick = 4;
+
                     } else {
 
-                        tick = 2;
+                        tick = 5;
 
                     }
 
@@ -127,7 +129,7 @@ public class Spell1 {
 
                     } else {
 
-                        if (radius < 200) {
+                        if (radius < MAX_RADIUS) {
 
                             add = 1;
                             pitch = 2;
@@ -154,7 +156,7 @@ public class Spell1 {
 
     public static void loopSecond (ServerLevel level_server, ServerPlayer player_server) {
 
-        Empower.updateSecond(level_server, player_server);
+        Empower.loopSecond(level_server, player_server);
 
         Entity entity_center = EntityManager.Population.getEverywhereOneStatic(level_server, "", "", Utils.Tag.convertSystemSpecific(player_server, new String[]{"spell1", "spell1_center"}));
 
@@ -165,7 +167,7 @@ public class Spell1 {
         }
 
         Map<Integer, Entity> cards = Card.getActive(level_server, player_server);
-        Card.updateSecond(level_server, player_server, entity_center, cards);
+        Card.loopSecond(level_server, player_server, entity_center, cards);
 
     }
 
@@ -348,7 +350,7 @@ public class Spell1 {
 
         }
 
-        private static void updateTick (ServerLevel level_server, ServerPlayer player_server, Entity entity_center, Map<Integer, Entity> cards) {
+        private static void loopTick (ServerLevel level_server, ServerPlayer player_server, Entity entity_center, Map<Integer, Entity> cards) {
 
             double radius = NBTManager.Mob.getNumber(player_server, "spell1", "radius");
 
@@ -381,7 +383,7 @@ public class Spell1 {
 
         }
 
-        private static void updateSecond (ServerLevel level_server, ServerPlayer player_server, Entity entity_center, Map<Integer, Entity> cards) {
+        private static void loopSecond (ServerLevel level_server, ServerPlayer player_server, Entity entity_center, Map<Integer, Entity> cards) {
 
             double radius = NBTManager.Mob.getNumber(player_server, "spell1", "radius");
             Map<String, List<Entity>> targets = new HashMap<>();
@@ -413,7 +415,7 @@ public class Spell1 {
             boolean is_negative = false;
             String positive_negative = "";
 
-            int duration_spend_per_second = 0;
+            int capacitor_spend_per_second = 0;
             int remaining_duration = 0;
             boolean is_high_power_mode = false;
 
@@ -509,46 +511,46 @@ public class Spell1 {
 
                         if (is_high_power_mode == true) {
 
-                            duration_spend_per_second = 2;
+                            capacitor_spend_per_second = 2;
 
                         } else {
 
-                            duration_spend_per_second = 1;
+                            capacitor_spend_per_second = 1;
 
                         }
 
                         if (level_server.isDay() == true) {
 
-                            duration_spend_per_second = duration_spend_per_second * 2;
+                            capacitor_spend_per_second = capacitor_spend_per_second * 2;
 
                         }
 
-                        int duration = (int) NBTManager.Mob.getNumber(player_server, "spell1", "card_duration_" + positive_negative + number);
-                        int duration_max = (int) NBTManager.Mob.getNumber(player_server, "spell1", "card_duration_max_" + positive_negative + number);
+                        int capacitor = (int) NBTManager.Mob.getNumber(player_server, "spell1", "card_capacitor_" + positive_negative + number);
+                        int capacitor_max = (int) NBTManager.Mob.getNumber(player_server, "spell1", "card_capacitor_max_" + positive_negative + number);
 
                         for (Entity entity : target_sort) {
 
                             Effect.giveSort(level_server, player_server, number, entity, is_negative, is_high_power_mode);
-                            duration = duration - duration_spend_per_second;
-                            duration_max = duration_max - duration_spend_per_second;
+                            capacitor = capacitor - capacitor_spend_per_second;
+                            capacitor_max = capacitor_max - capacitor_spend_per_second;
 
-                            if (duration_max <= 0) {
+                            if (capacitor_max <= 0) {
 
-                                duration_max = 0;
+                                capacitor_max = 0;
 
                             }
 
-                            if (duration <= 0) {
+                            if (capacitor <= 0) {
 
-                                duration = 0;
+                                capacitor = 0;
                                 break;
 
                             }
 
                         }
 
-                        NBTManager.Mob.setNumber(player_server, "spell1", "card_duration_" + positive_negative + number, duration, true);
-                        NBTManager.Mob.setNumber(player_server, "spell1", "card_duration_max_" + positive_negative + number, duration_max, true);
+                        NBTManager.Mob.setNumber(player_server, "spell1", "card_capacitor_" + positive_negative + number, capacitor, true);
+                        NBTManager.Mob.setNumber(player_server, "spell1", "card_capacitor_max_" + positive_negative + number, capacitor_max, true);
 
                     }
 
@@ -558,7 +560,7 @@ public class Spell1 {
 
                 if (target_sort.length != 0) {
 
-                    remaining_duration = (int) (NBTManager.Mob.getNumber(player_server, "spell1", "card_duration_" + positive_negative + number) / target_sort.length);
+                    remaining_duration = (int) (NBTManager.Mob.getNumber(player_server, "spell1", "card_capacitor_" + positive_negative + number) / target_sort.length);
 
                     if (is_high_power_mode == true) {
 
@@ -784,7 +786,7 @@ public class Spell1 {
 
             }
 
-            if (NBTManager.Mob.getNumber(player_server, "spell1", "card_duration_" + positive_negative + card_number) == 0) {
+            if (NBTManager.Mob.getNumber(player_server, "spell1", "card_capacitor_" + positive_negative + card_number) == 0) {
 
                 return 90;
 
@@ -1110,7 +1112,7 @@ public class Spell1 {
 
                     }
 
-                    // Monster Repulsion
+                    // Enemy Repulsion
                     {
 
                         if (Math.random() < event_chance) {
@@ -1212,7 +1214,7 @@ public class Spell1 {
 
                     }
 
-                    // Monster Attraction
+                    // Enemy Attraction
                     {
 
                         if (Math.random() < event_chance) {
@@ -1930,7 +1932,7 @@ public class Spell1 {
 
     private static class Empower {
 
-        private static void updateSecond (ServerLevel level_server, ServerPlayer player_server) {
+        private static void loopSecond (ServerLevel level_server, ServerPlayer player_server) {
 
             int number = 0;
             int empowered_card_level = 0;
@@ -1982,16 +1984,16 @@ public class Spell1 {
 
             }
 
-            int duration = (int) NBTManager.Mob.getNumber(player_server, "spell1", "card_duration_" + positive_negative + number);
-            int duration_max = (int) NBTManager.Mob.getNumber(player_server, "spell1", "card_duration_max_" + positive_negative + number);
+            int capacitor = (int) NBTManager.Mob.getNumber(player_server, "spell1", "card_capacitor_" + positive_negative + number);
+            int capacitor_max = (int) NBTManager.Mob.getNumber(player_server, "spell1", "card_capacitor_max_" + positive_negative + number);
 
-            if (duration == duration_max) {
+            if (capacitor == capacitor_max) {
 
-                NBTManager.Mob.setNumber(player_server, "spell1", "card_duration_" + positive_negative + number, duration_max + empowered_card_level, true);
+                NBTManager.Mob.setNumber(player_server, "spell1", "card_capacitor_" + positive_negative + number, capacitor_max + empowered_card_level, true);
 
             }
 
-            NBTManager.Mob.setNumber(player_server, "spell1", "card_duration_max_" + positive_negative + number, duration_max + empowered_card_level, true);
+            NBTManager.Mob.setNumber(player_server, "spell1", "card_capacitor_max_" + positive_negative + number, capacitor_max + empowered_card_level, true);
 
         }
 

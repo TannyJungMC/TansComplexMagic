@@ -78,15 +78,16 @@ public class Book {
 
         }
 
-        BlockPos pos = BlockPos.containing(vec3).above();
+        vec3 = vec3.add(0.5, 1.5, 0.5);
+        BlockPos pos = BlockPos.containing(vec3);
 
-        if (level_server.getBlockState(pos).isAir() == false || level_server.getBlockState(pos.above()).isAir() == false) {
+        if (level_server.getBlockState(pos).canBeReplaced() == false) {
 
             return;
 
         }
 
-        Fly.place(level_server, player_server, vec3.add(0.5, 1.5, 0.5));
+        Fly.place(level_server, player_server, vec3);
 
     }
 
@@ -134,7 +135,10 @@ public class Book {
 
     public static class Fly {
 
-        public static void updateTick (ServerLevel level_server, ServerPlayer player_server) {
+        private static final double MOVE_SPEED = 0.4;
+        public static final int MAX_DISTANCE_SET_STAY = 100;
+
+        public static void loopTick (ServerLevel level_server, ServerPlayer player_server) {
 
             Entity entity_book = Fly.get(level_server, player_server);
 
@@ -147,14 +151,36 @@ public class Book {
             // Fly Follow
             {
 
-                if (NBTManager.Mob.getLogic(entity_book, "main", "is_fly_follow") == true) {
+                double stayX = NBTManager.Mob.getNumber(entity_book, "main", "stayX");
+                double stayY = NBTManager.Mob.getNumber(entity_book, "main", "stayY");
+                double stayZ = NBTManager.Mob.getNumber(entity_book, "main", "stayZ");
+                boolean is_follow = stayX == 0 && stayY == 0 && stayZ == 0;
+                Vec3 vec3 = null;
 
-                    Vec3 vec3 = EntityManager.getPosLook(player_server, 1.25, 0, 1.25);
-                    vec3 = new Vec3(vec3.x, player_server.getEyeY() + 0.5, vec3.z);
+                if (is_follow == true) {
 
-                    if (entity_book.position().distanceTo(vec3) > 2) {
+                    vec3 = EntityManager.getPosLook(player_server, 1.25, 0, 1.25);
+                    vec3 = new Vec3(vec3.x, player_server.getEyeY() + 0.75, vec3.z);
 
-                        entity_book.setPos(vec3);
+                } else {
+
+                    vec3 = new Vec3(stayX, stayY, stayZ);
+
+                }
+
+                double distance = entity_book.position().distanceTo(vec3);
+
+                if (distance > MOVE_SPEED + 0.5) {
+
+                    entity_book.setPos(EntityManager.getPosRayWithDistance(entity_book, vec3, MOVE_SPEED, false));
+
+                } else if (is_follow == false && entity_book.getX() != stayX && entity_book.getZ() != stayZ) {
+
+                    entity_book.setPos(vec3);
+
+                    if (level_server.getBlockState(entity_book.blockPosition()).isAir() == true) {
+
+                        BlockManager.placeNormal(level_server, entity_book.blockPosition(), BlockManager.setPropertyNumber(Blocks.LIGHT.defaultBlockState(), "level", 10));
 
                     }
 
@@ -190,14 +216,6 @@ public class Book {
 
             }
 
-            for (Entity entity_light : EntityManager.Population.getEverywhereStatic(level_server, "", "", Utils.Tag.convertSystemSpecific(player_server, new String[]{"flying_user_book_light"}))) {
-
-                entity_light.setYRot(entity_light.getYRot() - 10);
-                GameUtils.spawnParticle(level_server, EntityManager.getPosLook(entity_light, 0, 0, 0.15), 0, 0, 0, 0, 1, "minecraft:end_rod");
-                GameUtils.spawnParticle(level_server, EntityManager.getPosLook(entity_light, 0, 0, -0.15), 0, 0, 0, 0, 1, "minecraft:end_rod");
-
-            }
-
             String custom_look_target = NBTManager.Mob.getText(entity_book, "main", "custom_look_target");
 
             if (isUserLookAt(player_server, entity_book) == true || custom_look_target.isEmpty() == false) {
@@ -222,7 +240,7 @@ public class Book {
 
                 Entity entity_look_target = null;
 
-                if (isUserLookAt(player_server, entity_book)) {
+                if (isUserLookAt(player_server, entity_book) == true) {
 
                     entity_look_target = player_server;
 
@@ -234,7 +252,15 @@ public class Book {
 
                 if (entity_look_target != null) {
 
-                    entity_book.lookAt(EntityAnchorArgument.Anchor.FEET, entity_look_target.getEyePosition());
+                    if (entity_look_target == entity_book) {
+
+                        entity_book.lookAt(EntityAnchorArgument.Anchor.FEET, entity_book.position().add(0, 1, 0));
+
+                    } else {
+
+                        entity_book.lookAt(EntityAnchorArgument.Anchor.FEET, entity_look_target.getEyePosition());
+
+                    }
 
                 }
 
@@ -266,65 +292,106 @@ public class Book {
 
         private static void place (ServerLevel level_server, ServerPlayer player_server, Vec3 vec3) {
 
-            if (NBTManager.Mob.getLogic(player_server, "main", "is_book_flying") == false) {
+            Entity entity_book = DisplayManager.summonItem(level_server, vec3, (int) (Math.random() * 360), 0, 1, true, "Flying User Book", Utils.Tag.convertSystemSpecific(player_server, new String[]{"flying_user_book"}), "tanscomplexmagic:user_book");
 
-                NBTManager.Mob.setLogic(player_server, "main", "is_book_flying", true, false);
-
-            } else {
+            if (entity_book == null) {
 
                 return;
 
             }
 
-            Entity entity_book = DisplayManager.summonItem(level_server, vec3.add(0, 0.75, 0), (int) (Math.random() * 360), 0, 1, false, "Flying User Book", Utils.Tag.convertSystemSpecific(player_server, new String[]{"flying_user_book"}), "tanscomplexmagic:user_book");
-            NBTManager.Mob.setNumber(entity_book, "main", "delay_open", 20, false);
+            if (trySetStay(level_server, entity_book, vec3) == false) {
 
-            if (player_server.isShiftKeyDown() == true) {
-
-                EntityManager.summonSystem(level_server, entity_book.position().add(0, -1.25, 0), false, "minecraft:marker", "Flying User Book Light", Utils.Tag.convertSystemSpecific(player_server, new String[]{"flying_user_book_light"}), "");
-                level_server.setBlock(BlockPos.containing(vec3), Blocks.LIGHT.defaultBlockState(), 2);
-
-            } else {
-
-                NBTManager.Mob.setLogic(entity_book, "main", "is_fly_follow", true, true);
+                return;
 
             }
 
+            double stayX = NBTManager.Mob.getNumber(entity_book, "main", "stayX");
+            double stayY = NBTManager.Mob.getNumber(entity_book, "main", "stayY");
+            double stayZ = NBTManager.Mob.getNumber(entity_book, "main", "stayZ");
+            entity_book.setPos(stayX, stayY, stayZ);
+
+            BlockManager.placeNormal(level_server, entity_book.blockPosition(), BlockManager.setPropertyNumber(Blocks.LIGHT.defaultBlockState(), "level", 10));
+            NBTManager.Mob.setNumber(entity_book, "main", "delay_open", 20, false);
             player_server.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
+
+        }
+
+        public static boolean trySetStay( ServerLevel level_server, Entity entity_book, Vec3 vec3) {
+
+            BlockPos pos = BlockPos.containing(vec3);
+            vec3 = pos.getCenter();
+
+            if (level_server.getBlockState(pos.below()).canBeReplaced() == true) {
+
+                NBTManager.Mob.setNumber(entity_book, "main", "stayX", vec3.x, false);
+                NBTManager.Mob.setNumber(entity_book, "main", "stayY",  vec3.y, false);
+                NBTManager.Mob.setNumber(entity_book, "main", "stayZ",  vec3.z, false);
+
+            } else {
+
+                if (level_server.getBlockState(pos.above()).canBeReplaced() == false) {
+
+                    return false;
+
+                }
+
+                NBTManager.Mob.setNumber(entity_book, "main", "stayX", vec3.x, false);
+                NBTManager.Mob.setNumber(entity_book, "main", "stayY",  vec3.y + 0.8, false);
+                NBTManager.Mob.setNumber(entity_book, "main", "stayZ",  vec3.z, false);
+
+            }
+
+            return true;
+
+        }
+
+        public static void setFollow (ServerLevel level_server, Entity entity_book) {
+
+            NBTManager.Mob.setNumber(entity_book, "main", "stayX", 0, false);
+            NBTManager.Mob.setNumber(entity_book, "main", "stayY", 0, false);
+            NBTManager.Mob.setNumber(entity_book, "main", "stayZ", 0, false);
+
+            if (level_server.getBlockState(entity_book.blockPosition()).getBlock() != Blocks.LIGHT) {
+
+                return;
+
+            }
+
+            BlockManager.removeNormal(level_server, entity_book.blockPosition());
 
         }
 
         public static void pickup (ServerLevel level_server, ServerPlayer player_server) {
 
-            NBTManager.Mob.setLogic(player_server, "main", "is_book_flying", false, false);
             ItemManager.removeFromBody(player_server, TanscomplexmagicModItems.USER_BOOK.asItem());
             ItemManager.removeFromBody(player_server, TanscomplexmagicModItems.USER_BOOK_OPEN.asItem());
             GameUtils.playSound(level_server, player_server.position(), (Math.random() * 0.5) + 0.5, 50, "minecraft:block.bell.use");
+            Entity entity_book = Fly.get(level_server, player_server);
 
             Core.DelayedWork.createBasic(20, () -> {
+
+                BasicSpells.cancel(level_server, player_server);
 
                 GameUtils.spawnParticle(level_server, player_server.position(), 0, 0, 0, 0, 1, "minecraft:flash");
                 GameUtils.spawnParticle(level_server, player_server.position().add(0, 1, 0), 1, 1, 1, 0, 10, "minecraft:firework");
                 ItemManager.give(player_server, TanscomplexmagicModItems.USER_BOOK.toStack());
 
-                BasicSpells.restart(level_server, player_server);
+                if (entity_book == null) {
 
-                for (Entity entity_light : EntityManager.Population.getEverywhereStatic(level_server, "", "", Utils.Tag.convertSystemSpecific(player_server, new String[]{"flying_user_book_light"}))) {
-
-                    if (level_server.getBlockState(entity_light.blockPosition()) != Blocks.LIGHT.defaultBlockState()) {
-
-                        continue;
-
-                    }
-
-                    level_server.removeBlock(entity_light.blockPosition(), false);
-                    entity_light.discard();
+                    return;
 
                 }
 
-            });
+                if (level_server.getBlockState(entity_book.blockPosition()).getBlock() != Blocks.LIGHT) {
 
-            Entity entity_book = Fly.get(level_server, player_server);
+                    return;
+
+                }
+
+                BlockManager.removeNormal(level_server, entity_book.blockPosition());
+
+            });
 
             if (entity_book == null) {
 
@@ -426,32 +493,17 @@ public class Book {
 
                 }
 
-                if (type.equals("mana") == true) {
-
-                    {
-
-                        int[] mana = Mana.get(player_server);
-                        String time = "";
-
-                        if (mana[0] == Mana.CAPACITY_MAX) {
-
-                            time = "Full";
-
-                        } else {
-
-                            time = "Will be full in " + TimeUtils.convertSecondToReadable(TimeUtils.getRemain(NBTManager.Mob.getText(player_server, "main", "timestamp_mana")));
-
-                        }
-
-                        text = "§eMana " + mana[0] + "/" + Mana.CAPACITY_MAX + " Charge " + mana[1] + "/60 - " + time;
-
-                    }
-
-                } else if (type.equals("information") == true) {
+                if (type.equals("information") == true) {
 
                     text = updateInformation(level_server, player_server);
 
                 }
+
+            }
+
+            if (text.isEmpty() == true) {
+
+                return;
 
             }
 
@@ -534,18 +586,10 @@ public class Book {
             String text = "";
             boolean cam_make_sound = false;
             Vec3 vec3 = null;
-            
-            if (NBTManager.Mob.getLogic(player_server, "main", "is_book_flying") == true) {
 
-                Entity entity = Fly.get(level_server, player_server);
+            Entity entity_book = Fly.get(level_server, player_server);
 
-                if (entity != null) {
-
-                    vec3 = entity.position().add(0, -1, 0);
-
-                }
-
-            } else {
+            if (entity_book == null) {
 
                 for (ItemStack item : player_server.getHandSlots()) {
 
@@ -558,6 +602,10 @@ public class Book {
 
                 }
 
+            } else {
+
+                vec3 = entity_book.position().add(0, -1, 0);
+
             }
 
             if (vec3 == null) {
@@ -566,11 +614,11 @@ public class Book {
 
             }
             
-            if (mode.startsWith("Nearby Monster (") == true) {
+            if (mode.startsWith("Nearby Enemy Non-Player (") == true) {
 
                 {
 
-                    int distance = Integer.parseInt(mode.substring("Nearby Monster (".length(), mode.length() - " Blocks)".length()));
+                    int distance = Integer.parseInt(mode.substring("Nearby Enemy Non-Player (".length(), mode.length() - " Blocks)".length()));
 
                     for (Entity scan : EntityManager.Population.sort(EntityManager.Population.getAreaAny(level_server, vec3, distance, "", "", new String[]{}), vec3, false, 0)) {
 
@@ -588,7 +636,7 @@ public class Book {
 
                     if (text.isEmpty() == true) {
 
-                        text = "No monsters detected within " + distance + " blocks";
+                        text = "No enemies detected within " + distance + " blocks";
 
                     }
 
@@ -644,12 +692,7 @@ public class Book {
 
                     if (Mana.get(player_server)[0] == Mana.CAPACITY_MAX) {
 
-                        text = "Mana is full";
                         cam_make_sound = true;
-
-                    } else {
-
-                        text = "Mana will be full in " + TimeUtils.convertSecondToReadable(TimeUtils.getRemain(NBTManager.Mob.getText(player_server, "main", "timestamp_mana")));
 
                     }
 

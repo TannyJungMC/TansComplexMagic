@@ -6,6 +6,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.phys.Vec3;
 import tannyjung.tanscomplexmagic.init.TanscomplexmagicModItems;
 import tannyjung.tanscomplexmagic_core.Core;
 import tannyjung.tanscomplexmagic_core.game.*;
@@ -37,20 +38,17 @@ public class HandcodeNetwork {
 
                                 }
 
-                                // Open Flying User Book
-                                {
+                                Entity entity_book = EntityManager.Population.getEverywhereOneStatic(level_server, "", "", Utils.Tag.convertSystemSpecific(player_server, new String[]{"flying_user_book"}));
 
-                                    if (NBTManager.Mob.getLogic(player_server, "main", "is_book_flying") == true) {
+                                if (entity_book != null) {
 
-                                        Entity entity_book = EntityManager.Population.getEverywhereOneStatic(level_server, "", "", Utils.Tag.convertSystemSpecific(player_server, new String[]{"flying_user_book"}));
+                                    // Open Flying User Book
+                                    {
 
-                                        if (entity_book != null) {
+                                        if (Book.Fly.isUserLookAt(player_server, entity_book) == true && Book.Fly.isModelOpen(entity_book) == true) {
 
-                                            if (Book.Fly.isUserLookAt(player_server, entity_book) && Book.Fly.isModelOpen(entity_book) == true) {
-
-                                                Book.open(level_server, player_server);
-
-                                            }
+                                            Book.open(level_server, player_server);
+                                            return;
 
                                         }
 
@@ -58,18 +56,60 @@ public class HandcodeNetwork {
 
                                 }
 
-                                int spam = (int) NBTManager.Mob.getNumber(player_server, "main", "main_key_spam") + 1;
-                                NBTManager.Mob.setNumber(player_server, "main", "main_key_spam", spam, false);
+                                NBTManager.Mob.addNumber(player_server, "main", "main_key_spam", 1, false);
 
-                                Core.DelayedWork.createBasic(10, () -> {
+                                Core.DelayedWork.createBasic(5, () -> {
 
-                                    if (NBTManager.Mob.getNumber(player_server, "main", "main_key_spam") == 2) {
+                                    int spam = (int) NBTManager.Mob.getNumber(player_server, "main", "main_key_spam");
+                                    NBTManager.Mob.setNumber(player_server, "main", "main_key_spam", 0, false);
+
+                                    if (spam == 1) {
+
+                                        // Flying Book Stay Follow
+                                        {
+
+                                            if (entity_book == null) {
+
+                                                return;
+
+                                            }
+
+                                            if (NBTManager.Mob.getLogic(player_server, "main", "is_main_key_active") == false) {
+
+                                                return;
+
+                                            }
+
+                                            double stayX = NBTManager.Mob.getNumber(entity_book, "main", "stayX");
+                                            double stayY = NBTManager.Mob.getNumber(entity_book, "main", "stayY");
+                                            double stayZ = NBTManager.Mob.getNumber(entity_book, "main", "stayZ");
+
+                                            if (stayX == 0 && stayY == 0 && stayZ == 0 == true) {
+
+                                                Vec3 vec3 = EntityManager.getPosRayForward(player_server, Book.Fly.MAX_DISTANCE_SET_STAY, true);
+                                                Book.Fly.trySetStay(level_server, entity_book, vec3);
+
+                                            } else {
+
+                                                if (entity_book.getX() == stayX && entity_book.getZ() == stayZ) {
+
+                                                    Book.Fly.setFollow(level_server, entity_book);
+
+                                                } else {
+
+                                                    Book.Fly.trySetStay(level_server, entity_book, entity_book.position());
+
+                                                }
+
+                                            }
+
+                                        }
+
+                                    } else if (spam == 2) {
 
                                         Book.Fly.pickup(level_server, player_server);
 
                                     }
-
-                                    NBTManager.Mob.setNumber(player_server, "main", "main_key_spam", 0, false);
 
                                 });
 
@@ -298,7 +338,7 @@ public class HandcodeNetwork {
 
                         if (name.equals("basic_spell_restart") == true) {
 
-                            BasicSpells.restart(level_server, player_server);
+                            BasicSpells.cancel(level_server, player_server);
 
                         } else if (name.equals("basic_spell1_buy") == true) {
 
@@ -308,7 +348,21 @@ public class HandcodeNetwork {
 
                                 if (Mana.spend(player_server, mana) == true) {
 
-                                    NBTManager.Mob.addNumber(player_server, "basic_spell1", "ammo_max", mana * 10, true);
+                                    NBTManager.Mob.addNumber(player_server, "basic_spell1", "ammo_max", mana * 20, true);
+
+                                }
+
+                            }
+
+                        } else if (name.equals("basic_spell2_buy") == true) {
+
+                            {
+
+                                int mana = extra.getInt("mana");
+
+                                if (Mana.spend(player_server, mana) == true) {
+
+                                    NBTManager.Mob.addNumber(player_server, "basic_spell2", "capacitor_max", mana * 300, true);
 
                                 }
 
@@ -382,12 +436,12 @@ public class HandcodeNetwork {
 
                                 int number = extra.getInt("number");
                                 String positive_negative = extra.getString("positive_negative");
-                                int duration_per_mana = extra.getInt("duration_per_mana");
+                                int capacitor_per_mana = extra.getInt("capacitor_per_mana");
                                 int mana = extra.getInt("mana");
 
                                 if (Mana.spend(player_server, mana) == true) {
 
-                                    NBTManager.Mob.addNumber(player_server, "spell1", "card_duration_max_" + positive_negative + number, duration_per_mana * mana, true);
+                                    NBTManager.Mob.addNumber(player_server, "spell1", "card_capacitor_max_" + positive_negative + number, capacitor_per_mana * mana, true);
 
                                 }
 
