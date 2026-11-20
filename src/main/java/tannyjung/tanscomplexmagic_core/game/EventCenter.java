@@ -332,7 +332,7 @@ public class EventCenter {
         @SubscribeEvent(priority = EventPriority.NORMAL)
         public static void eventOverlayMenu (ScreenEvent.Render.Post event) {
 
-            if (ScreenDrawing.screen != null) {
+            if (ScreenDrawing.gui_screen != null) {
 
                 return;
 
@@ -353,7 +353,7 @@ public class EventCenter {
 
             }
 
-            if (ScreenDrawing.screen != null) {
+            if (ScreenDrawing.gui_screen != null) {
 
                 return;
 

@@ -8,6 +8,7 @@ import net.minecraft.stats.Stats;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.monster.Enemy;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.Blocks;
@@ -16,7 +17,6 @@ import tannyjung.tanscomplexmagic.init.TanscomplexmagicModItems;
 import tannyjung.tanscomplexmagic_core.Core;
 import tannyjung.tanscomplexmagic_core.game.*;
 import tannyjung.tanscomplexmagic_core.game.screen.GUIManager;
-import tannyjung.tanscomplexmagic_core.outside.TimeUtils;
 
 public class Book {
 
@@ -33,7 +33,7 @@ public class Book {
                 if (is_main_key_active == true) {
 
                     player_server.setItemSlot(EquipmentSlot.MAINHAND, TanscomplexmagicModItems.USER_BOOK_OPEN.toStack());
-                    GameUtils.playSound(level_server, player_server.position(), (Math.random() * 0.5) + 0.25, 20, "minecraft:item.book.page_turn");
+                    GameUtils.playSound(level_server, player_server.position(), (Math.random() * 0.5) + 0.25, 10, "minecraft:item.book.page_turn");
 
                 }
 
@@ -45,13 +45,21 @@ public class Book {
 
                     Core.DelayedWork.createBasic(4, () -> {
 
-                        GameUtils.playSound(level_server, player_server.position(), (Math.random() * 0.5) + 0.25, 20, "minecraft:block.wood.break");
+                        GameUtils.playSound(level_server, player_server.position(), (Math.random() * 0.5) + 0.25, 10, "minecraft:block.wood.break");
 
                     });
 
                 } else {
 
-                    open(level_server, player_server);
+                    int page = Book.getCurrentPageNumber(player_server);
+
+                    if (page == 0) {
+
+                        page = 1;
+
+                    }
+
+                    openByPage(level_server, player_server, page);
 
                 }
 
@@ -78,58 +86,68 @@ public class Book {
 
         }
 
-        vec3 = vec3.add(0.5, 1.5, 0.5);
-        BlockPos pos = BlockPos.containing(vec3);
-
-        if (level_server.getBlockState(pos).canBeReplaced() == false) {
+        if (Utils.isUser(player_server) == false) {
 
             return;
 
         }
 
+        vec3 = vec3.add(0.5, 1.5, 0.5);
         Fly.place(level_server, player_server, vec3);
 
     }
 
-    public static void open (ServerLevel level_server, ServerPlayer player_server) {
+    public static void openByPage (ServerLevel level_server, ServerPlayer player_server, int page) {
 
-        int page = (int) NBTManager.Mob.getNumber(player_server, "book", "page");
+        String name = GUIManager.getNameFromNumber("book", page);
 
-        if (page == 0) {
+        if (name.isEmpty() == true) {
 
-            page = 1;
-            NBTManager.Mob.setNumber(player_server, "book", "page", page, false);
+            return;
 
         }
 
-        GUIManager.open(player_server, "entity", page);
-        GameUtils.playSound(level_server, player_server.position(), (Math.random() * 0.5) + 0.25, 20, "minecraft:item.book.page_turn");
+        NBTManager.Mob.setNumber(player_server, "book", "page", page, true);
+        GameUtils.playSound(level_server, player_server.position(), (Math.random() * 0.5) + 0.25, 10, "minecraft:item.book.page_turn");
+        GUIManager.open(player_server, "entity", "book", name);
 
     }
 
-    public static void pageTurn (ServerLevel level_server, ServerPlayer player_server, boolean is_next) {
+    public static void openByName (ServerLevel level_server, ServerPlayer player_server, String name) {
 
-        int page = (int) NBTManager.Mob.getNumber(player_server, "book", "page");
+        int page = GUIManager.getNumberFromName("book", name);
+        openByPage(level_server, player_server, page);
 
-        if (is_next == true) {
+    }
 
-            page = page + 1;
+    public static void close (ServerPlayer player_server) {
 
-        } else {
+        GameUtils.playSound((ServerLevel) player_server.level(), player_server.position(), (Math.random() * 0.5) + 0.25, 20, "minecraft:item.book.page_turn");
+        GUIManager.close(player_server);
 
-            if (page - 1 <= 0) {
+    }
 
-                return;
+    public static void pageTurnPrevious (ServerLevel level_server, ServerPlayer player_server) {
 
-            }
+        openByPage(level_server, player_server, Book.getCurrentPageNumber(player_server) - 1);
 
-            page = page - 1;
+    }
 
-        }
+    public static void pageTurnNext (ServerLevel level_server, ServerPlayer player_server) {
 
-        NBTManager.Mob.setNumber(player_server, "book", "page", page, false);
-        GUIManager.open(player_server, "entity", page);
-        GameUtils.playSound(level_server, player_server.position(), (Math.random() * 0.5) + 0.25, 20, "minecraft:item.book.page_turn");
+        openByPage(level_server, player_server, Book.getCurrentPageNumber(player_server) + 1);
+
+    }
+
+    public static int getCurrentPageNumber (Player player) {
+
+        return (int) NBTManager.Mob.getNumber(player, "book", "page");
+
+    }
+
+    public static String getCurrentPageName (Player player) {
+
+        return GUIManager.getNameFromNumber("book", getCurrentPageNumber(player));
 
     }
 
@@ -151,20 +169,13 @@ public class Book {
             // Fly Follow
             {
 
-                double stayX = NBTManager.Mob.getNumber(entity_book, "main", "stayX");
-                double stayY = NBTManager.Mob.getNumber(entity_book, "main", "stayY");
-                double stayZ = NBTManager.Mob.getNumber(entity_book, "main", "stayZ");
-                boolean is_follow = stayX == 0 && stayY == 0 && stayZ == 0;
-                Vec3 vec3 = null;
+                Vec3 vec3 = getStayPosition(entity_book);
+                boolean is_follow = vec3.x == 0 && vec3.y == 0 && vec3.z == 0;
 
                 if (is_follow == true) {
 
                     vec3 = EntityManager.getPosLook(player_server, 1.25, 0, 1.25);
                     vec3 = new Vec3(vec3.x, player_server.getEyeY() + 0.75, vec3.z);
-
-                } else {
-
-                    vec3 = new Vec3(stayX, stayY, stayZ);
 
                 }
 
@@ -174,13 +185,21 @@ public class Book {
 
                     entity_book.setPos(EntityManager.getPosRayWithDistance(entity_book, vec3, MOVE_SPEED, false));
 
-                } else if (is_follow == false && entity_book.getX() != stayX && entity_book.getZ() != stayZ) {
+                } else {
 
-                    entity_book.setPos(vec3);
+                    if (is_follow == false) {
 
-                    if (level_server.getBlockState(entity_book.blockPosition()).isAir() == true) {
+                        if (entity_book.getX() != vec3.x && entity_book.getZ() != vec3.z) {
 
-                        BlockManager.placeNormal(level_server, entity_book.blockPosition(), BlockManager.setPropertyNumber(Blocks.LIGHT.defaultBlockState(), "level", 10));
+                            entity_book.setPos(vec3);
+
+                            if (level_server.getBlockState(entity_book.blockPosition()).isAir() == true) {
+
+                                BlockManager.placeNormal(level_server, entity_book.blockPosition(), BlockManager.setPropertyNumber(Blocks.LIGHT.defaultBlockState(), "level", 10));
+
+                            }
+
+                        }
 
                     }
 
@@ -216,23 +235,20 @@ public class Book {
 
             }
 
+            int delay = (int) NBTManager.Mob.getNumber(entity_book, "main", "open_delay");
             String custom_look_target = NBTManager.Mob.getText(entity_book, "main", "custom_look_target");
 
             if (isUserLookAt(player_server, entity_book) == true || custom_look_target.isEmpty() == false) {
 
-                if (NBTManager.Mob.getLogic(entity_book, "main", "is_focus") == false) {
+                if (delay > 0) {
 
-                    int delay = (int) NBTManager.Mob.getNumber(entity_book, "main", "delay_open");
+                    delay = delay - 1;
+                    NBTManager.Mob.setNumber(entity_book, "main", "open_delay", delay, false);
 
-                    if (delay > 1) {
+                    if (delay == 0) {
 
-                        NBTManager.Mob.setNumber(entity_book, "main", "delay_open", delay - 1, false);
-
-                    } else {
-
-                        NBTManager.Mob.setLogic(entity_book, "main", "is_focus", true, false);
                         DisplayManager.setItemID(entity_book, "tanscomplexmagic:user_book_open");
-                        GameUtils.playSound(level_server, entity_book.position(), (Math.random() * 0.5) + 0.25, 20, "minecraft:item.book.page_turn");
+                        GameUtils.playSound(level_server, entity_book.position(), (Math.random() * 0.5) + 0.25, 10, "minecraft:item.book.page_turn");
 
                     }
 
@@ -266,15 +282,18 @@ public class Book {
 
             } else {
 
-                if (NBTManager.Mob.getLogic(entity_book, "main", "is_focus") == true) {
+                if (delay != 20) {
 
-                    NBTManager.Mob.setLogic(entity_book, "main", "is_focus", false, false);
-                    NBTManager.Mob.setNumber(entity_book, "main", "delay_open", 20, false);
+                    if (delay == 0) {
+
+                        DisplayManager.setItemID(entity_book, "tanscomplexmagic:user_book");
+                        GameUtils.playSound(level_server, entity_book.position(), (Math.random() * 0.5) + 0.25, 10, "minecraft:block.wood.break");
+
+                    }
 
                     entity_book.setXRot(0);
                     entity_book.setYRot((float) (Math.random() * 360));
-                    DisplayManager.setItemID(entity_book, "tanscomplexmagic:user_book");
-                    GameUtils.playSound(level_server, entity_book.position(), (Math.random() * 0.5) + 0.25, 20, "minecraft:block.wood.break");
+                    NBTManager.Mob.setNumber(entity_book, "main", "open_delay", 20, false);
 
                 }
 
@@ -286,13 +305,25 @@ public class Book {
 
         public static Entity get (ServerLevel level_server, ServerPlayer player_server) {
 
-            return EntityManager.Population.getEverywhereOneStatic(level_server, "", "", Utils.Tag.convertSystemSpecific(player_server, new String[]{"flying_user_book"}));
+            return EntityManager.Population.getEverywhereOneStatic(level_server, "", "", Utils.Tag.convertSystem(player_server, new String[]{"flying_user_book"}));
 
         }
 
         private static void place (ServerLevel level_server, ServerPlayer player_server, Vec3 vec3) {
 
-            Entity entity_book = DisplayManager.summonItem(level_server, vec3, (int) (Math.random() * 360), 0, 1, true, "Flying User Book", Utils.Tag.convertSystemSpecific(player_server, new String[]{"flying_user_book"}), "tanscomplexmagic:user_book");
+            if (Utils.isUser(player_server) == false) {
+
+                return;
+
+            }
+
+            if (level_server.getBlockState(BlockPos.containing(vec3)).canBeReplaced() == false) {
+
+                return;
+
+            }
+
+            Entity entity_book = DisplayManager.summonItem(level_server, vec3, (int) (Math.random() * 360), 0, 1, true, "Flying User Book", Utils.Tag.convertSystem(player_server, new String[]{"flying_user_book"}), "tanscomplexmagic:user_book");
 
             if (entity_book == null) {
 
@@ -300,69 +331,23 @@ public class Book {
 
             }
 
-            if (trySetStay(level_server, entity_book, vec3) == false) {
+            setStay(level_server, player_server, entity_book, vec3);
 
-                return;
-
-            }
-
-            double stayX = NBTManager.Mob.getNumber(entity_book, "main", "stayX");
-            double stayY = NBTManager.Mob.getNumber(entity_book, "main", "stayY");
-            double stayZ = NBTManager.Mob.getNumber(entity_book, "main", "stayZ");
-            entity_book.setPos(stayX, stayY, stayZ);
-
+            vec3 = getStayPosition(entity_book);
+            entity_book.setPos(vec3);
             BlockManager.placeNormal(level_server, entity_book.blockPosition(), BlockManager.setPropertyNumber(Blocks.LIGHT.defaultBlockState(), "level", 10));
-            NBTManager.Mob.setNumber(entity_book, "main", "delay_open", 20, false);
+            NBTManager.Mob.setNumber(entity_book, "main", "open_delay", 20, false);
             player_server.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
 
         }
 
-        public static boolean trySetStay( ServerLevel level_server, Entity entity_book, Vec3 vec3) {
+        public static void pickup (ServerLevel level_server, ServerPlayer player_server) {
 
-            BlockPos pos = BlockPos.containing(vec3);
-            vec3 = pos.getCenter();
-
-            if (level_server.getBlockState(pos.below()).canBeReplaced() == true) {
-
-                NBTManager.Mob.setNumber(entity_book, "main", "stayX", vec3.x, false);
-                NBTManager.Mob.setNumber(entity_book, "main", "stayY",  vec3.y, false);
-                NBTManager.Mob.setNumber(entity_book, "main", "stayZ",  vec3.z, false);
-
-            } else {
-
-                if (level_server.getBlockState(pos.above()).canBeReplaced() == false) {
-
-                    return false;
-
-                }
-
-                NBTManager.Mob.setNumber(entity_book, "main", "stayX", vec3.x, false);
-                NBTManager.Mob.setNumber(entity_book, "main", "stayY",  vec3.y + 0.8, false);
-                NBTManager.Mob.setNumber(entity_book, "main", "stayZ",  vec3.z, false);
-
-            }
-
-            return true;
-
-        }
-
-        public static void setFollow (ServerLevel level_server, Entity entity_book) {
-
-            NBTManager.Mob.setNumber(entity_book, "main", "stayX", 0, false);
-            NBTManager.Mob.setNumber(entity_book, "main", "stayY", 0, false);
-            NBTManager.Mob.setNumber(entity_book, "main", "stayZ", 0, false);
-
-            if (level_server.getBlockState(entity_book.blockPosition()).getBlock() != Blocks.LIGHT) {
+            if (Utils.isUser(player_server) == false) {
 
                 return;
 
             }
-
-            BlockManager.removeNormal(level_server, entity_book.blockPosition());
-
-        }
-
-        public static void pickup (ServerLevel level_server, ServerPlayer player_server) {
 
             ItemManager.removeFromBody(player_server, TanscomplexmagicModItems.USER_BOOK.asItem());
             ItemManager.removeFromBody(player_server, TanscomplexmagicModItems.USER_BOOK_OPEN.asItem());
@@ -413,6 +398,73 @@ public class Book {
 
         }
 
+        public static Vec3 getStayPosition (Entity entity_book) {
+
+            double stayX = NBTManager.Mob.getNumber(entity_book, "main", "stayX");
+            double stayY = NBTManager.Mob.getNumber(entity_book, "main", "stayY");
+            double stayZ = NBTManager.Mob.getNumber(entity_book, "main", "stayZ");
+            return new Vec3(stayX, stayY, stayZ);
+
+        }
+
+        public static void setStay (ServerLevel level_server, ServerPlayer player_server, Entity entity_book, Vec3 vec3) {
+
+            BlockPos pos = BlockPos.containing(vec3);
+
+            if (level_server.getBlockState(pos).canBeReplaced() == false) {
+
+                if (level_server.getBlockState(pos.above()).canBeReplaced() == true) {
+
+                    pos = pos.above();
+
+                } else if (level_server.getBlockState(pos.below()).canBeReplaced() == true) {
+
+                    pos = pos.below();
+
+                } else {
+
+                    return;
+
+                }
+
+            }
+
+            vec3 = pos.getCenter();
+
+            if (level_server.getBlockState(pos.below()).canBeReplaced() == false && level_server.getBlockState(pos.above()).canBeReplaced() == true) {
+
+                vec3 = vec3.add(0, 0.8, 0);
+
+            }
+
+            NBTManager.Mob.setNumber(entity_book, "main", "stayX", vec3.x, false);
+            NBTManager.Mob.setNumber(entity_book, "main", "stayY",  vec3.y, false);
+            NBTManager.Mob.setNumber(entity_book, "main", "stayZ",  vec3.z, false);
+
+            GameUtils.spawnParticle(level_server, vec3, 0, 0, 0, 0, 1, "tanscomplexmagic:book_stay_mark");
+            GameUtils.playSound(level_server, vec3, 1, 20, "minecraft:block.amethyst_block.resonate");
+            GameUtils.playSound(level_server, player_server.position(), 1, 20, "minecraft:block.amethyst_block.resonate");
+
+        }
+
+        public static void setFollow (ServerLevel level_server, ServerPlayer player_server, Entity entity_book) {
+
+            NBTManager.Mob.setNumber(entity_book, "main", "stayX", 0, false);
+            NBTManager.Mob.setNumber(entity_book, "main", "stayY",  0, false);
+            NBTManager.Mob.setNumber(entity_book, "main", "stayZ",  0, false);
+
+            GameUtils.playSound(level_server, player_server.position(), 0, 20, "minecraft:block.amethyst_block.resonate");
+
+            if (level_server.getBlockState(entity_book.blockPosition()).getBlock() != Blocks.LIGHT) {
+
+                return;
+
+            }
+
+            BlockManager.removeNormal(level_server, entity_book.blockPosition());
+
+        }
+
         public static void setCustomLookTarget (Entity entity_book, Entity entity_target) {
 
             String uuid = "";
@@ -424,7 +476,7 @@ public class Book {
             }
 
             NBTManager.Mob.setText(entity_book, "main", "custom_look_target", uuid, false);
-            
+
         }
 
         public static boolean isUserLookAt (ServerPlayer player_server, Entity entity_book) {
@@ -438,7 +490,7 @@ public class Book {
             return DisplayManager.getItemID(entity_book).equals("tanscomplexmagic:user_book_open") == true;
 
         }
-        
+
     }
 
     public static class TextDisplay {
@@ -613,7 +665,7 @@ public class Book {
                 return "";
 
             }
-            
+
             if (mode.startsWith("Nearby Enemy Non-Player (") == true) {
 
                 {
@@ -708,6 +760,45 @@ public class Book {
             }
 
             return "§c" + text;
+
+        }
+
+    }
+
+    public static class CustomPageFlag {
+
+        public static String getName (Player player, int number) {
+
+            return NBTManager.Mob.getText(player, "book", "custom_page_flag" + number);
+
+        }
+
+        public static void set (ServerPlayer player_server, int number, String page) {
+
+            NBTManager.Mob.setText(player_server, "book", "custom_page_flag" + number, page, true);
+
+        }
+
+        public static void go (ServerLevel level_server, ServerPlayer player_server, int number) {
+
+            openByName(level_server, player_server, getName(player_server, number));
+
+        }
+
+    }
+
+    public static class CustomCompass {
+
+        public static Vec3 getCustom (Player player) {
+
+            return new Vec3(NBTManager.Mob.getNumber(player, "book", "custom_compassX"), 0, NBTManager.Mob.getNumber(player, "book", "compassZ"));
+
+        }
+
+        public static void setCustom (ServerPlayer player_server) {
+
+            NBTManager.Mob.setNumber(player_server, "book", "custom_compassX", Math.floor(player_server.getX()) + 0.5, true);
+            NBTManager.Mob.setNumber(player_server, "book", "custom_compassZ", Math.floor(player_server.getZ()) + 0.5, true);
 
         }
 

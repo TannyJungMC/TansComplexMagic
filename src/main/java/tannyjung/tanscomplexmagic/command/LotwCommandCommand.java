@@ -2,8 +2,6 @@ package tannyjung.tanscomplexmagic.command;
 
 import tannyjung.tanscomplexmagic.procedures.Spell4commandShootNearestProcedure;
 
-import org.checkerframework.checker.units.qual.s;
-
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.common.util.FakePlayerFactory;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -19,7 +17,7 @@ import net.minecraft.commands.Commands;
 public class LotwCommandCommand {
 	@SubscribeEvent
 	public static void registerCommand(RegisterCommandsEvent event) {
-		event.getDispatcher().register(Commands.literal("lanternofthewoodlands").requires(s -> s.hasPermission(2)).then(Commands.literal("spell4").then(Commands.literal("shoot_nearest").executes(arguments -> {
+		event.getDispatcher().register(Commands.literal("lanternofthewoodlands").requires(source -> source.hasPermission(2)).then(Commands.literal("spell4").then(Commands.literal("shoot_nearest").executes(arguments -> {
 			Level world = arguments.getSource().getUnsidedLevel();
 			double x = arguments.getSource().getPosition().x();
 			double y = arguments.getSource().getPosition().y();

@@ -2,8 +2,6 @@ package tannyjung.tanscomplexmagic.procedures;
 
 import tannyjung.tanscomplexmagic.network.TanscomplexmagicModVariables;
 
-import org.checkerframework.checker.units.qual.s;
-
 import net.minecraft.world.entity.Entity;
 
 public class GUIreturnPageRightProcedure {

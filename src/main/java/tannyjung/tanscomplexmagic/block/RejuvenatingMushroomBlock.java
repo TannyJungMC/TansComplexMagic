@@ -4,8 +4,6 @@ import tannyjung.tanscomplexmagic.procedures.RejuvenatingMushroomTickProcedure;
 import tannyjung.tanscomplexmagic.procedures.RejuvenatingMushroomRunProcedure;
 import tannyjung.tanscomplexmagic.block.entity.RejuvenatingMushroomBlockEntity;
 
-import org.checkerframework.checker.units.qual.s;
-
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -27,29 +25,20 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.core.BlockPos;
 
 public class RejuvenatingMushroomBlock extends Block implements EntityBlock {
+	private static final VoxelShape SHAPE = box(6, 0, 6, 10, 4, 10);
+
 	public RejuvenatingMushroomBlock() {
-		super(BlockBehaviour.Properties.of().sound(SoundType.GRASS).strength(1f, 10f).lightLevel(s -> 5).noCollission().noOcclusion().hasPostProcess((bs, br, bp) -> true).emissiveRendering((bs, br, bp) -> true)
-				.isRedstoneConductor((bs, br, bp) -> false));
+		super(BlockBehaviour.Properties.of().sound(SoundType.GRASS).strength(1f, 10f).lightLevel(blockstate -> 5).noCollission().hasPostProcess((bs, br, bp) -> true).emissiveRendering((bs, br, bp) -> true).isRedstoneConductor((bs, br, bp) -> false));
 	}
 
 	@Override
-	public boolean propagatesSkylightDown(BlockState state, BlockGetter reader, BlockPos pos) {
-		return true;
-	}
-
-	@Override
-	public int getLightBlock(BlockState state, BlockGetter worldIn, BlockPos pos) {
-		return 0;
+	public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+		return SHAPE;
 	}
 
 	@Override
 	public VoxelShape getVisualShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
 		return Shapes.empty();
-	}
-
-	@Override
-	public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
-		return box(6, 0, 6, 10, 4, 10);
 	}
 
 	@Override

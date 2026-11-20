@@ -4,6 +4,7 @@
 package tannyjung.tanscomplexmagic.init;
 
 import tannyjung.tanscomplexmagic.client.particle.ParticleFireballWhiteParticle;
+import tannyjung.tanscomplexmagic.client.particle.BookStayMarkParticle;
 
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -15,5 +16,6 @@ public class TanscomplexmagicModParticles {
 	@SubscribeEvent
 	public static void registerParticles(RegisterParticleProvidersEvent event) {
 		event.registerSpriteSet(TanscomplexmagicModParticleTypes.PARTICLE_FIREBALL_WHITE.get(), ParticleFireballWhiteParticle::provider);
+		event.registerSpriteSet(TanscomplexmagicModParticleTypes.BOOK_STAY_MARK.get(), BookStayMarkParticle::provider);
 	}
 }

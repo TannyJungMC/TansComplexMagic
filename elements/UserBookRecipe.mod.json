@@ -1,5 +1,5 @@
 {
-  "_fv": 79,
+  "_fv": 89,
   "_type": "recipe",
   "definition": {
     "recipeType": "Crafting",
@@ -12,37 +12,17 @@
     "craftingBookCategory": "EQUIPMENT",
     "recipeShapeless": true,
     "recipeSlots": [
-      {
-        "value": "Blocks.SAPLING#0"
-      },
-      {
-        "value": "Blocks.CHERRY_SAPLING"
-      },
-      {
-        "value": "Blocks.SAPLING#3"
-      },
-      {
-        "value": "Blocks.SAPLING#1"
-      },
-      {
-        "value": "Items.WRITABLE_BOOK"
-      },
-      {
-        "value": "Blocks.SAPLING#4"
-      },
-      {
-        "value": "Blocks.SAPLING#2"
-      },
-      {
-        "value": "Blocks.FLOWERING_AZALEA"
-      },
-      {
-        "value": "Blocks.SAPLING#5"
-      }
+      "Blocks.SAPLING#0",
+      "Blocks.CHERRY_SAPLING",
+      "Blocks.SAPLING#3",
+      "Blocks.SAPLING#1",
+      "Items.WRITABLE_BOOK",
+      "Blocks.SAPLING#4",
+      "Blocks.SAPLING#2",
+      "Blocks.FLOWERING_AZALEA",
+      "Blocks.SAPLING#5"
     ],
-    "recipeReturnStack": {
-      "value": "CUSTOM:UserBook"
-    },
+    "recipeReturnStack": "CUSTOM:UserBook",
     "name": "user_book",
     "namespace": "mod"
   }

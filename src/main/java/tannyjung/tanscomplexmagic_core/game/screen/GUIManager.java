@@ -27,31 +27,46 @@ public class GUIManager {
 
     public static final DeferredRegister<MenuType<?>> register = DeferredRegister.create(Registries.MENU, Core.mod_id);
     public static final DeferredHolder<MenuType<?>, MenuType<GUIContainer>> gui = register.register("gui", () -> IMenuTypeExtension.create(GUIContainer::new));
-
-    private static final LinkedHashMap<Integer, Runnable> guis = new LinkedHashMap<>();
     public static final List<ServerPlayer> server_player_watching = new ArrayList<>();
-    public static int client_current_id = 0;
     public static boolean server_refresh = false;
 
-    public static void add (Runnable runnable) {
+    private static final Map<String, Map<String, Runnable>> guis = new HashMap<>();
+    private static final Map<String, Map<String, Integer>> index_name_number = new HashMap<>();
+    private static final Map<String, Map<Integer, String>> index_name_text = new HashMap<>();
 
-        guis.put(guis.size() + 1, runnable);
+    public record Index (String category, String name) {
+
+        public Index {
+
+            int number = index_name_number.getOrDefault(category, new HashMap<>()).size() + 1;
+            index_name_number.computeIfAbsent(category, create -> new HashMap<>()).put(name, number);
+            index_name_text.computeIfAbsent(category, create -> new HashMap<>()).put(number, name);
+
+        }
 
     }
 
-    public static void draw (int id) {
+    public static void register (Index index, Runnable runnable) {
 
-        if (guis.isEmpty() == true) {
+        guis.computeIfAbsent(index.category, create -> new HashMap<>()).put(index.name, runnable);
+
+    }
+
+    public static void draw (String category, String name) {
+
+        Map<String, Runnable> map = guis.get(category);
+
+        if (map == null) {
 
             return;
 
         }
 
-        Runnable runnable = guis.get(id);
+        Runnable runnable = map.get(name);
 
         if (runnable == null) {
 
-            runnable = guis.get(guis.size());
+            return;
 
         }
 
@@ -59,7 +74,7 @@ public class GUIManager {
 
     }
 
-    public static void open (ServerPlayer player_server, String nbt_type, int id) {
+    public static void open (ServerPlayer player_server, String nbt_type, String category, String name) {
 
         MenuProvider provider = new MenuProvider() {
 
@@ -86,21 +101,72 @@ public class GUIManager {
 
         };
 
-        if (NBTManager.Mob.getNumber(player_server, "gui", "id") == 0) {
+        if (GUIManager.getCurrentName(player_server).isEmpty() == true) {
 
             server_player_watching.add(player_server);
 
         }
 
+        NBTManager.Mob.setText(player_server, "gui", "category", category, true);
+        NBTManager.Mob.setText(player_server, "gui", "name", name, true);
         NBTManager.Mob.setText(player_server, "gui", "nbt_type", nbt_type, true);
-        NBTManager.Mob.setNumber(player_server, "gui", "id", id, true);
         player_server.openMenu(provider, player_server.blockPosition());
 
     }
 
-    public static void close (Player player) {
+    public static void close (ServerPlayer player_server) {
 
-        player.closeContainer();
+        player_server.closeContainer();
+        GUIManager.server_player_watching.remove(player_server);
+        NBTManager.Mob.setText(player_server, "gui", "category", "", true);
+        NBTManager.Mob.setText(player_server, "gui", "name", "", true);
+        NBTManager.Mob.setText(player_server, "gui", "nbt_type", "", true);
+
+    }
+
+    public static String getCurrentCategory (Player player) {
+
+        return NBTManager.Mob.getText(player, "gui", "category");
+
+    }
+
+    public static String getCurrentName (Player player) {
+
+        return NBTManager.Mob.getText(player, "gui", "name");
+
+    }
+
+    public static String getCurrentNBTType (Player player) {
+
+        return NBTManager.Mob.getText(player, "gui", "nbt_type");
+
+    }
+
+    public static int getNumberFromName (String category, String name) {
+
+        Map<String, Integer> map = index_name_number.get(category);
+
+        if (map == null) {
+
+            return 0;
+
+        }
+
+        return map.get(name);
+
+    }
+
+    public static String getNameFromNumber (String category, int number) {
+
+        Map<Integer, String> map = index_name_text.get(category);
+
+        if (map == null) {
+
+            return "";
+
+        }
+
+        return Objects.requireNonNullElse(map.get(number), "");
 
     }
 

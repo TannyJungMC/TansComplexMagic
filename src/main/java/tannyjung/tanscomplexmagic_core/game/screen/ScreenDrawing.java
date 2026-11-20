@@ -10,7 +10,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import tannyjung.tanscomplexmagic_core.Core;
-import tannyjung.tanscomplexmagic_core.game.NBTManager;
 import tannyjung.tanscomplexmagic_core.outside.NetworkManager;
 import tannyjung.tanscomplexmagic_core.outside.OutsideUtils;
 
@@ -23,18 +22,18 @@ public class ScreenDrawing {
 
     public static final double NORMAL_FONT_SCALE = 0.67;
 
-    public static GUIScreen screen = null;
+    public static GUIScreen gui_screen = null;
     public static GuiGraphics graphic = null;
     public static LocalPlayer player_local = null;
     private static boolean refresh = false;
 
-    public static void setRefreshQueue () {
+    public static void setGUIRefreshQueue () {
 
         refresh = true;
 
     }
 
-    public static void refresh () {
+    public static void refreshGUI () {
 
         if (refresh == false) {
 
@@ -46,11 +45,15 @@ public class ScreenDrawing {
 
         }
 
-        int id = (int) NBTManager.Mob.getNumber(player_local, "gui", "id");
+        String category = GUIManager.getCurrentCategory(player_local);
+        String name = GUIManager.getCurrentName(player_local);
 
-        if (GUIManager.client_current_id != id) {
+        if (GUIScreen.current_category.equals(category) == false || GUIScreen.current_name.equals(name) == false) {
 
-            GUIManager.client_current_id = id;
+            GUIScreen.current_category = category;
+            GUIScreen.current_name = name;
+            GUIScreen.current_nbt_type = GUIManager.getCurrentNBTType(player_local);
+
             GUIScreen.Widget.removeAll();
 
             ComponentWidget.Shape.map.clear();
@@ -63,7 +66,7 @@ public class ScreenDrawing {
         }
 
         ComponentOverlay.Storage.clear();
-        GUIManager.draw(id);
+        GUIManager.draw(category, name);
 
     }
 
@@ -173,10 +176,10 @@ public class ScreenDrawing {
 
             Anchor.type = type;
 
-            if (screen != null) {
+            if (gui_screen != null) {
 
-                at_screenX = screen.width;
-                at_screenZ = screen.height;
+                at_screenX = gui_screen.width;
+                at_screenZ = gui_screen.height;
 
             }
 
@@ -205,49 +208,6 @@ public class ScreenDrawing {
                 at_graphicZ = at_graphicZ / 2;
 
             }
-
-        }
-
-        public static int[] getWindowPoint (int windowX, int windowZ, boolean is_top, boolean is_bottom, boolean is_left, boolean is_right) {
-
-            windowX = windowX / 2;
-            windowZ = windowZ / 2;
-
-            if (is_top == true && is_bottom == false) {
-
-                if (is_left == true && is_right == false) {
-
-                    return new int[]{-windowX, -windowZ};
-
-                } else if (is_left == false && is_right == true) {
-
-                    return new int[]{windowX, -windowZ};
-
-                } else {
-
-                    return new int[]{(int) (windowX * 1.5), (int) (windowZ * 1.5)};
-
-                }
-
-            }
-
-            return new int[]{0, 0};
-
-        }
-
-        public static int[] convertPosCenter (int centerX, int centerZ, int sizeX, int sizeZ) {
-
-            return new int[]{centerX - sizeX, centerZ - sizeZ};
-
-        }
-
-        private static int[] convertPosCenterText (int centerX, int centerZ, double scale, String text) {
-
-            int sizeX = Minecraft.getInstance().font.width(text) / 2;
-            int sizeZ = (Minecraft.getInstance().font.lineHeight - 1) / 2;
-            sizeX = (int) Math.round(sizeX * scale);
-            sizeZ = (int) Math.round(sizeZ * scale);
-            return Anchor.convertPosCenter(centerX, centerZ, sizeX, sizeZ);
 
         }
 
@@ -338,33 +298,53 @@ public class ScreenDrawing {
 
         }
 
-        private static void drawTextCentered (boolean is_only_vertical, double scale, boolean shadow, String text) {
+        private static void drawTextCentered (boolean is_side, boolean is_side_left, boolean have_shadow, double scale, String text) {
 
             int posX = Position.posX;
-            int posZ = Position.posZ;
-            int[] pos_convert = Anchor.convertPosCenterText(posX, posZ, scale, text);
+            int posZ = Position.posZ - (int) Math.round(((Minecraft.getInstance().font.lineHeight - 1) * scale) / 2.0);
+            int sizeX = (int) Math.round(Minecraft.getInstance().font.width(text) * scale);
 
-            if (is_only_vertical == true) {
+            if (is_side == true) {
+                
+                if (is_side_left == false) {
 
-                pos_convert[0] = posX;
+                    posX = posX - sizeX;
+                    
+                }
 
+            } else {
+                
+                posX = posX - (int) Math.round(sizeX / 2.0);
+                
             }
 
-            Position.set(Anchor.type, pos_convert[0], pos_convert[1]);
-            Storage.addText(scale, shadow, text);
+            Position.set(Anchor.type, posX, posZ);
+            Storage.addText(scale, have_shadow, text);
             Position.addZ((int) Math.round(8 * scale));
 
         }
 
-        public static void drawTextCenteredBasic (boolean is_only_vertical, double scale, String text) {
+        public static void drawTextCenteredBasic (double scale, String text) {
 
-            drawTextCentered(is_only_vertical, scale, false, text);
+            drawTextCentered(false, false, false, scale, text);
 
         }
 
-        public static void drawTextCenteredShadow (boolean is_only_vertical, double scale, String text) {
+        public static void drawTextCenteredBasicWithShadow (double scale, String text) {
 
-            drawTextCentered(is_only_vertical, scale, true, text);
+            drawTextCentered(false, false, true, scale, text);
+
+        }
+
+        public static void drawTextCenteredSideLeft (double scale, String text) {
+
+            drawTextCentered(true, false, false, scale, text);
+
+        }
+
+        public static void drawTextCenteredSideRight (double scale, String text) {
+
+            drawTextCentered(true, true, false, scale, text);
 
         }
 
@@ -556,7 +536,7 @@ public class ScreenDrawing {
                 int posX = Position.posX;
                 int posZ = Position.posZ;
 
-                if (screen == null) {
+                if (gui_screen == null) {
 
                     drawText(scale, shadow, text);
 
@@ -573,7 +553,7 @@ public class ScreenDrawing {
                 int posX = Position.posX;
                 int posZ = Position.posZ;
 
-                if (screen == null) {
+                if (gui_screen == null) {
 
                     drawImage(overall_sizeX, overall_sizeZ, slideX, slideZ, split_sizeX, split_sizeZ, path);
 
@@ -663,7 +643,7 @@ public class ScreenDrawing {
                     int posX = Position.posX;
                     int posZ = Position.posZ;
                     Position.add(length / 2, -5);
-                    ComponentOverlay.drawTextCenteredShadow(false, NORMAL_FONT_SCALE, text);
+                    ComponentOverlay.drawTextCenteredBasicWithShadow(NORMAL_FONT_SCALE, text);
                     Position.set(Anchor.type, posX, posZ);
 
                 }
@@ -704,7 +684,7 @@ public class ScreenDrawing {
                     }) {
 
                         @Override
-                        public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
+                        public void renderWidget (GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
 
                             int offsetX = 0;
                             int offsetZ = 0;
@@ -813,7 +793,7 @@ public class ScreenDrawing {
                     if (is_lock == true) {
 
                         Position.add(9 + (box.getWidth() / 2), 15);
-                        ComponentOverlay.drawTextCenteredBasic(false, NORMAL_FONT_SCALE, text_lock);
+                        ComponentOverlay.drawTextCenteredBasic(NORMAL_FONT_SCALE, text_lock);
 
                     }
 
@@ -1133,7 +1113,7 @@ public class ScreenDrawing {
                         int posX = Position.posX;
                         int posZ = Position.posZ;
                         Position.add(16, -2);
-                        ComponentOverlay.drawTextCenteredBasic(true, NORMAL_FONT_SCALE, text);
+                        ComponentOverlay.drawTextCenteredSideRight(NORMAL_FONT_SCALE, text);
                         Position.set(Anchor.type, posX, posZ);
 
                     }
@@ -1225,7 +1205,7 @@ public class ScreenDrawing {
                         scanX = Position.posX;
                         scanZ = Position.posZ;
                         Position.add(10, -2);
-                        ComponentOverlay.drawTextCenteredBasic(true, NORMAL_FONT_SCALE, scan);
+                        ComponentOverlay.drawTextCenteredSideRight(NORMAL_FONT_SCALE, scan);
 
                     }
 
@@ -1268,7 +1248,7 @@ public class ScreenDrawing {
                 if (list.isEmpty() == true) {
 
                     Position.add(sizeX / 2, sizeZ / 2);
-                    ComponentOverlay.drawTextCenteredBasic(false, NORMAL_FONT_SCALE, "§fEmpty List");
+                    ComponentOverlay.drawTextCenteredBasic(NORMAL_FONT_SCALE, "§fEmpty List");
 
                 } else {
 

@@ -38,7 +38,7 @@ public class HandcodeNetwork {
 
                                 }
 
-                                Entity entity_book = EntityManager.Population.getEverywhereOneStatic(level_server, "", "", Utils.Tag.convertSystemSpecific(player_server, new String[]{"flying_user_book"}));
+                                Entity entity_book = EntityManager.Population.getEverywhereOneStatic(level_server, "", "", Utils.Tag.convertSystem(player_server, new String[]{"flying_user_book"}));
 
                                 if (entity_book != null) {
 
@@ -47,7 +47,7 @@ public class HandcodeNetwork {
 
                                         if (Book.Fly.isUserLookAt(player_server, entity_book) == true && Book.Fly.isModelOpen(entity_book) == true) {
 
-                                            Book.open(level_server, player_server);
+                                            Book.openByPage(level_server, player_server, Book.getCurrentPageNumber(player_server));
                                             return;
 
                                         }
@@ -80,26 +80,33 @@ public class HandcodeNetwork {
 
                                             }
 
-                                            double stayX = NBTManager.Mob.getNumber(entity_book, "main", "stayX");
-                                            double stayY = NBTManager.Mob.getNumber(entity_book, "main", "stayY");
-                                            double stayZ = NBTManager.Mob.getNumber(entity_book, "main", "stayZ");
+                                            Vec3 vec3 = Book.Fly.getStayPosition(entity_book);
 
-                                            if (stayX == 0 && stayY == 0 && stayZ == 0 == true) {
+                                            if (vec3.x == 0 && vec3.y == 0 && vec3.z == 0) {
 
-                                                Vec3 vec3 = EntityManager.getPosRayForward(player_server, Book.Fly.MAX_DISTANCE_SET_STAY, true);
-                                                Book.Fly.trySetStay(level_server, entity_book, vec3);
+                                                vec3 = EntityManager.getPosRayForward(player_server, Book.Fly.MAX_DISTANCE_SET_STAY, true);
 
                                             } else {
 
-                                                if (entity_book.getX() == stayX && entity_book.getZ() == stayZ) {
+                                                if (entity_book.getX() == vec3.x && entity_book.getZ() == vec3.z) {
 
-                                                    Book.Fly.setFollow(level_server, entity_book);
+                                                    vec3 = null;
 
                                                 } else {
 
-                                                    Book.Fly.trySetStay(level_server, entity_book, entity_book.position());
+                                                    vec3 = entity_book.position();
 
                                                 }
+
+                                            }
+
+                                            if (vec3 == null) {
+
+                                                Book.Fly.setFollow(level_server, player_server, entity_book);
+
+                                            } else {
+
+                                                Book.Fly.setStay(level_server, player_server, entity_book, vec3);
 
                                             }
 
@@ -127,87 +134,97 @@ public class HandcodeNetwork {
 
                     }
 
-                } else if (name.startsWith("spell1_") == true) {
+                } else {
 
-                    {
+                    if (Utils.isUser(player_server) == false) {
 
-                        if (name.equals("spell1_activate") == true) {
+                        return;
 
-                            {
+                    }
 
-                                if (NBTManager.Mob.getLogic(player_server, "spell1", "is_active") == false) {
+                    if (name.startsWith("spell1_") == true) {
 
-                                    NBTManager.Mob.setLogic(player_server, "spell1", "is_active", true, true);
-                                    Spell1.activate(level_server, player_server);
-                                    GameUtils.playSound(level_server, player_server.position(), 1.5, 20, "minecraft:block.note_block.chime");
+                        {
 
-                                    Core.DelayedWork.createBasic(3, () -> {
+                            if (name.equals("spell1_activate") == true) {
 
-                                        GameUtils.playSound(level_server, player_server.position(), 2, 20, "minecraft:block.note_block.chime");
+                                {
 
-                                    });
+                                    if (NBTManager.Mob.getLogic(player_server, "spell1", "is_active") == false) {
 
-                                } else {
+                                        NBTManager.Mob.setLogic(player_server, "spell1", "is_active", true, true);
+                                        Spell1.activate(level_server, player_server);
+                                        GameUtils.playSound(level_server, player_server.position(), 1.5, 20, "minecraft:block.note_block.chime");
 
-                                    NBTManager.Mob.setLogic(player_server, "spell1", "is_active", false, true);
-                                    Spell1.deactivate(level_server, player_server);
+                                        Core.DelayedWork.createBasic(3, () -> {
 
-                                    for (Entity entity : EntityManager.Population.getEverywhereStatic(level_server, "", "", Utils.Tag.convertSystemSpecific(player_server, new String[]{"spell1"}))) {
+                                            GameUtils.playSound(level_server, player_server.position(), 2, 20, "minecraft:block.note_block.chime");
 
-                                        entity.discard();
+                                        });
+
+                                    } else {
+
+                                        NBTManager.Mob.setLogic(player_server, "spell1", "is_active", false, true);
+                                        Spell1.deactivate(level_server, player_server);
+
+                                        for (Entity entity : EntityManager.Population.getEverywhereStatic(level_server, "", "", Utils.Tag.convertSystem(player_server, new String[]{"spell1"}))) {
+
+                                            entity.discard();
+
+                                        }
+
+                                        GameUtils.playSound(level_server, player_server.position(), 1, 20, "minecraft:block.note_block.chime");
+
+                                        Core.DelayedWork.createBasic(3, () -> {
+
+                                            GameUtils.playSound(level_server, player_server.position(), 0.5, 20, "minecraft:block.note_block.chime");
+
+                                        });
 
                                     }
 
-                                    GameUtils.playSound(level_server, player_server.position(), 1, 20, "minecraft:block.note_block.chime");
+                                }
 
-                                    Core.DelayedWork.createBasic(3, () -> {
+                            } else if (name.equals("spell1_pause_all") == true) {
 
-                                        GameUtils.playSound(level_server, player_server.position(), 0.5, 20, "minecraft:block.note_block.chime");
+                                {
 
-                                    });
+                                    boolean value = NBTManager.Mob.getLogic(player_server, "spell1", "is_pause_all") == false;
+                                    NBTManager.Mob.setLogic(player_server, "spell1", "is_pause_all", value, true);
+                                    double pitch = 0;
+
+                                    if (value == true) {
+
+                                        pitch = 1.25;
+
+                                    } else {
+
+                                        pitch = 1.75;
+
+                                    }
+
+                                    GameUtils.playSound(level_server, player_server.position(), pitch, 20, "minecraft:block.note_block.bell");
 
                                 }
 
-                            }
+                            } else if (name.startsWith("spell1_radius_") == true) {
 
-                        } else if (name.equals("spell1_pause_all") == true) {
+                                {
 
-                            {
+                                    if (name.equals("spell1_radius_stop") == true) {
 
-                                boolean value = NBTManager.Mob.getLogic(player_server, "spell1", "is_pause_all") == false;
-                                NBTManager.Mob.setLogic(player_server, "spell1", "is_pause_all", value, true);
-                                double pitch = 0;
+                                        NBTManager.Mob.setNumber(player_server, "spell1", "radius_key_control", 0, false);
+                                        NBTManager.Mob.setNumber(player_server, "spell1", "radius_key_control_tick", 0, false);
 
-                                if (value == true) {
+                                    } else if (name.equals("spell1_radius_increase") == true) {
 
-                                    pitch = 1.25;
+                                        NBTManager.Mob.setNumber(player_server, "spell1", "radius_key_control", 2, false);
 
-                                } else {
+                                    } else if (name.equals("spell1_radius_decrease") == true) {
 
-                                    pitch = 1.75;
+                                        NBTManager.Mob.setNumber(player_server, "spell1", "radius_key_control", 1, false);
 
-                                }
-
-                                GameUtils.playSound(level_server, player_server.position(), pitch, 20, "minecraft:block.note_block.bell");
-
-                            }
-
-                        } else if (name.startsWith("spell1_radius_") == true) {
-
-                            {
-
-                                if (name.equals("spell1_radius_stop") == true) {
-
-                                    NBTManager.Mob.setNumber(player_server, "spell1", "radius_key_control", 0, false);
-                                    NBTManager.Mob.setNumber(player_server, "spell1", "radius_key_control_tick", 0, false);
-
-                                } else if (name.equals("spell1_radius_increase") == true) {
-
-                                    NBTManager.Mob.setNumber(player_server, "spell1", "radius_key_control", 2, false);
-
-                                } else if (name.equals("spell1_radius_decrease") == true) {
-
-                                    NBTManager.Mob.setNumber(player_server, "spell1", "radius_key_control", 1, false);
+                                    }
 
                                 }
 
@@ -227,7 +244,21 @@ public class HandcodeNetwork {
 
                 if (name.equals("get_user") == true) {
 
-                    player_server.addTag(Utils.Tag.getUser(player_server));
+                    {
+
+                        String tag = Utils.Tag.getUser();
+
+                        if (player_server.getTags().contains(tag) == true) {
+
+                            player_server.removeTag(tag);
+
+                        } else {
+
+                            player_server.addTag(tag);
+
+                        }
+
+                    }
 
                 } else if (name.startsWith("book_") == true) {
 
@@ -235,60 +266,39 @@ public class HandcodeNetwork {
 
                         if (name.equals("book_close") == true) {
 
-                            {
-
-                                GameUtils.playSound((ServerLevel) player_server.level(), player_server.position(), (Math.random() * 0.5) + 0.25, 20, "minecraft:item.book.page_turn");
-                                GUIManager.close(player_server);
-
-                            }
+                            Book.close(player_server);
 
                         } else if (name.equals("book_page_previous") == true) {
 
-                            Book.pageTurn(level_server, player_server, false);
+                            Book.pageTurnPrevious(level_server, player_server);
 
                         } else if (name.equals("book_page_next") == true) {
 
-                            Book.pageTurn(level_server, player_server, true);
+                            Book.pageTurnNext(level_server, player_server);
 
                         } else if (name.equals("book_compass_custom_set") == true) {
 
-                            {
-
-                                NBTManager.Mob.setNumber(player_server, "book", "compassX", Math.floor(player_server.getX()) + 0.5, true);
-                                NBTManager.Mob.setNumber(player_server, "book", "compassZ", Math.floor(player_server.getZ()) + 0.5, true);
-
-                            }
+                            Book.CustomCompass.setCustom(player_server);
 
                         } else if (name.equals("book_text_display") == true) {
 
                             Book.TextDisplay.setType(level_server, player_server);
 
-                        } else if (name.startsWith("book_bookmark_") == true) {
+                        } else if (name.startsWith("book_page_flag") == true) {
 
                             {
 
-                                if (name.startsWith("book_bookmark_custom") == true) {
+                                if (name.startsWith("book_page_flag_custom") == true) {
 
                                     {
 
-                                        if (name.startsWith("book_bookmark_custom_set") == true) {
+                                        if (name.startsWith("book_page_flag_custom_set") == true) {
 
-                                            {
-
-                                                int number = Integer.parseInt(name.substring("book_bookmark_custom_set".length()));
-                                                NBTManager.Mob.setNumber(player_server, "book", "bookmark" + number, NBTManager.Mob.getNumber(player_server, "gui", "id"), true);
-
-                                            }
+                                            Book.CustomPageFlag.set(player_server, Integer.parseInt(name.substring("book_page_flag_custom_set".length())), Book.getCurrentPageName(player_server));
 
                                         } else {
 
-                                            {
-
-                                                int number = Integer.parseInt(name.substring("book_bookmark_custom".length()));
-                                                NBTManager.Mob.setNumber(player_server, "book", "page", NBTManager.Mob.getNumber(player_server, "book", "bookmark" + number), false);
-                                                Book.open(level_server, player_server);
-
-                                            }
+                                            Book.CustomPageFlag.go(level_server, player_server, Integer.parseInt(name.substring("book_page_flag_custom".length())));
 
                                         }
 
@@ -296,33 +306,7 @@ public class HandcodeNetwork {
 
                                 } else {
 
-                                    {
-
-                                        String mark_name = name.substring("book_bookmark_".length());
-                                        int page = 0;
-
-                                        if (mark_name.equals("home") == true) {
-
-                                            page = 1;
-
-                                        } else if (mark_name.equals("ally_list") == true) {
-
-                                            page = 2;
-
-                                        } else if (mark_name.equals("basic_spell") == true) {
-
-                                            page = 1;
-
-                                        } else if (mark_name.equals("spell1_settings") == true) {
-
-                                            page = 18;
-
-                                        }
-
-                                        NBTManager.Mob.setNumber(player_server, "book", "page", page, false);
-                                        Book.open(level_server, player_server);
-
-                                    }
+                                    Book.openByName(level_server, player_server, extra.getString("page_name"));
 
                                 }
 
@@ -348,7 +332,7 @@ public class HandcodeNetwork {
 
                                 if (Mana.spend(player_server, mana) == true) {
 
-                                    NBTManager.Mob.addNumber(player_server, "basic_spell1", "ammo_max", mana * 20, true);
+                                    NBTManager.Mob.addNumber(player_server, "basic_spell1", "ammo_max", mana * 10, true);
 
                                 }
 
@@ -362,7 +346,7 @@ public class HandcodeNetwork {
 
                                 if (Mana.spend(player_server, mana) == true) {
 
-                                    NBTManager.Mob.addNumber(player_server, "basic_spell2", "capacitor_max", mana * 300, true);
+                                    NBTManager.Mob.addNumber(player_server, "basic_spell2", "capacitor_max", mana * 180, true);
 
                                 }
 

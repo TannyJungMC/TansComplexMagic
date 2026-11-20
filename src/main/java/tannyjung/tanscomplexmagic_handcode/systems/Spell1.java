@@ -48,7 +48,7 @@ public class Spell1 {
 
         GameUtils.spawnParticle(level_server, pos.getCenter().add(0, -0.5, 0), 0, 0, 0, 1, 10, "minecraft:instant_effect");
 
-        Entity entity_center = EntityManager.summonSystem(level_server, pos.getCenter().add(0, -0.5, 0), false, "minecraft:marker", "Zodiac Center", Utils.Tag.convertSystemSpecific(player_server, new String[]{"spell1", "spell1_center"}), "");
+        Entity entity_center = EntityManager.summonSystem(level_server, pos.getCenter().add(0, -0.5, 0), false, "minecraft:marker", "Zodiac Center", Utils.Tag.convertSystem(player_server, new String[]{"spell1", "spell1_center"}), "");
 
         if (entity_center == null) {
 
@@ -68,7 +68,7 @@ public class Spell1 {
 
     public static void loopTick (ServerLevel level_server, ServerPlayer player_server) {
 
-        Entity entity_center = EntityManager.Population.getEverywhereOneStatic(level_server, "", "", Utils.Tag.convertSystemSpecific(player_server, new String[]{"spell1", "spell1_center"}));
+        Entity entity_center = EntityManager.Population.getEverywhereOneStatic(level_server, "", "", Utils.Tag.convertSystem(player_server, new String[]{"spell1", "spell1_center"}));
 
         if (entity_center == null) {
 
@@ -158,7 +158,7 @@ public class Spell1 {
 
         Empower.loopSecond(level_server, player_server);
 
-        Entity entity_center = EntityManager.Population.getEverywhereOneStatic(level_server, "", "", Utils.Tag.convertSystemSpecific(player_server, new String[]{"spell1", "spell1_center"}));
+        Entity entity_center = EntityManager.Population.getEverywhereOneStatic(level_server, "", "", Utils.Tag.convertSystem(player_server, new String[]{"spell1", "spell1_center"}));
 
         if (entity_center == null) {
 
@@ -240,7 +240,7 @@ public class Spell1 {
 
             removeAll(level_server, player_server);
 
-            Entity entity_center = EntityManager.Population.getEverywhereOneStatic(level_server, "", "", Utils.Tag.convertSystemSpecific(player_server, new String[]{"spell1", "spell1_center"}));
+            Entity entity_center = EntityManager.Population.getEverywhereOneStatic(level_server, "", "", Utils.Tag.convertSystem(player_server, new String[]{"spell1", "spell1_center"}));
 
             if (entity_center == null) {
 
@@ -299,7 +299,7 @@ public class Spell1 {
             for (int number : numbers) {
 
                 entity_center.setYRot((float) (entity_center.getYRot() + (360.0 / numbers.length)));
-                DisplayManager.summonItem(level_server, vec3, (int) (entity_center.getYRot() + 180), 90, 0, true, "Zodiac Card " + number, Utils.Tag.convertSystemSpecific(player_server, new String[]{"spell1", "spell1_card", "spell1_card" + number}), "tanscomplexmagic:zodiac_card_" + number);
+                DisplayManager.summonItem(level_server, vec3, (int) (entity_center.getYRot() + 180), 90, 0, true, "Zodiac Card " + number, Utils.Tag.convertSystem(player_server, new String[]{"spell1", "spell1_card", "spell1_card" + number}), "tanscomplexmagic:zodiac_card_" + number);
 
                 if (entity_center.getYRot() >= 360) {
 
@@ -341,7 +341,7 @@ public class Spell1 {
         private static void removeSpecific (ServerLevel level_server, ServerPlayer player_server, Entity entity_card, int card_number, double radius) {
 
             NBTManager.Mob.setText(player_server, "spell1", "card_status" + card_number, "", true);
-            NBTManager.Mob.setNumber(player_server, "spell1", "number_of_detected_targets" + card_number, 0, true);
+            NBTManager.Mob.setNumber(player_server, "spell1", "number_of_target_detected" + card_number, 0, true);
             NBTManager.Mob.setNumber(player_server, "spell1", "remaining_duration" + card_number, 0, true);
 
             GameUtils.spawnParticle(level_server, entity_card.position(), 0, 0, 0, 0, 1, "minecraft:flash");
@@ -377,7 +377,27 @@ public class Spell1 {
                 }
 
                 setPosition(player_server, entity_center, entry.getValue(), entry.getKey(), cards.size());
-                setPose(level_server, player_server, entity_center, entry.getValue(), entry.getKey(), cards.size());
+                setPose(level_server, player_server, entity_center, entry.getValue(), entry.getKey());
+
+                if (cards.size() == 1) {
+
+                    if (NBTManager.Mob.getLogic(player_server, "spell1", "is_reverse_rotation") == true) {
+
+                        entry.getValue().setYRot((float) (entry.getValue().getYRot() + 0.7));
+
+                    } else {
+
+                        entry.getValue().setYRot((float) (entry.getValue().getYRot() - 0.7));
+
+                    }
+
+                } else {
+
+                    float rotX_save = entry.getValue().getXRot();
+                    entry.getValue().lookAt(EntityAnchorArgument.Anchor.FEET, entity_center.position());
+                    entry.getValue().setXRot(rotX_save);
+
+                }
 
             }
 
@@ -401,11 +421,13 @@ public class Spell1 {
 
                 }
 
-                targets.put("ally_player", EntityManager.Population.filter(list, "minecraft:player", "", Utils.Tag.convertAlly(player_server)));
-                targets.put("ally_non_player", EntityManager.Population.filter(list, "!minecraft:player", "", Utils.Tag.convertAlly(player_server)));
-                targets.put("enemy_player", EntityManager.Population.filter(list, "minecraft:player", "", Utils.Tag.convertEnemy(player_server)));
-                targets.put("enemy_non_player", EntityManager.Population.filter(list, "!minecraft:player", "", Utils.Tag.convertEnemy(player_server)));
-                targets.put("mark", EntityManager.Population.filter(list, "", "", new String[]{Utils.Tag.getUser(player_server) + "_spell1_mark"}));
+                String[] tag_ally = new String[]{Utils.Tag.getAlly(player_server)};
+                String[] tag_enemy = new String[]{Utils.Tag.getEnemy(player_server)};
+                targets.put("ally_player", EntityManager.Population.filter(list, "minecraft:player", "", tag_ally));
+                targets.put("ally_non_player", EntityManager.Population.filter(list, "!minecraft:player", "", tag_ally));
+                targets.put("enemy_player", EntityManager.Population.filter(list, "minecraft:player", "", tag_enemy));
+                targets.put("enemy_non_player", EntityManager.Population.filter(list, "!minecraft:player", "", tag_enemy));
+                targets.put("mark", EntityManager.Population.filter(list, "", "", new String[]{Utils.Tag.getSystemUser(player_server, "spell1_mark")}));
 
             }
 
@@ -504,7 +526,7 @@ public class Spell1 {
 
                 is_high_power_mode = NBTManager.Mob.getLogic(player_server, "spell1", "is_card_high_power_mode" + number);
 
-                if (NBTManager.Mob.getText(player_server, "spell1", "card_status" + number).equals("effect") == true) {
+                if (NBTManager.Mob.getText(player_server, "spell1", "card_status" + number).equals("Distributing") == true) {
 
                     // Apply Effects
                     {
@@ -576,7 +598,7 @@ public class Spell1 {
 
                 }
 
-                NBTManager.Mob.setNumber(player_server, "spell1", "number_of_detected_targets" + number, target_sort.length, true);
+                NBTManager.Mob.setNumber(player_server, "spell1", "number_of_target_detected" + number, target_sort.length, true);
                 NBTManager.Mob.setNumber(player_server, "spell1", "remaining_duration" + number, remaining_duration, true);
 
             }
@@ -619,7 +641,7 @@ public class Spell1 {
 
             if (card_count > 1) {
 
-                if (status.equals("effect") == true) {
+                if (status.equals("Distributing") == true) {
 
                     far = radius;
 
@@ -635,19 +657,7 @@ public class Spell1 {
 
         }
 
-        private static void setPose (ServerLevel level_server, ServerPlayer player_server, Entity entity_center, Entity entity_card, int card_number, int card_count) {
-
-            if (card_count == 1) {
-
-                entity_card.setYRot((float) (entity_card.getYRot() - 0.25));
-
-            } else {
-
-                float rotX_save = entity_card.getXRot();
-                entity_card.lookAt(EntityAnchorArgument.Anchor.FEET, entity_center.position());
-                entity_card.setXRot(rotX_save);
-
-            }
+        private static void setPose (ServerLevel level_server, ServerPlayer player_server, Entity entity_center, Entity entity_card, int card_number) {
 
             int degree_set = testAvailableToActive(player_server, card_number);
 
@@ -659,12 +669,12 @@ public class Spell1 {
                     double radius = NBTManager.Mob.getNumber(player_server, "spell1", "radius");
                     boolean is_high_power_mode = NBTManager.Mob.getLogic(player_server, "spell1", "is_card_high_power_mode" + card_number);
 
-                    if (NBTManager.Mob.getText(player_server, "spell1", "card_status" + card_number).equals("flip") == false) {
+                    if (NBTManager.Mob.getText(player_server, "spell1", "card_status" + card_number).equals("Flipping") == false) {
 
                         // At Start of Flipping
                         {
 
-                            NBTManager.Mob.setText(player_server, "spell1", "card_status" + card_number, "flip", true);
+                            NBTManager.Mob.setText(player_server, "spell1", "card_status" + card_number, "Flipping", true);
                             GameUtils.playSound(level_server, entity_card.position(), (Math.random() * 0.5) + 0.5, radius * 4.0, "minecraft:block.ender_chest.open");
 
                         }
@@ -738,7 +748,7 @@ public class Spell1 {
 
                             } else {
 
-                                NBTManager.Mob.setText(player_server, "spell1", "card_status" + card_number, "effect", true);
+                                NBTManager.Mob.setText(player_server, "spell1", "card_status" + card_number, "Distributing", true);
 
                             }
 
@@ -811,7 +821,7 @@ public class Spell1 {
 
             for (int number = 1; number <= 13; number++) {
 
-                entity = EntityManager.Population.getEverywhereOneStatic(level_server, "", "", Utils.Tag.convertSystemSpecific(player_server, new String[]{"spell1_card" + number}));
+                entity = EntityManager.Population.getEverywhereOneStatic(level_server, "", "", Utils.Tag.convertSystem(player_server, new String[]{"spell1_card" + number}));
 
                 if (entity == null) {
 

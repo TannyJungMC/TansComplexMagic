@@ -20,7 +20,7 @@ public class KEYSpell4ShootRunProcedure {
 					if ((entity.getData(TanscomplexmagicModVariables.PLAYER_VARIABLES).spell4_mode).equals("Single Shot")) {
 						Spell4ShootNearestProcedure.execute(world, x, y, z, entity);
 					} else if ((entity.getData(TanscomplexmagicModVariables.PLAYER_VARIABLES).spell4_mode).equals("Multiple Shot")) {
-						for (int index0 = 0; index0 < 100; index0++) {
+						for (int _i1 = 0; _i1 < 100; _i1++) {
 							Spell4ShootNearestProcedure.execute(world, x, y, z, entity);
 						}
 					}

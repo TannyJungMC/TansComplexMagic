@@ -5,7 +5,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import tannyjung.tanscomplexmagic_core.game.NBTManager;
 import tannyjung.tanscomplexmagic_core.game.screen.GUIManager;
 import tannyjung.tanscomplexmagic_handcode.HandcodeNetwork;
 
@@ -27,14 +26,9 @@ public class NetworkBuiltInServer {
 
             {
 
-                if (name.equals("when_close") == true) {
+                if (name.equals("close") == true) {
 
-                    {
-
-                        GUIManager.server_player_watching.remove(player_server);
-                        NBTManager.Mob.setNumber(player_server, "gui", "id", 0, true);
-
-                    }
+                    GUIManager.close(player_server);
 
                 } else if (name.equals("switch") == true) {
 

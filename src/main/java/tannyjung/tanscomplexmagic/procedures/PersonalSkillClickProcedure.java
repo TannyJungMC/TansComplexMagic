@@ -3,8 +3,6 @@ package tannyjung.tanscomplexmagic.procedures;
 import tannyjung.tanscomplexmagic.network.TanscomplexmagicModVariables;
 import tannyjung.tanscomplexmagic.TanscomplexmagicMod;
 
-import org.checkerframework.checker.units.qual.s;
-
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.level.LevelAccessor;

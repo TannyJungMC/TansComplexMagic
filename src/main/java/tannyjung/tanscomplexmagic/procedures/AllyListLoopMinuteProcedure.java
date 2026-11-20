@@ -17,7 +17,7 @@ public class AllyListLoopMinuteProcedure {
 			return;
 		String id = "";
 		String chosen = "";
-		for (int index0 = 0; index0 < 3; index0++) {
+		for (int _i1 = 0; _i1 < 3; _i1++) {
 			if ((id).equals("")) {
 				id = entity.getData(TanscomplexmagicModVariables.PLAYER_VARIABLES).ally_list_auto1;
 			} else if ((id).equals(entity.getData(TanscomplexmagicModVariables.PLAYER_VARIABLES).ally_list_auto1)) {

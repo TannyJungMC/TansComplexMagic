@@ -25,7 +25,7 @@ public class Spell4GUIbuttonSwordActivateProcedure {
 		if (!(entity.getData(TanscomplexmagicModVariables.PLAYER_VARIABLES).user_DELETE_THIS).equals("") && entity.getData(TanscomplexmagicModVariables.PLAYER_VARIABLES).spell == 4) {
 			to_item = "sword";
 			type = 1;
-			for (int index0 = 0; index0 < 6; index0++) {
+			for (int _i1 = 0; _i1 < 6; _i1++) {
 				if (true) {
 					if (type == 1) {
 						from_item = "minecraft:wooden_sword";

@@ -28,10 +28,6 @@ public class TanscomplexmagicModItems {
 	public static final DeferredItem<Item> BOW_2;
 	public static final DeferredItem<Item> BOW_3;
 	public static final DeferredItem<Item> BOW_ARROW_SPAWN_EGG;
-	public static final DeferredItem<Item> LANTERN;
-	public static final DeferredItem<Item> LANTERN_1;
-	public static final DeferredItem<Item> LANTERN_2;
-	public static final DeferredItem<Item> LANTERN_3;
 	public static final DeferredItem<Item> ANCHOR;
 	public static final DeferredItem<Item> KNIGHT_SWORD;
 	public static final DeferredItem<Item> FORGOTTEN_SWORD;
@@ -50,7 +46,6 @@ public class TanscomplexmagicModItems {
 	public static final DeferredItem<Item> ZODIAC_CARD_12;
 	public static final DeferredItem<Item> ZODIAC_CARD_13;
 	public static final DeferredItem<Item> CREATIVE_MANA;
-	public static final DeferredItem<Item> LANTERN_MINI;
 	static {
 		TARGET_ARROW = block(TanscomplexmagicModBlocks.TARGET_ARROW);
 		USER_BOOK = REGISTRY.register("user_book", UserBookItem::new);
@@ -63,10 +58,6 @@ public class TanscomplexmagicModItems {
 		BOW_2 = REGISTRY.register("bow_2", Bow2Item::new);
 		BOW_3 = REGISTRY.register("bow_3", Bow3Item::new);
 		BOW_ARROW_SPAWN_EGG = REGISTRY.register("bow_arrow_spawn_egg", () -> new DeferredSpawnEggItem(TanscomplexmagicModEntities.BOW_ARROW, -1, -1, new Item.Properties()));
-		LANTERN = block(TanscomplexmagicModBlocks.LANTERN);
-		LANTERN_1 = block(TanscomplexmagicModBlocks.LANTERN_1);
-		LANTERN_2 = block(TanscomplexmagicModBlocks.LANTERN_2);
-		LANTERN_3 = block(TanscomplexmagicModBlocks.LANTERN_3);
 		ANCHOR = REGISTRY.register("anchor", AnchorItem::new);
 		KNIGHT_SWORD = REGISTRY.register("knight_sword", KnightSwordItem::new);
 		FORGOTTEN_SWORD = REGISTRY.register("forgotten_sword", ForgottenSwordItem::new);
@@ -85,7 +76,6 @@ public class TanscomplexmagicModItems {
 		ZODIAC_CARD_12 = REGISTRY.register("zodiac_card_12", ZodiacCard12Item::new);
 		ZODIAC_CARD_13 = REGISTRY.register("zodiac_card_13", ZodiacCard13Item::new);
 		CREATIVE_MANA = REGISTRY.register("creative_mana", CreativeManaItem::new);
-		LANTERN_MINI = REGISTRY.register("lantern_mini", LanternMiniItem::new);
 	}
 
 	// Start of user code block custom items

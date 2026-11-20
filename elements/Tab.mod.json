@@ -1,11 +1,9 @@
 {
-  "_fv": 79,
+  "_fv": 89,
   "_type": "tab",
   "definition": {
     "name": "Tan's Complex Magic",
-    "icon": {
-      "value": "CUSTOM:UserBook"
-    },
+    "icon": "CUSTOM:UserBook",
     "showSearch": false
   }
 }

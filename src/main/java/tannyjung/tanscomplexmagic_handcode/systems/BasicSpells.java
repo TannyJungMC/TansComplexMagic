@@ -44,9 +44,11 @@ public class BasicSpells {
 
         }
 
-        if (NBTManager.Mob.getText(player_server, "main", "basic_spell").equals("Territory Guardian") == true)
+        String basic_spell = NBTManager.Mob.getText(player_server, "main", "basic_spell");
+
+        if (basic_spell.equals("Territory Guardian") == true)
             Number1.loopTick(level_server, player_server, entity_book);
-        if (NBTManager.Mob.getText(player_server, "main", "basic_spell").equals("Shooting Star") == true)
+        if (basic_spell.equals("Shooting Star") == true)
             Number2.loopTick(level_server, player_server, entity_book);
 
     }
@@ -61,9 +63,11 @@ public class BasicSpells {
 
         }
 
-        if (NBTManager.Mob.getText(player_server, "main", "basic_spell").equals("Territory Guardian") == true)
+        String basic_spell = NBTManager.Mob.getText(player_server, "main", "basic_spell");
+
+        if (basic_spell.equals("Territory Guardian") == true)
             Number1.loopSecond(level_server, player_server, entity_book);
-        if (NBTManager.Mob.getText(player_server, "main", "basic_spell").equals("Shooting Star") == true)
+        if (basic_spell.equals("Shooting Star") == true)
             Number2.loopSecond(level_server, player_server, entity_book);
 
     }
@@ -74,7 +78,7 @@ public class BasicSpells {
 
         private static void cancel (ServerLevel level_server, ServerPlayer player_server) {
 
-            Entity entity_fireball = EntityManager.Population.getEverywhereOneStatic(level_server, "", "", Utils.Tag.convertSystemSpecific(player_server, new String[]{"basic_spell1"}));
+            Entity entity_fireball = EntityManager.Population.getEverywhereOneStatic(level_server, "", "", Utils.Tag.convertSystem(player_server, new String[]{"basic_spell1"}));
 
             if (entity_fireball == null) {
 
@@ -88,7 +92,7 @@ public class BasicSpells {
 
         public static void loopTick (ServerLevel level_server, ServerPlayer player_server, Entity entity_book) {
 
-            Entity entity_fireball = EntityManager.Population.getEverywhereOneStatic(level_server, "", "", Utils.Tag.convertSystemSpecific(player_server, new String[]{"basic_spell1"}));
+            Entity entity_fireball = EntityManager.Population.getEverywhereOneStatic(level_server, "", "", Utils.Tag.convertSystem(player_server, new String[]{"basic_spell1"}));
 
             if (entity_fireball == null) {
 
@@ -142,7 +146,7 @@ public class BasicSpells {
         private static void loopSecond (ServerLevel level_server, ServerPlayer player_server, Entity entity_book) {
 
             Entity entity_target = null;
-            Entity entity_fireball = EntityManager.Population.getEverywhereOneStatic(level_server, "", "", Utils.Tag.convertSystemSpecific(player_server, new String[]{"basic_spell1"}));
+            Entity entity_fireball = EntityManager.Population.getEverywhereOneStatic(level_server, "", "", Utils.Tag.convertSystem(player_server, new String[]{"basic_spell1"}));
 
             if (entity_fireball == null) {
 
@@ -252,7 +256,7 @@ public class BasicSpells {
         private static Entity getNearestTarget (ServerLevel level_server, ServerPlayer player_server, Entity entity_book) {
 
             int radius = (int) NBTManager.Mob.getNumber(player_server, "basic_spell1", "radius");
-            List<Entity> available_targets = EntityManager.Population.getAreaOnlyLiving(level_server, entity_book.position(), radius, "", "", Utils.Tag.convertEnemy(player_server));
+            List<Entity> available_targets = EntityManager.Population.getAreaOnlyLiving(level_server, entity_book.position(), radius, "", "", new String[]{Utils.Tag.getEnemy(player_server)});
 
             if (available_targets.isEmpty() == true) {
 
@@ -298,7 +302,7 @@ public class BasicSpells {
 
         private static Entity summon (ServerLevel level_server, ServerPlayer player_server, Entity entity_book) {
             
-            Entity entity_fireball = EntityManager.summonSystem(level_server, EntityManager.getPosRayForward(entity_book, 0.5, false), false, "minecraft:marker", "Fireball", Utils.Tag.convertSystemSpecific(player_server, new String[]{"basic_spell1"}), "");
+            Entity entity_fireball = EntityManager.summonSystem(level_server, EntityManager.getPosRayForward(entity_book, 0.5, false), false, "minecraft:marker", "Fireball", Utils.Tag.convertSystem(player_server, new String[]{"basic_spell1"}), "");
 
             if (entity_fireball == null) {
 
@@ -348,7 +352,7 @@ public class BasicSpells {
 
             }
 
-            Entity entity_center = EntityManager.Population.getEverywhereOneStatic(level_server, "", "", Utils.Tag.convertSystemSpecific(player_server, new String[]{"basic_spell2_center"}));
+            Entity entity_center = EntityManager.Population.getEverywhereOneStatic(level_server, "", "", Utils.Tag.convertSystem(player_server, new String[]{"basic_spell2_center"}));
 
             if (entity_center == null) {
 
@@ -356,13 +360,17 @@ public class BasicSpells {
 
             }
 
+            int level = (int) NBTManager.Mob.getNumber(player_server, "basic_spell2", "level");
+            GameUtils.spawnParticle(level_server, entity_center.position(), 0, 0, 0, level * 0.05, level * 10, "minecraft:end_rod");
+            GameUtils.playSound(level_server, entity_center.position(), (Math.random() * 0.5) + 0.5 + (1.0 - (level / 10.0)), level * 10, "minecraft:entity.firework_rocket.blast_far");
+            GameUtils.playSound(level_server, entity_center.position(), 0, level * 10, "minecraft:entity.illusioner.cast_spell");
             entity_center.discard();
 
         }
 
         private static void loopTick (ServerLevel level_server, ServerPlayer player_server, Entity entity_book) {
 
-            Entity entity_center = EntityManager.Population.getEverywhereOneStatic(level_server, "", "", Utils.Tag.convertSystemSpecific(player_server, new String[]{"basic_spell2_center"}));
+            Entity entity_center = EntityManager.Population.getEverywhereOneStatic(level_server, "", "", Utils.Tag.convertSystem(player_server, new String[]{"basic_spell2_center"}));
 
             if (entity_center == null) {
 
@@ -380,27 +388,14 @@ public class BasicSpells {
                 Vec3 vec3 = null;
                 boolean should_stay_above = false;
 
-                if (Book.Fly.isUserLookAt(player_server, entity_book) == true) {
+                if (level_server.getBlockState(entity_book.blockPosition().below(2)).canBeReplaced() == false) {
 
+                    vec3 = entity_book.position().add(0, distance_to_book, 0);
                     should_stay_above = true;
 
                 } else {
 
-                    if (level_server.getBlockState(entity_book.blockPosition().below(2)).canBeReplaced() == false) {
-
-                        should_stay_above = true;
-
-                    } else {
-
-                        vec3 = EntityManager.getPosRayForward(entity_book, distance_to_book, false);
-
-                    }
-
-                }
-
-                if (should_stay_above == true) {
-
-                    vec3 = entity_book.position().add(0, distance_to_book, 0);
+                    vec3 = EntityManager.getPosRayWithDistance(entity_book, entity_center.position(), distance_to_book, false);
 
                 }
 
@@ -433,16 +428,15 @@ public class BasicSpells {
 
             int level = (int) NBTManager.Mob.getNumber(player_server, "basic_spell2", "level");
             int capacitor = (int) NBTManager.Mob.getNumber(player_server, "basic_spell2", "capacitor");
-
-            if (capacitor < level) {
-
-                return;
-
-            }
-
-            Entity entity_center = EntityManager.Population.getEverywhereOneStatic(level_server, "", "", Utils.Tag.convertSystemSpecific(player_server, new String[]{"basic_spell2_center"}));
+            Entity entity_center = EntityManager.Population.getEverywhereOneStatic(level_server, "", "", Utils.Tag.convertSystem(player_server, new String[]{"basic_spell2_center"}));
 
             if (entity_center == null) {
+
+                if (capacitor < level) {
+
+                    return;
+
+                }
 
                 if (Book.Fly.isUserLookAt(player_server, entity_book) == true) {
 
@@ -458,7 +452,7 @@ public class BasicSpells {
 
                 }
 
-                entity_center = EntityManager.summonSystem(level_server, entity_book.position().add(0, (level / 5.0) + 0.5, 0), false, "minecraft:marker", "Light Center", Utils.Tag.convertSystemSpecific(player_server, new String[]{"basic_spell2_center"}), "");
+                entity_center = EntityManager.summonSystem(level_server, entity_book.position().add(0, (level / 5.0) + 0.5, 0), false, "minecraft:marker", "Light Center", Utils.Tag.convertSystem(player_server, new String[]{"basic_spell2_center"}), "");
 
                 if (entity_center == null) {
 
@@ -467,17 +461,31 @@ public class BasicSpells {
                 }
 
                 Book.Fly.setCustomLookTarget(entity_book, entity_center);
+                GameUtils.spawnParticle(level_server, entity_book.position().add(0, 0.1, 0), 0, 0, 0, 0.1, 10, "minecraft:instant_effect");
+                GameUtils.spawnParticle(level_server, entity_center.position(), 0, 0, 0, level * 0.05, level * 10, "minecraft:end_rod");
+                GameUtils.playSound(level_server, entity_center.position(), (Math.random() * 0.5) + 0.5 + (1.0 - (level / 10.0)), level * 10, "minecraft:entity.firework_rocket.blast_far");
+                GameUtils.playSound(level_server, entity_center.position(), (Math.random() * 0.5) + 0.5 + (1.0 - (level / 10.0)), level * 10, "minecraft:block.enchantment_table.use");
 
-            }
+            } else {
 
-            capacitor = capacitor - level;
-            NBTManager.Mob.setNumber(player_server, "basic_spell2", "capacitor", capacitor, true);
-            NBTManager.Mob.addNumber(player_server, "basic_spell2", "capacitor_max", -level, true);
+                capacitor = capacitor - level;
+                NBTManager.Mob.setNumber(player_server, "basic_spell2", "capacitor", capacitor, true);
+                NBTManager.Mob.addNumber(player_server, "basic_spell2", "capacitor_max", -level, true);
 
-            if (capacitor < level) {
+                if (capacitor < level) {
 
-                cancel(level_server, player_server);
-                Book.Fly.setCustomLookTarget(entity_book, null);
+                    cancel(level_server, player_server);
+                    Book.Fly.setCustomLookTarget(entity_book, null);
+
+                }
+
+                if (Math.random() > 0.5) {
+
+                    return;
+
+                }
+
+                GameUtils.playSound(level_server, entity_center.position(), (Math.random() * 0.5) + 0.5, level * 10, "minecraft:block.beacon.ambient");
 
             }
 
@@ -485,7 +493,7 @@ public class BasicSpells {
 
         private static List<Entity> getAllLights (ServerLevel level_server, ServerPlayer player_server) {
 
-            return EntityManager.Population.getEverywhereStatic(level_server, "", "", Utils.Tag.convertSystemSpecific(player_server, new String[]{"basic_spell2"}));
+            return EntityManager.Population.getEverywhereStatic(level_server, "", "", Utils.Tag.convertSystem(player_server, new String[]{"basic_spell2"}));
 
         }
 
@@ -514,13 +522,13 @@ public class BasicSpells {
 
                 }
 
-                if (EntityManager.Population.getAreaAny(level_server, vec3, DISTANCE_BETWEEN_LIGHT, "", "", Utils.Tag.convertSystemSpecific(player_server, new String[]{"basic_spell2"})).isEmpty() == false) {
+                if (EntityManager.Population.getAreaAny(level_server, vec3, DISTANCE_BETWEEN_LIGHT, "", "", Utils.Tag.convertSystem(player_server, new String[]{"basic_spell2"})).isEmpty() == false) {
 
                     continue;
 
                 }
 
-                Entity entity_light = EntityManager.summonSystem(level_server, vec3, false, "minecraft:marker", "Light", Utils.Tag.convertSystemSpecific(player_server, new String[]{"basic_spell2"}), "");
+                Entity entity_light = EntityManager.summonSystem(level_server, vec3, false, "minecraft:marker", "Light", Utils.Tag.convertSystem(player_server, new String[]{"basic_spell2"}), "");
 
                 if (entity_light == null) {
 

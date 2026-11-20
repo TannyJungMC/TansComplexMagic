@@ -1,7 +1,5 @@
 package tannyjung.tanscomplexmagic.block;
 
-import org.checkerframework.checker.units.qual.s;
-
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -15,7 +13,7 @@ import net.minecraft.core.BlockPos;
 
 public class TargetArrowBlock extends Block {
 	public TargetArrowBlock() {
-		super(BlockBehaviour.Properties.of().sound(SoundType.WOOL).strength(1f, 10f).lightLevel(s -> 15).noCollission().noOcclusion().isRedstoneConductor((bs, br, bp) -> false).instrument(NoteBlockInstrument.BASEDRUM));
+		super(BlockBehaviour.Properties.of().sound(SoundType.WOOL).strength(1f, 10f).lightLevel(blockstate -> 15).noCollission().isRedstoneConductor((bs, br, bp) -> false).instrument(NoteBlockInstrument.BASEDRUM));
 	}
 
 	@Override

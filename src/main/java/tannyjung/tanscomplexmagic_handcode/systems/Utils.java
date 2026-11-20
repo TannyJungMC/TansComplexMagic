@@ -3,56 +3,68 @@ package tannyjung.tanscomplexmagic_handcode.systems;
 import net.minecraft.world.entity.player.Player;
 import tannyjung.tanscomplexmagic_core.Core;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Utils {
+
+    public static boolean isUser (Player player) {
+
+        return player.getTags().contains(Utils.Tag.getUser());
+
+    }
 
     public static class Tag {
 
-        public static String getUser (Player player) {
+        private static int getPlayerID (Player player) {
 
-            String mod = Core.mod_id_big;
-            int uuid = player.getUUID().hashCode();
-            return mod + "-user-" + uuid;
+            return player.getUUID().hashCode();
+
+        }
+
+        public static String getUser () {
+
+            return Core.mod_id_big + "-user";
 
         }
 
         public static String getAlly (Player player) {
 
-            String mod = Core.mod_id_big;
-            int uuid = player.getUUID().hashCode();
-            return mod + "-ally-" + uuid;
+            return Core.mod_id_big + "-ally-" + getPlayerID(player);
 
         }
 
-        public static String[] convertSystemAll (Player player) {
+        public static String getEnemy (Player player) {
 
-            return new String[]{Core.mod_id_big, getUser(player)};
+            return "!" + getAlly(player);
 
         }
 
-        public static String[] convertSystemSpecific (Player player, String[] tags) {
+        public static String getSystemGeneral (String tag) {
 
-            String[] convert = new String[tags.length + 1];
-            convert[0] = getUser(player);
+            return Core.mod_id_big + "-" + tag;
 
-            for (int number = 0; number < tags.length; number++) {
+        }
 
-                convert[number + 1] = Core.mod_id_big + "-" + tags[number];
+        public static String getSystemUser (Player player, String tag) {
+
+            return getSystemGeneral(tag) + "-" + getPlayerID(player);
+
+        }
+
+        public static String[] convertSystem (Player player, String[] tags) {
+
+            List<String> list = new ArrayList<>();
+            list.add(Core.mod_id_big + "-system-" + getPlayerID(player));
+
+            for (String scan : tags) {
+
+                list.add(getSystemGeneral(scan));
+                list.add(getSystemUser(player, scan));
 
             }
 
-            return convert;
-
-        }
-
-        public static String[] convertAlly (Player player) {
-
-            return new String[]{getAlly(player)};
-
-        }
-
-        public static String[] convertEnemy (Player player) {
-
-            return new String[]{"!" + Core.mod_id_big, "!" + getUser(player), "!" + getAlly(player)};
+            return list.toArray(new String[]{});
 
         }
 

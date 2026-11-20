@@ -2403,26 +2403,6 @@
       "path": "~/.../Spell4/.../Weapon and Ability/Bow"
     },
     {
-      "name": "Spell4GUIreturnTypeLantern",
-      "type": "procedure",
-      "compiles": true,
-      "locked_code": false,
-      "registry_name": "spell_4_gu_ireturn_type_lantern",
-      "metadata": {
-        "return_type": "logic",
-        "files": [
-          "src/main/java/tannyjung/tanscomplexmagic/procedures/Spell4GUIreturnTypeLanternProcedure.java"
-        ],
-        "dependencies": [
-          {
-            "name": "entity",
-            "type": "entity"
-          }
-        ]
-      },
-      "path": "~/.../Spell4/.../Weapon and Ability/Lantern"
-    },
-    {
       "name": "Spell4GUIreturnTypeNotOff",
       "type": "procedure",
       "compiles": true,
@@ -3493,76 +3473,6 @@
       "path": "~/.../Spell4/.../Weapon and Ability/Bow"
     },
     {
-      "name": "Spell4GUIbuttonLanternActivate",
-      "type": "procedure",
-      "compiles": true,
-      "locked_code": false,
-      "registry_name": "spell_4_gu_ibutton_lantern_activate",
-      "metadata": {
-        "files": [
-          "src/main/java/tannyjung/tanscomplexmagic/procedures/Spell4GUIbuttonLanternActivateProcedure.java"
-        ],
-        "dependencies": [
-          {
-            "name": "entity",
-            "type": "entity"
-          },
-          {
-            "name": "x",
-            "type": "number"
-          },
-          {
-            "name": "y",
-            "type": "number"
-          },
-          {
-            "name": "z",
-            "type": "number"
-          },
-          {
-            "name": "world",
-            "type": "world"
-          }
-        ]
-      },
-      "path": "~/.../Spell4/.../Weapon and Ability/Lantern"
-    },
-    {
-      "name": "Spell4GUIbuttonLanternClear",
-      "type": "procedure",
-      "compiles": true,
-      "locked_code": false,
-      "registry_name": "spell_4_gu_ibutton_lantern_clear",
-      "metadata": {
-        "files": [
-          "src/main/java/tannyjung/tanscomplexmagic/procedures/Spell4GUIbuttonLanternClearProcedure.java"
-        ],
-        "dependencies": [
-          {
-            "name": "entity",
-            "type": "entity"
-          },
-          {
-            "name": "x",
-            "type": "number"
-          },
-          {
-            "name": "y",
-            "type": "number"
-          },
-          {
-            "name": "z",
-            "type": "number"
-          },
-          {
-            "name": "world",
-            "type": "world"
-          }
-        ]
-      },
-      "path": "~/.../Spell4/.../Weapon and Ability/Lantern"
-    },
-    {
       "name": "Spell4GUIbuttonShieldActivate",
       "type": "procedure",
       "compiles": true,
@@ -3955,25 +3865,6 @@
       "path": "~/.../Spell4/.../Weapon and Ability/Bow"
     },
     {
-      "name": "Spell4GUIbuttonLanternLevelUpgrade",
-      "type": "procedure",
-      "compiles": true,
-      "locked_code": false,
-      "registry_name": "spell_4_gu_ibutton_lantern_level_upgrade",
-      "metadata": {
-        "files": [
-          "src/main/java/tannyjung/tanscomplexmagic/procedures/Spell4GUIbuttonLanternLevelUpgradeProcedure.java"
-        ],
-        "dependencies": [
-          {
-            "name": "entity",
-            "type": "entity"
-          }
-        ]
-      },
-      "path": "~/.../Spell4/.../Weapon and Ability/Lantern"
-    },
-    {
       "name": "Spell4GUIbuttonShieldLevelUpgrade",
       "type": "procedure",
       "compiles": true,
@@ -4010,25 +3901,6 @@
         ]
       },
       "path": "~/.../Spell4/.../Weapon and Ability/Bow"
-    },
-    {
-      "name": "Spell4GUIbuttonLanternCountUpgrade",
-      "type": "procedure",
-      "compiles": true,
-      "locked_code": false,
-      "registry_name": "spell_4_gu_ibutton_lantern_count_upgrade",
-      "metadata": {
-        "files": [
-          "src/main/java/tannyjung/tanscomplexmagic/procedures/Spell4GUIbuttonLanternCountUpgradeProcedure.java"
-        ],
-        "dependencies": [
-          {
-            "name": "entity",
-            "type": "entity"
-          }
-        ]
-      },
-      "path": "~/.../Spell4/.../Weapon and Ability/Lantern"
     },
     {
       "name": "Spell4GUIbuttonShieldCountUpgrade",
@@ -4087,26 +3959,6 @@
         ]
       },
       "path": "~/.../Spell4/.../Weapon and Ability/Bow"
-    },
-    {
-      "name": "Spell4GUIreturnLanternLevel",
-      "type": "procedure",
-      "compiles": true,
-      "locked_code": false,
-      "registry_name": "spell_4_gu_ireturn_lantern_level",
-      "metadata": {
-        "return_type": "string",
-        "files": [
-          "src/main/java/tannyjung/tanscomplexmagic/procedures/Spell4GUIreturnLanternLevelProcedure.java"
-        ],
-        "dependencies": [
-          {
-            "name": "entity",
-            "type": "entity"
-          }
-        ]
-      },
-      "path": "~/.../Spell4/.../Weapon and Ability/Lantern"
     },
     {
       "name": "Spell4GUIreturnShieldLevel",
@@ -4189,26 +4041,6 @@
       "path": "~/.../Spell4/.../Weapon and Ability/Bow"
     },
     {
-      "name": "Spell4GUIreturnLanternStatus",
-      "type": "procedure",
-      "compiles": true,
-      "locked_code": false,
-      "registry_name": "spell_4_gu_ireturn_lantern_status",
-      "metadata": {
-        "return_type": "string",
-        "files": [
-          "src/main/java/tannyjung/tanscomplexmagic/procedures/Spell4GUIreturnLanternStatusProcedure.java"
-        ],
-        "dependencies": [
-          {
-            "name": "entity",
-            "type": "entity"
-          }
-        ]
-      },
-      "path": "~/.../Spell4/.../Weapon and Ability/Lantern"
-    },
-    {
       "name": "Spell4GUIreturnBowCount",
       "type": "procedure",
       "compiles": true,
@@ -4227,26 +4059,6 @@
         ]
       },
       "path": "~/.../Spell4/.../Weapon and Ability/Bow"
-    },
-    {
-      "name": "Spell4GUIreturnLanternCount",
-      "type": "procedure",
-      "compiles": true,
-      "locked_code": false,
-      "registry_name": "spell_4_gu_ireturn_lantern_count",
-      "metadata": {
-        "return_type": "string",
-        "files": [
-          "src/main/java/tannyjung/tanscomplexmagic/procedures/Spell4GUIreturnLanternCountProcedure.java"
-        ],
-        "dependencies": [
-          {
-            "name": "entity",
-            "type": "entity"
-          }
-        ]
-      },
-      "path": "~/.../Spell4/.../Weapon and Ability/Lantern"
     },
     {
       "name": "Spell4GUIreturnShieldCount",
@@ -4287,74 +4099,6 @@
         ]
       },
       "path": "~/.../Spell4/.../Weapon and Ability/Sword"
-    },
-    {
-      "name": "Lantern",
-      "type": "block",
-      "compiles": true,
-      "locked_code": false,
-      "registry_name": "lantern",
-      "metadata": {
-        "files": [
-          "src/main/resources/data/tanscomplexmagic/loot_table/blocks/lantern.json",
-          "src/main/resources/assets/tanscomplexmagic/models/block/lantern.json",
-          "src/main/resources/assets/tanscomplexmagic/models/item/lantern.json",
-          "src/main/resources/assets/tanscomplexmagic/blockstates/lantern.json",
-          "src/main/java/tannyjung/tanscomplexmagic/block/LanternBlock.java"
-        ]
-      },
-      "path": "~/.../Spell4/.../Item and Entity"
-    },
-    {
-      "name": "Lantern1",
-      "type": "block",
-      "compiles": true,
-      "locked_code": false,
-      "registry_name": "lantern_1",
-      "metadata": {
-        "files": [
-          "src/main/java/tannyjung/tanscomplexmagic/block/Lantern1Block.java",
-          "src/main/resources/assets/tanscomplexmagic/blockstates/lantern_1.json",
-          "src/main/resources/data/tanscomplexmagic/loot_table/blocks/lantern_1.json",
-          "src/main/resources/assets/tanscomplexmagic/models/item/lantern_1.json",
-          "src/main/resources/assets/tanscomplexmagic/models/block/lantern_1.json"
-        ]
-      },
-      "path": "~/.../Spell4/.../Item and Entity"
-    },
-    {
-      "name": "Lantern2",
-      "type": "block",
-      "compiles": true,
-      "locked_code": false,
-      "registry_name": "lantern_2",
-      "metadata": {
-        "files": [
-          "src/main/resources/assets/tanscomplexmagic/blockstates/lantern_2.json",
-          "src/main/resources/data/tanscomplexmagic/loot_table/blocks/lantern_2.json",
-          "src/main/resources/assets/tanscomplexmagic/models/block/lantern_2.json",
-          "src/main/resources/assets/tanscomplexmagic/models/item/lantern_2.json",
-          "src/main/java/tannyjung/tanscomplexmagic/block/Lantern2Block.java"
-        ]
-      },
-      "path": "~/.../Spell4/.../Item and Entity"
-    },
-    {
-      "name": "Lantern3",
-      "type": "block",
-      "compiles": true,
-      "locked_code": false,
-      "registry_name": "lantern_3",
-      "metadata": {
-        "files": [
-          "src/main/resources/data/tanscomplexmagic/loot_table/blocks/lantern_3.json",
-          "src/main/resources/assets/tanscomplexmagic/models/item/lantern_3.json",
-          "src/main/java/tannyjung/tanscomplexmagic/block/Lantern3Block.java",
-          "src/main/resources/assets/tanscomplexmagic/models/block/lantern_3.json",
-          "src/main/resources/assets/tanscomplexmagic/blockstates/lantern_3.json"
-        ]
-      },
-      "path": "~/.../Spell4/.../Item and Entity"
     },
     {
       "name": "Anchor",
@@ -4718,45 +4462,6 @@
         ]
       },
       "path": "~/.../Spell4/.../Return/Text"
-    },
-    {
-      "name": "Spell4GUIbuttonPauseBalancing",
-      "type": "procedure",
-      "compiles": true,
-      "locked_code": false,
-      "registry_name": "spell_4_gu_ibutton_pause_balancing",
-      "metadata": {
-        "files": [
-          "src/main/java/tannyjung/tanscomplexmagic/procedures/Spell4GUIbuttonPauseBalancingProcedure.java"
-        ],
-        "dependencies": [
-          {
-            "name": "entity",
-            "type": "entity"
-          }
-        ]
-      },
-      "path": "~/.../Spell4/.../Button"
-    },
-    {
-      "name": "Spell4GUIreturnPauseBalancingTrue",
-      "type": "procedure",
-      "compiles": true,
-      "locked_code": false,
-      "registry_name": "spell_4_gu_ireturn_pause_balancing_true",
-      "metadata": {
-        "return_type": "logic",
-        "files": [
-          "src/main/java/tannyjung/tanscomplexmagic/procedures/Spell4GUIreturnPauseBalancingTrueProcedure.java"
-        ],
-        "dependencies": [
-          {
-            "name": "entity",
-            "type": "entity"
-          }
-        ]
-      },
-      "path": "~/.../Spell4/.../Return/Logic"
     },
     {
       "name": "UserBookRecipe",
@@ -6154,19 +5859,6 @@
       }
     },
     {
-      "name": "LanternMini",
-      "type": "item",
-      "compiles": true,
-      "locked_code": false,
-      "registry_name": "lantern_mini",
-      "metadata": {
-        "files": [
-          "src/main/java/tannyjung/tanscomplexmagic/item/LanternMiniItem.java",
-          "src/main/resources/assets/tanscomplexmagic/models/item/lantern_mini.json"
-        ]
-      }
-    },
-    {
       "name": "UserBookWhenRightClickAtBlock",
       "type": "procedure",
       "compiles": true,
@@ -6211,18 +5903,23 @@
           {
             "name": "entity",
             "type": "entity"
-          },
-          {
-            "name": "sourceentity",
-            "type": "entity"
-          },
-          {
-            "name": "world",
-            "type": "world"
           }
         ],
         "files": [
           "src/main/java/tannyjung/tanscomplexmagic/procedures/CreativeManaClickProcedure.java"
+        ]
+      }
+    },
+    {
+      "name": "BookStayMark",
+      "type": "particle",
+      "compiles": true,
+      "locked_code": false,
+      "registry_name": "book_stay_mark",
+      "metadata": {
+        "files": [
+          "src/main/resources/assets/tanscomplexmagic/particles/book_stay_mark.json",
+          "src/main/java/tannyjung/tanscomplexmagic/client/particle/BookStayMarkParticle.java"
         ]
       }
     }
@@ -6956,8 +6653,8 @@
       "EntityXPOrb"
     ],
     "ITEMS:minecraft:enchantable/durability": [
-      "~CUSTOM:ForgottenSword",
-      "~CUSTOM:KnightSword"
+      "~ForgottenSword@CUSTOM:ForgottenSword",
+      "~KnightSword@CUSTOM:KnightSword"
     ]
   },
   "tab_element_order": {},
@@ -9335,25 +9032,25 @@
       "gui.lotw.spell_4_gu_ihow_to_use_2.label_4_small_icons": "under it include lock",
       "gui.lanternofthewoodlands.spell_4_gu_isettings.label_distancing": "Distancing Radius (In)",
       "block.tanscomplexmagic.target_arrow": "Target Arrow",
-      "item.tanscomplexmagic.user_book.description_6": "- Pick Up Placed Book : Hold shift and hold the main key",
-      "item.tanscomplexmagic.user_book.description_7": "- Open Book GUI : Hold opened book on right hand and right click, or stay near placed book and hold the main key.",
-      "item.tanscomplexmagic.user_book.description_4": "- Open/Close Book : Hold on right hand, hold the main key and right click.",
-      "item.tanscomplexmagic.user_book.description_5": "- Place Book : Hold closed book on right hand, hold the main key and right click on block.",
+      "item.tanscomplexmagic.user_book.description_6": "§8- Pick up flying book by spam the main key 2 times within half second",
+      "item.tanscomplexmagic.user_book.description_7": "§8- Open flying book page by stand at front of it and click the main key",
+      "item.tanscomplexmagic.user_book.description_4": "§8- Open item book page by hold opened book on right hand and right click",
+      "item.tanscomplexmagic.user_book.description_5": "§8- Make the book fly by hold closed book on right hand, hold the main key, and right click on a block. This step needs user role, sign up in the book to receive it.",
       "item.tanscomplexmagic.user_book.description_2": "",
-      "item.tanscomplexmagic.user_book.description_3": "- Note that \"Main Key\" by default is your left control button (Ctrl)",
-      "item.tanscomplexmagic.user_book.description_0": "--------------------------------------------------",
-      "item.tanscomplexmagic.user_book.description_1": "The magic spell book by TannyJung. Containing all my magic creations.",
-      "item.tanscomplexmagic.user_book": "Lantern of the Woodlands - The User Book",
-      "item.tanscomplexmagic.user_book.description_8": "--------------------------------------------------",
+      "item.tanscomplexmagic.user_book.description_3": "§8- Open and close item book by hold it on right hand, hold the main key, then right click.",
+      "item.tanscomplexmagic.user_book.description_0": "§8--------------------------------------------------",
+      "item.tanscomplexmagic.user_book.description_1": "§8A magic spell book from Tan\u0027s Complex Magic mod. Contains collection of magic systems created by TannyJung. To use this book, you may need to know your \"Main Key\" first. The book needs it to open, so you can see pages. By default, it is your Left-ALT key. For basic of how to use the book, here is it.",
+      "item.tanscomplexmagic.user_book": "Lantern of the Woodlands",
+      "item.tanscomplexmagic.user_book.description_8": "§8- Set flying book mode between follow and stay by hold the main key for half second",
       "item.tanscomplexmagic.user_book_open.description_2": "",
-      "item.tanscomplexmagic.user_book_open.description_1": "The magic spell book by TannyJung. Containing all my magic creations.",
-      "item.tanscomplexmagic.user_book_open.description_4": "- Open/Close Book : Hold on right hand, hold the main key and right click.",
-      "item.tanscomplexmagic.user_book_open.description_3": "- Note that \"Main Key\" by default is your left control button (Ctrl)",
-      "item.tanscomplexmagic.user_book_open.description_6": "- Pick Up Placed Book : Hold shift and hold the main key",
-      "item.tanscomplexmagic.user_book_open.description_5": "- Place Book : Hold closed book on right hand, hold the main key and right click on block.",
-      "item.tanscomplexmagic.user_book_open.description_8": "§8--------------------------------------------------",
-      "item.tanscomplexmagic.user_book_open.description_7": "- Open Book GUI : Hold opened book on right hand and right click, or stay near placed book and hold the main key.",
-      "item.tanscomplexmagic.user_book_open": "Lantern of the Woodlands - The User Book",
+      "item.tanscomplexmagic.user_book_open.description_1": "§8A magic spell book from Tan\u0027s Complex Magic mod. Contains collection of magic systems created by TannyJung. To use this book, you may need to know your \"Main Key\" first. The book needs it to open, so you can see pages. By default, it is your Left-ALT key. For basic of how to use the book, here is it.",
+      "item.tanscomplexmagic.user_book_open.description_4": "§8- Open item book page by hold opened book on right hand and right click",
+      "item.tanscomplexmagic.user_book_open.description_3": "§8- Open and close item book by hold it on right hand, hold the main key, then right click.",
+      "item.tanscomplexmagic.user_book_open.description_6": "§8- Pick up flying book by spam the main key 2 times within half second",
+      "item.tanscomplexmagic.user_book_open.description_5": "§8- Make the book fly by hold closed book on right hand, hold the main key, and right click on a block. This step needs user role, sign up in the book to receive it.",
+      "item.tanscomplexmagic.user_book_open.description_8": "§8- Set flying book mode between follow and stay by hold the main key for half second",
+      "item.tanscomplexmagic.user_book_open.description_7": "§8- Open flying book page by stand at front of it and click the main key",
+      "item.tanscomplexmagic.user_book_open": "Lantern of the Woodlands",
       "item.tanscomplexmagic.user_book_open.description_0": "§8--------------------------------------------------",
       "block.tanscomplexmagic.spell_healing_circle": "Magic Circle",
       "block.tanscomplexmagic.rejuvenating_mushroom": "Rejuvenating Mushroom",
@@ -9364,10 +9061,6 @@
       "item.tanscomplexmagic.bow_3": "Bow",
       "item.tanscomplexmagic.bow_arrow_spawn_egg": "Bow Arrow Spawn Egg",
       "entity.tanscomplexmagic.bow_arrow": "Bow Arrow",
-      "block.tanscomplexmagic.lantern": "Lantern",
-      "block.tanscomplexmagic.lantern_1": "Lantern",
-      "block.tanscomplexmagic.lantern_2": "Lantern",
-      "block.tanscomplexmagic.lantern_3": "Lantern",
       "item.tanscomplexmagic.anchor": "Anchor",
       "item.tanscomplexmagic.knight_sword": "Knight\u0027s Sword",
       "item.tanscomplexmagic.forgotten_sword": "Forgotten Sword",
@@ -9403,7 +9096,8 @@
       "item.tanscomplexmagic.creative_mana.description_1": "§8Give user full mana when in inventory",
       "item.tanscomplexmagic.creative_mana": "Creative Mana",
       "item_group.tanscomplexmagic.tab": "Tan\u0027s Complex Magic",
-      "item.tanscomplexmagic.lantern_mini": "For Item Display"
+      "item.tanscomplexmagic.user_book_open.description_9": "§8--------------------------------------------------",
+      "item.tanscomplexmagic.user_book.description_9": "§8--------------------------------------------------"
     }
   },
   "metadata": {
@@ -9492,10 +9186,6 @@
                 ]
               }
             ]
-          },
-          {
-            "name": "Spell1",
-            "children": []
           },
           {
             "name": ".Other",
@@ -9620,5 +9310,5 @@
     "credits": "Created with MCreator and IntelliJ",
     "modElementsPackage": "tannyjung.tanscomplexmagic"
   },
-  "mcreatorVersion": 202500345720
+  "mcreatorVersion": 202600233518
 }

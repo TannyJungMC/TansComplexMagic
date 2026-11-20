@@ -10,6 +10,8 @@ import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.HumanoidModel;
 
 public class BowArrowRenderer extends HumanoidMobRenderer<BowArrowEntity, HumanoidModel<BowArrowEntity>> {
+	private final ResourceLocation entityTexture = ResourceLocation.parse("tanscomplexmagic:textures/entities/invisible.png");
+
 	public BowArrowRenderer(EntityRendererProvider.Context context) {
 		super(context, new HumanoidModel<BowArrowEntity>(context.bakeLayer(ModelLayers.PLAYER)), 0f);
 		this.addLayer(new HumanoidArmorLayer(this, new HumanoidModel(context.bakeLayer(ModelLayers.PLAYER_INNER_ARMOR)), new HumanoidModel(context.bakeLayer(ModelLayers.PLAYER_OUTER_ARMOR)), context.getModelManager()));
@@ -17,6 +19,6 @@ public class BowArrowRenderer extends HumanoidMobRenderer<BowArrowEntity, Humano
 
 	@Override
 	public ResourceLocation getTextureLocation(BowArrowEntity entity) {
-		return ResourceLocation.parse("tanscomplexmagic:textures/entities/invisible.png");
+		return entityTexture;
 	}
 }

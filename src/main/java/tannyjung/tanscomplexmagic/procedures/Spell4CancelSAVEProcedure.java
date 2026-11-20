@@ -49,7 +49,6 @@ public class Spell4CancelSAVEProcedure {
 		if (true) {
 			Spell4GUIbuttonSwordClearProcedure.execute(world, x, y, z, entity);
 			Spell4GUIbuttonShieldClearProcedure.execute(world, x, y, z, entity);
-			Spell4GUIbuttonLanternClearProcedure.execute(world, x, y, z, entity);
 			Spell4GUIbuttonBowClearProcedure.execute(world, x, y, z, entity);
 			Spell4GUIbuttonAnchorClearProcedure.execute(world, x, y, z, entity);
 			Spell4GUIbuttonKnightSwordClearProcedure.execute(world, x, y, z, entity);

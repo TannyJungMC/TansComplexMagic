@@ -37,6 +37,7 @@ public class UserBookOpenItem extends Item {
 		list.add(Component.translatable("item.tanscomplexmagic.user_book_open.description_6"));
 		list.add(Component.translatable("item.tanscomplexmagic.user_book_open.description_7"));
 		list.add(Component.translatable("item.tanscomplexmagic.user_book_open.description_8"));
+		list.add(Component.translatable("item.tanscomplexmagic.user_book_open.description_9"));
 	}
 
 	@Override

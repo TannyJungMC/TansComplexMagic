@@ -1,5 +1,5 @@
 {
-  "_fv": 79,
+  "_fv": 89,
   "_type": "item",
   "definition": {
     "renderType": 1,
@@ -9,7 +9,7 @@
     "customProperties": {},
     "states": [],
     "animations": [],
-    "name": "Lantern of the Woodlands - The User Book",
+    "name": "Lantern of the Woodlands",
     "rarity": "COMMON",
     "creativeTabs": [],
     "stackSize": 1,
@@ -17,63 +17,58 @@
     "useDuration": 0,
     "toolType": 1.0,
     "damageCount": 0,
-    "recipeRemainder": {
-      "value": ""
-    },
+    "recipeRemainder": "",
     "destroyAnyBlock": false,
     "immuneToFire": false,
     "isPiglinCurrency": false,
+    "repairItems": [],
     "stayInGridWhenCrafting": false,
     "damageOnCrafting": false,
     "enableMeleeDamage": false,
     "damageVsEntity": 0.0,
+    "attackSpeed": 1.6,
     "specialInformation": {
       "fixedValue": [
         "§8--------------------------------------------------",
-        "The magic spell book by TannyJung. Containing all my magic creations.",
+        "§8A magic spell book from Tan's Complex Magic mod. Contains collection of magic systems created by TannyJung. To use this book, you may need to know your \"Main Key\" first. The book needs it to open, so you can see pages. By default, it is your Left-ALT key. For basic of how to use the book, here is it.",
         "",
-        "- Note that \"Main Key\" by default is your left control button (Ctrl)",
-        "- Open/Close Book : Hold on right hand, hold the main key and right click.",
-        "- Place Book : Hold closed book on right hand, hold the main key and right click on block.",
-        "- Pick Up Placed Book : Hold shift and hold the main key",
-        "- Open Book GUI : Hold opened book on right hand and right click, or stay near placed book and hold the main key.",
+        "§8- Open and close item book by hold it on right hand, hold the main key, then right click.",
+        "§8- Open item book page by hold opened book on right hand and right click",
+        "§8- Make the book fly by hold closed book on right hand, hold the main key, and right click on a block. This step needs user role, sign up in the book to receive it.",
+        "§8- Pick up flying book by spam the main key 2 times within half second",
+        "§8- Open flying book page by stand at front of it and click the main key",
+        "§8- Set flying book mode between follow and stay by hold the main key for half second",
         "§8--------------------------------------------------"
       ]
     },
     "glowCondition": {
       "fixedValue": false
     },
+    "openGUIOnRightClick": {
+      "fixedValue": false
+    },
     "inventorySize": 9,
     "inventoryStackSize": 64,
-    "onRightClickedInAir": {
-      "name": "UserBookWhenRightClick"
-    },
-    "onRightClickedOnBlock": {
-      "name": "UserBookWhenRightClickAtBlock"
-    },
+    "onRightClickedInAir": "UserBookWhenRightClick",
+    "onRightClickedOnBlock": "UserBookWhenRightClickAtBlock",
     "enableRanged": false,
     "shootConstantly": false,
     "rangedItemChargesPower": false,
-    "projectile": {
-      "value": "Arrow"
-    },
+    "projectile": "Arrow",
     "projectileDisableAmmoCheck": false,
     "isFood": false,
     "nutritionalValue": 4,
     "saturation": 0.3,
-    "eatResultItem": {
-      "value": ""
-    },
+    "eatResultItem": "",
     "isMeat": false,
     "isAlwaysEdible": false,
     "animation": "none",
     "isMusicDisc": false,
-    "musicDiscMusic": {
-      "value": ""
-    },
+    "musicDiscMusic": "",
     "musicDiscDescription": "",
-    "musicDiscLengthInTicks": 0,
+    "musicDiscLengthInTicks": 100,
     "musicDiscAnalogOutput": 0,
-    "providedBannerPatterns": []
+    "providedBannerPatterns": [],
+    "attributeModifiers": []
   }
 }

@@ -1,8 +1,0 @@
-{
-  "parent": "tanscomplexmagic:custom/lantern",
-  "textures": {
-    "all": "tanscomplexmagic:block/lantern_2",
-    "particle": "tanscomplexmagic:block/lantern_2"
-  },
-  "render_type": "translucent"
-}

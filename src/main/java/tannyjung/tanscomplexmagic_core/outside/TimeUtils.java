@@ -12,7 +12,7 @@ public class TimeUtils {
 
         if (seconds == 0) {
 
-            return "0s";
+            return "00s";
 
         }
 
@@ -30,6 +30,12 @@ public class TimeUtils {
 
             convert_hour = (((seconds / 3600) % 3600) % 24) + "h ";
 
+            if (convert_hour.length() == "0h ".length()) {
+
+                convert_hour = "0" + convert_hour;
+
+            }
+
         }
 
         String convert_minute = "";
@@ -38,9 +44,22 @@ public class TimeUtils {
 
             convert_minute = ((seconds / 60) % 60) + "m ";
 
+            if (convert_minute.length() == "0m ".length()) {
+
+                convert_minute = "0" + convert_minute;
+
+            }
+
         }
 
         String convert_second = (seconds % 60) + "s";
+
+        if (convert_second.length() == "0s".length()) {
+
+            convert_second = "0" + convert_second;
+
+        }
+
         return convert_day + convert_hour + convert_minute + convert_second;
 
     }
